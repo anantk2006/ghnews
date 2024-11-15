@@ -3,8 +3,7 @@ import './index.css';
 
 function Landing() {
     const handleGithubLogin = () => {
-        console.log("GitHub login clicked!");
-        // Add GitHub authentication logic here
+        window.location.href = 'https://github.com/login/oauth/authorize?client_id=Iv23liyZsfVUeLCoHC5L&scope=repo';
     };
 
     return (
