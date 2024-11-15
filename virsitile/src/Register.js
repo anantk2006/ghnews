@@ -11,9 +11,6 @@ function Register() {
         if (paramValue) {
             fetch('http://localhost:3000/api/register', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({ code: paramValue }),
             })
             .then(response => response.json())

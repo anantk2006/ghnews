@@ -15,14 +15,16 @@ async def get_access_token(code):
                 "code": code,
             }
         )
+        print(type(response.json()))
         return response.json()['access_token']
 async def get_email(access_token):
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "https://api.github.com/user/emails",
-            headers={"Authorization": f"token {access_token}"}
+            headers={"Authorization": f"Bearer {access_token}"}
         )
         emails = response.json()
+        print(emails)
         primary_email = next(email['email'] for email in emails if email['primary'])
         return primary_email
 @app.post("/api/register")
@@ -38,10 +40,12 @@ async def register(request: Request):
     INSERT INTO users (access_token, signup_date, user_email)
     VALUES (?, ?, ?)
     ''', (access_token, date_time, user_email))
+
+
     conn.commit()
     conn.close()
 
-    
+
     
     
 
