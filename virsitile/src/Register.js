@@ -16,13 +16,17 @@ function Register() {
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
+                window.location.href = '/register';
             })
             .catch((error) => {
                 console.error('Error:', error);
+                window.location.href = '/register';
             });
+            
+            
+            
         }
     }, [paramValue]);
-
   return (
     <div className="landing-page">
     <header className="hero-section">
