@@ -8,7 +8,9 @@ function Register() {
   const queryParams = new URLSearchParams(location.search);
   const paramValue = queryParams.get('code');
     React.useEffect(() => {
-        if (paramValue) {
+        const abortController = new AbortController();
+        const fetchData = async () => {
+        
             fetch('http://localhost:3000/api/register', {
                 method: 'POST',
                 body: JSON.stringify({ code: paramValue }),
@@ -16,16 +18,13 @@ function Register() {
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
-                window.location.href = '/register';
             })
             .catch((error) => {
                 console.error('Error:', error);
-                window.location.href = '/register';
-            });
-            
-            
-            
+            });         
         }
+        fetchData();
+        return () => abortController.abort();
     }, [paramValue]);
   return (
     <div className="landing-page">

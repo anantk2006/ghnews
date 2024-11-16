@@ -33,13 +33,15 @@ async def register(request: Request):
     date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute('''
-    INSERT INTO users (user_email, access_token, signup_date)
-    VALUES (?, ?, ?)
-    ''', (user_email, access_token, date_time))
-
-
-    conn.commit()
+    try:
+        cursor.execute('''
+        INSERT INTO users (user_email, access_token, signup_date)
+        VALUES (?, ?, ?)
+        ''', (user_email, access_token, date_time)) 
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return {"error": "User already exists"}
     conn.close()
 
 
