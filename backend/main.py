@@ -4,7 +4,7 @@ import requests
 from datetime import datetime
 import sqlite3
 app = FastAPI()
-async def get_access_token(code):
+def get_access_token(code):
     response = requests.post(
         "https://github.com/login/oauth/access_token",
         headers={"Accept": "application/json"},
@@ -16,7 +16,7 @@ async def get_access_token(code):
     )
     token_data = response.json()
     return token_data["access_token"]
-async def get_email(access_token):
+def get_email(access_token):
     response = requests.get(
         "https://api.github.com/user/emails",
         headers={"Authorization": f"Bearer {access_token}"}
@@ -28,8 +28,8 @@ async def get_email(access_token):
 async def register(request: Request):
     data = await request.json()
     code = data.get("code")
-    access_token = await get_access_token(code)
-    user_email = await get_email(access_token)
+    access_token = get_access_token(code)
+    user_email = get_email(access_token)
     date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -43,6 +43,8 @@ async def register(request: Request):
         conn.close()
         return {"error": "User already exists"}
     conn.close()
+
+    
 
 
     
