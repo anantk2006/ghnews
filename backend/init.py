@@ -4,8 +4,10 @@ import sqlite3
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 # Create the table
+cursor.execute('''DROP TABLE IF EXISTS users''')
 cursor.execute('''
 CREATE TABLE users (
+    username TEXT,
     user_email TEXT PRIMARY KEY,
     access_token TEXT,
     signup_date TEXT
