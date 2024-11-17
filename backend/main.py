@@ -16,33 +16,45 @@ def get_access_token(code):
     )
     token_data = response.json()
     return token_data["access_token"]
-def get_email(access_token):
+
+def upload_user_to_db(username, user_email, access_token):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        cursor.execute('''
+        INSERT INTO users (username, user_email, access_token, signup_date)
+        VALUES (?, ?, ?, ?)
+        ''', (username, user_email, access_token, date_time)) 
+        conn.commit()
+        conn.close()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return {"error": "User already exists"}
+    
+def get_username_and_email(access_token):
     response = requests.get(
-        "https://api.github.com/user/emails",
+        "https://api.github.com/user",
         headers={"Authorization": f"Bearer {access_token}"}
     )
-    emails = response.json()
-    primary_email = next(email['email'] for email in emails if email['primary'])
-    return primary_email
+    user_data = response.json()
+    return user_data["login"], user_data["email"]
+    
 @app.post("/api/register")
 async def register(request: Request):
     data = await request.json()
     code = data.get("code")
     access_token = get_access_token(code)
-    user_email = get_email(access_token)
-    date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    try:
-        cursor.execute('''
-        INSERT INTO users (user_email, access_token, signup_date)
-        VALUES (?, ?, ?)
-        ''', (user_email, access_token, date_time)) 
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
-        return {"error": "User already exists"}
-    conn.close()
+    username, user_email = get_username_and_email(access_token)
+    upload_user_to_db(username, user_email, access_token)
+
+
+
+
+    
+    
+    
+    
 
     
 
