@@ -39,7 +39,23 @@ def get_username_and_email(access_token):
     )
     user_data = response.json()
     return user_data["login"], user_data["email"]
-    
+
+def get_repos(access_token):
+    response = requests.get(
+        "https://api.github.com/user/repos",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    repo_data = response.json()
+    repos = []
+    for repo in repo_data:
+        repos.append((repo['name'], repo['default_branch']))
+    return repos
+
+def get_file_contents(user_name, access_token, repos):
+    for repo_name, sha in repos:
+        response = requests.get(f"https://api.github.com/repos/{user_name}/{repo_name}/git/trees/{sha}?recursive=true",
+                                headers={"Authorization": f"Bearer {access_token}"})
+        
 @app.post("/api/register")
 async def register(request: Request):
     data = await request.json()
@@ -47,6 +63,10 @@ async def register(request: Request):
     access_token = get_access_token(code)
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
+
+    repos = get_repos(access_token)
+    
+
 
 
 

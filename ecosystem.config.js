@@ -7,12 +7,12 @@ module.exports = {
         watch: false,
         instances: 1,
       },
-    //   {
-    //     name: 'fastapi-backend',
-    //     script: 'hypercorn',
-    //     args: 'backend.main:app',
-    //     watch: false,
-    //     instances: 1,
-    //   },
+      {
+        name: 'fastapi-backend',
+        script: 'hypercorn',
+        args: 'backend.main:app',
+        watch: false,
+        instances: 1,
+      },
     ],
   };

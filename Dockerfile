@@ -1,11 +1,12 @@
 # Build stage for React app
 FROM node:18-alpine as build
 
-WORKDIR /app/virsitile
-COPY virsitile/package*.json ./
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
 RUN npm install
 
-COPY virsitile/ ./
+COPY frontend/ ./
+RUN npm run build
 
 # Production stage
 FROM python:3.11-slim
@@ -21,9 +22,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Copy frontend build from build stage
+COPY --from=build /app/frontend/build /app/frontend/build
 
 # Install Python dependencies
-RUN pip install fastapi requests hypercorn db-sqlite3
+RUN pip install fastapi requests db-sqlite3 hypercorn
 
 # Copy backend code
 COPY backend/ ./backend/
