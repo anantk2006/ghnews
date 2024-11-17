@@ -11,7 +11,7 @@ function Register() {
         const abortController = new AbortController();
         const fetchData = async () => {
         
-            fetch('http://localhost:3000/api/register', {
+            fetch('http://localhost:8000/api/register', {
                 method: 'POST',
                 body: JSON.stringify({ code: paramValue }),
             })

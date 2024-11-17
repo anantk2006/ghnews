@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --from=build /app/virsitile/build /app/virsitile/build
 
 # Install Python dependencies
-RUN pip install fastapi gunicorn requests datetime sqlite3
+RUN pip install fastapi gunicorn requests db-sqlite3
 
 # Copy backend code
 COPY backend/ ./backend/
