@@ -71,9 +71,9 @@ def get_file_contents(access_token, owner, repo, path, sha):
 
 def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
-    check_path = lambda s: s.endswith('.py') or s.endswith('.ipynb') or s.endswith('.js') \
-                        or s.endswith('.html') or s.endswith('.css') or s.endswith('.ts') \
-                        or s.endswith(".cpp") or s.endswith('.rs')
+    check_path = lambda s: s.endswith('.py') # or s.endswith('.js') \
+                       # or s.endswith('.html') or s.endswith('.ts') \
+                       # or s.endswith(".cpp") or s.endswith('.rs')
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
         for file in tree['tree']:
             if check_path(file['path']):
@@ -90,8 +90,10 @@ async def register(request: Request):
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
     repos = get_repos(access_token)
-    for i in retrieve_user_content(access_token, repos):
-        print(i)
+    for file in retrieve_user_content(access_token, repos):
+        for api in file.find_api():
+            print(api)
+        
         
 
 
