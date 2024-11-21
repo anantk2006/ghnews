@@ -44,6 +44,9 @@ body {
     cursor: pointer;
     padding: 10px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: fit-content;
+    margin: auto;
+    border-radius: 8px;
 }
 
 .github-button:hover {
