@@ -3,7 +3,10 @@ from fastapi import Request
 import requests
 from datetime import datetime
 import sqlite3
+import base64
+from file import File
 app = FastAPI()
+
 def get_access_token(code):
     response = requests.post(
         "https://github.com/login/oauth/access_token",
@@ -51,13 +54,33 @@ def get_repos(access_token):
         repos.append((repo['name'], repo['default_branch'], repo['owner']['login']))
     return repos
 
-def get_file_contents(access_token, repos):
+def get_file_links(access_token, repos):
     for repo_name, sha, owner in repos:
         response = requests.get(f"https://api.github.com/repos/{owner}/{repo_name}/git/trees/{sha}?recursive=true",
                                 headers={"Authorization": f"Bearer {access_token}"})
         tree_data = response.json()
-        yield tree_data
-    
+        yield tree_data, owner, repo_name, sha
+
+def get_file_contents(access_token, owner, repo, path, sha):
+    response = requests.get(
+        f"https://api.github.com/repos/{owner}/{repo}/contents/{path}?ref={sha}",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    file_data = response.json()
+    return file_data
+
+def retrieve_user_content(access_token, repos):
+    decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
+    check_path = lambda s: s.endswith('.py') or s.endswith('.ipynb') or s.endswith('.js') \
+                        or s.endswith('.html') or s.endswith('.css') or s.endswith('.ts') \
+                        or s.endswith(".cpp") or s.endswith('.rs')
+    for tree, owner, repo_name, sha in get_file_links(access_token, repos):
+        for file in tree['tree']:
+            if check_path(file['path']):
+                f = get_file_contents(access_token, owner, repo_name, file['path'], sha)
+                if ('message' in f and f['message'] == 'Not Found') or 'content' not in f:
+                    continue
+                else: yield File(file['path'], decode(f), owner, repo_name, sha)
 
 @app.post("/api/register")
 async def register(request: Request):
@@ -67,8 +90,10 @@ async def register(request: Request):
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
     repos = get_repos(access_token)
-    for i in get_file_contents(access_token, repos):
+    for i in retrieve_user_content(access_token, repos):
         print(i)
+        
+
 
     
 
