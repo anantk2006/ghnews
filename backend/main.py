@@ -71,7 +71,7 @@ def get_file_contents(access_token, owner, repo, path, sha):
 
 def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
-    check_path = lambda s: s.endswith('.py') # or s.endswith('.js') \
+    check_path = lambda s: s.endswith('.py') or s.endswith('.js') # \
                        # or s.endswith('.html') or s.endswith('.ts') \
                        # or s.endswith(".cpp") or s.endswith('.rs')
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):

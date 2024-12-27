@@ -25,9 +25,14 @@ class File:
             if "import" in line or 'require' in line:
                 words = line.split(" ")
                 if 'from' in words:
-                    yield words.index('from') + 1
+                    yield words[words.index('from') + 1]
                 elif 'import' in words:
-                    yield words.index('import') + 1
+                    yield words[words.index('import') + 1]
+                else:
+                    require = line.split("require")
+                    if len(require) > 1:
+                        yield require[1]
+                    
 
     def find_api(self):
         split = self.content.split("\n")
