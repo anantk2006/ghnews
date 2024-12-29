@@ -10,9 +10,24 @@ CREATE TABLE users (
     username TEXT,
     user_email TEXT PRIMARY KEY,
     access_token TEXT,
-    signup_date TEXT
+    signup_date TEXT,
 )
 ''')
+
 # Commit the changes and close the connection
+cursor.execute('''DROP TABLE IF EXISTS topics''')
+cursor.execute('''
+CREATE TABLE topics (
+    username TEXT,
+    topic TEXT
+)
+''')
+cursor.execute('''DROP TABLE IF EXISTS links''')
+cursor.execute('''
+CREATE TABLE links (
+    topic TEXT,
+    link TEXT
+)
+''')
 conn.commit()
 conn.close()

@@ -6,6 +6,7 @@ import sqlite3
 import base64
 from file import File
 from llm_wrapper import LLMWrapper
+from scrape import search
 app = FastAPI()
 
 def get_access_token(code):
@@ -87,6 +88,17 @@ def retrieve_user_content(access_token, repos):
                     continue
                 else: yield File(file['path'], decode(f), owner, repo_name, sha)
 
+def save_topics_to_db(username, topics):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    for topic in topics:
+        cursor.execute('''
+        INSERT INTO topics (username, topic)
+        VALUES (?, ?)
+        ''', (username, topic))
+    conn.commit()
+    conn.close()
+
 @app.post("/api/register")
 async def register(request: Request):
     # First extract topics/packages from code
@@ -107,7 +119,14 @@ async def register(request: Request):
     print("Extraction complete, beginning topic generation")
     llm_wrapper = LLMWrapper()
     topics = llm_wrapper.get_topics(topics)
-    print(topics)
+    save_topics_to_db(username, topics)
+   
+    # Search for information about each topic
+    for topic in topics:
+        print(search(topic, " recent news"))
+
+
+
     
 
     
