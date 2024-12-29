@@ -5,6 +5,7 @@ from datetime import datetime
 import sqlite3
 import base64
 from file import File
+from llm_wrapper import LLMWrapper
 app = FastAPI()
 
 def get_access_token(code):
@@ -75,7 +76,12 @@ def retrieve_user_content(access_token, repos):
                        # or s.endswith('.html') or s.endswith('.ts') \
                        # or s.endswith(".cpp") or s.endswith('.rs')
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
-        for file in tree['tree']:
+        try:
+            tree = tree['tree']
+        except KeyError:
+            continue
+        for num, file in enumerate(tree):
+            if num >= 1: break
             if check_path(file['path']):
                 f = get_file_contents(access_token, owner, repo_name, file['path'], sha)
                 if ('message' in f and f['message'] == 'Not Found') or 'content' not in f:
@@ -84,15 +90,26 @@ def retrieve_user_content(access_token, repos):
 
 @app.post("/api/register")
 async def register(request: Request):
+    # First extract topics/packages from code
+    print("Request received, starting extraction")
     data = await request.json()
     code = data.get("code")
     access_token = get_access_token(code)
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
     repos = get_repos(access_token)
+    topics = []
     for file in retrieve_user_content(access_token, repos):
         for api in file.find_api():
-            print(api)
+            topics.append(api)
+    # Contact LLM to generate list of topics
+    print("Extraction complete, beginning topic generation")
+    llm_wrapper = LLMWrapper()
+    topics = llm_wrapper.get_topics(topics)
+    print(topics)
+    
+
+    
         
         
 
