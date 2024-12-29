@@ -81,7 +81,6 @@ def retrieve_user_content(access_token, repos):
         except KeyError:
             continue
         for num, file in enumerate(tree):
-            if num >= 1: break
             if check_path(file['path']):
                 f = get_file_contents(access_token, owner, repo_name, file['path'], sha)
                 if ('message' in f and f['message'] == 'Not Found') or 'content' not in f:
@@ -102,6 +101,8 @@ async def register(request: Request):
     for file in retrieve_user_content(access_token, repos):
         for api in file.find_api():
             topics.append(api)
+    
+    topics = list(set(topics))
     # Contact LLM to generate list of topics
     print("Extraction complete, beginning topic generation")
     llm_wrapper = LLMWrapper()

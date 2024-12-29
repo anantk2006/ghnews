@@ -13,5 +13,5 @@ class LLMWrapper:
         return completion.choices[0].message
 
     def get_topics(self, packages):
-        messages = [{"role": "user", "content": "Generate a list of 30-40 topics pertaining to the following packages. These could be anything from graph neural networks to particular coins in the cryptocurrency space. Include nothing but the list itself in comma seperated format e.g. graph AI, Ethereum, Supabase, Stripe, LLaMA."},]
+        messages = [{"role": "user", "content": "Generate a list of 30-40 topics pertaining to the following packages. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated format e.g. topic 1, topic 2, topic 3, topic 4."},]
         return self.complete("gpt-4o-mini", messages)
