@@ -10,7 +10,7 @@ CREATE TABLE users (
     username TEXT,
     user_email TEXT PRIMARY KEY,
     access_token TEXT,
-    signup_date TEXT,
+    signup_date TEXT
 )
 ''')
 
