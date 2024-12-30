@@ -1,0 +1,23 @@
+import sqlite3
+from scrape import find_relevant_info
+from firecrawl import FirecrawlApp
+
+def get_topics_from_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT topic FROM topics")
+    topics = cursor.fetchall()
+    conn.close()
+    return set([topic[0] for topic in topics])
+
+def main():
+    topics = get_topics_from_db()
+    app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
+    for topic in topics:
+        relevant_info = find_relevant_info(topic, " news")
+        get_markdown(relevant_info, app)
+    
+
+
+if __name__ == "__main__":
+    main()

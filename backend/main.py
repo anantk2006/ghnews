@@ -6,7 +6,6 @@ import sqlite3
 import base64
 from file import File
 from llm_wrapper import LLMWrapper
-from scrape import search
 app = FastAPI()
 
 def get_access_token(code):
@@ -122,8 +121,6 @@ async def register(request: Request):
     save_topics_to_db(username, topics)
    
     # Search for information about each topic
-    for topic in topics:
-        print(search(topic, " recent news"))
 
 
 

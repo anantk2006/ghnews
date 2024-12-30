@@ -2,6 +2,7 @@
 from pprint import pprint
 import requests
 
+
 BING_SEARCH_V7_SUBSCRIPTION_KEY = "eda35cadd4834ce997da0375b171e61c"
 BING_SEARCH_V7_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 
