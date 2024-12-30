@@ -8,7 +8,7 @@ def get_topics_from_db():
     cursor.execute("SELECT topic FROM topics")
     topics = cursor.fetchall()
     conn.close()
-    return set([topic[0] for topic in topics])
+    return list(set([topic[0] for topic in topics]))
 
 def main():
     topics = get_topics_from_db()
