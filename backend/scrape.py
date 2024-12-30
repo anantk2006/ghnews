@@ -20,12 +20,6 @@ def search(query):
     try:
         response = requests.get(endpoint, headers=headers, params=params)
         response.raise_for_status()
-
-        print("Headers:")
-        print(response.headers)
-
-        print("JSON Response:")
-        pprint(response.json())
     except Exception as ex:
         raise ex
     return response.json()

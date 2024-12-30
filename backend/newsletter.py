@@ -13,9 +13,12 @@ def get_topics_from_db():
 def main():
     topics = get_topics_from_db()
     app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
+    links = []
     for topic in topics:
         relevant_info = find_relevant_info(topic, " news")
-        get_markdown(relevant_info, app)
+        links.extend([r['url'] for r in relevant_info['webPages']['value']])
+    batch_scrape_result = app.batch_scrape_urls(links, {'formats': ['markdown']})
+    print(batch_scrape_result)
     
 
 
