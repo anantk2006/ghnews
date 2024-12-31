@@ -6,7 +6,10 @@ import sqlite3
 import base64
 from file import File
 from llm_wrapper import LLMWrapper
+import stripe
+
 app = FastAPI()
+stripe.api_key = 'sk_test_51QbcO9RpVERX1hynlK0Vx8QjZbR3XcGMmdoaV0rNYtyiSSErUa6YsjKbRfkZR9QQ4wZyawjYyIB771jqTrvG3jYy00tfJmgeeQ'
 
 def get_access_token(code):
     response = requests.post(
@@ -119,8 +122,20 @@ async def register(request: Request):
     llm_wrapper = LLMWrapper()
     topics = llm_wrapper.get_topics(topics)
     save_topics_to_db(username, topics)
-   
-    # Search for information about each topic
+
+@app.post('/api/pay')
+def create_payment_intent(request: Request):
+    try:
+        data = request.json()
+        # Create a PaymentIntent with the order amount and currency
+        payment_intent = stripe.PaymentIntent.create(
+            amount=data['amount'],  # Amount in the smallest currency unit (e.g., cents)
+            currency=data['currency'],  # e.g., 'usd'
+            metadata={"integration_check": "accept_a_payment"}
+        )
+        return {'clientSecret': payment_intent['client_secret']}
+    except Exception as e:
+        return {'error': str(e)}
 
 
 
