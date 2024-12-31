@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Register from './Register';
 import Landing from './Landing';
-import Payment from './Payment';
+import CheckoutForm from './Payment';
 
 function App() {
     useEffect(() => {
@@ -31,7 +31,7 @@ function App() {
                     }
                 />
                 <Route path="/payment" element={
-                    <Payment />} />
+                    <CheckoutForm />} />
             </Routes>
         </Router>
     );

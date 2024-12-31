@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 from datetime import datetime
 import sqlite3
@@ -8,7 +9,21 @@ from file import File
 from llm_wrapper import LLMWrapper
 import stripe
 
+
 app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 stripe.api_key = 'sk_test_51QbcO9RpVERX1hynlK0Vx8QjZbR3XcGMmdoaV0rNYtyiSSErUa6YsjKbRfkZR9QQ4wZyawjYyIB771jqTrvG3jYy00tfJmgeeQ'
 
 def get_access_token(code):
@@ -125,17 +140,13 @@ async def register(request: Request):
 
 @app.post('/api/pay')
 def create_payment_intent(request: Request):
-    try:
-        data = request.json()
-        # Create a PaymentIntent with the order amount and currency
-        payment_intent = stripe.PaymentIntent.create(
-            amount=data['amount'],  # Amount in the smallest currency unit (e.g., cents)
-            currency=data['currency'],  # e.g., 'usd'
-            metadata={"integration_check": "accept_a_payment"}
-        )
-        return {'clientSecret': payment_intent['client_secret']}
-    except Exception as e:
-        return {'error': str(e)}
+    session = stripe.checkout.Session.create(
+        mode="subscription",
+        line_items=[{"price": 'price_1QbcQPRpVERX1hynqpNtMWed', "quantity": 1}],
+        ui_mode="embedded",
+        return_url="https://localhost/checkout/return?session_id={CHECKOUT_SESSION_ID}",
+    )
+    return session.client_secret
 
 
 
