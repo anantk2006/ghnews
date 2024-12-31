@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Register from './Register';
 import Landing from './Landing';
+import Payment from './Payment';
 
 function App() {
     useEffect(() => {
@@ -17,13 +18,20 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/register/" element={<Register />} />
+                <Route 
+                    path="/register/" 
+                    element={
+                        <Register />
+                    } 
+                    />
                 <Route
                     path="/"
                     element={
                         <Landing/>
                     }
                 />
+                <Route path="/payment" element={
+                    <Payment />} />
             </Routes>
         </Router>
     );
