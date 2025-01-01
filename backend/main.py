@@ -144,8 +144,9 @@ def create_payment_intent(request: Request):
         mode="subscription",
         line_items=[{"price": 'price_1QbcQPRpVERX1hynqpNtMWed', "quantity": 1}],
         ui_mode="embedded",
-        return_url="https://localhost/checkout/return?session_id={CHECKOUT_SESSION_ID}",
+        return_url="https://localhost/paid?session_id={CHECKOUT_SESSION_ID}",
     )
+    print(session)
     return session.client_secret
 
 

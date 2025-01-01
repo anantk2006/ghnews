@@ -4,6 +4,7 @@ import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
+import './index.css';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
@@ -33,7 +34,7 @@ const CheckoutForm = () => {
       >
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
-    </div>
+      </div>
   )
 }
 
