@@ -14,7 +14,8 @@ function Landing() {
         <div className="landing-page">
             <header className="hero-section">
                 <h1>Virsitile</h1>
-                <p>Making sure your tech knowledge remains state-of-the-art in a fast world.</p>
+                <p>Making sure your tech knowledge remains state-of-the-art in a fast-paced tech world.</p>
+                <p>For just $5 a month, get adaptive information relating to your exact software interests. </p>
                 <button onClick={openModal} className="github-button">
                     <img src="/github-logo.svg" alt="GitHub Logo" className="github-logo" />
                     <p>Subscribe to the newsletter</p>

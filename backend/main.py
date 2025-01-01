@@ -146,7 +146,6 @@ def create_payment_intent(request: Request):
         ui_mode="embedded",
         return_url="https://localhost/paid?session_id={CHECKOUT_SESSION_ID}",
     )
-    print(session)
     return session.client_secret
 
 

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Register from './Register';
 import Landing from './Landing';
-import CheckoutForm from './Payment';
+import PaymentCompleted from './Paid';
 
 function App() {
     useEffect(() => {
@@ -30,8 +30,8 @@ function App() {
                         <Landing/>
                     }
                 />
-                <Route path="/payment" element={
-                    <CheckoutForm />} />
+                <Route path="/paid" element={
+                    <PaymentCompleted />} />
             </Routes>
         </Router>
     );

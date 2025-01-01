@@ -18,7 +18,6 @@ const CheckoutForm = () => {
       method: "POST",      
     })
     .then(response => response.json())
-    console.log(ret);
     return ret;
       
   }, []);
@@ -32,7 +31,7 @@ const CheckoutForm = () => {
         stripe={stripePromise}
         options={options}
       >
-        <EmbeddedCheckout />
+         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
       </div>
   )
