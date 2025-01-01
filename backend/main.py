@@ -116,12 +116,34 @@ def save_topics_to_db(username, topics):
     conn.commit()
     conn.close()
 
+def check_session_id(session_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM sessions WHERE session_id=?", (session_id,))
+    result = cursor.fetchone()
+    # need to delete session id after use
+    if result is not None:
+        cursor.execute("DELETE FROM sessions WHERE session_id=?", (session_id,))
+        conn.commit()
+        conn.close()
+        return True
+    else:
+        conn.close()
+        return False
+    
+
 @app.post("/api/register")
 async def register(request: Request):
     # First extract topics/packages from code
     print("Request received, starting extraction")
     data = await request.json()
     code = data.get("code")
+    session_id = data.get("session_id")
+
+    paid = check_session_id(session_id)
+    if not paid:
+        return {"error": "Payment required"}
+
     access_token = get_access_token(code)
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
@@ -138,6 +160,16 @@ async def register(request: Request):
     topics = llm_wrapper.get_topics(topics)
     save_topics_to_db(username, topics)
 
+def save_session_to_db(session_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+    INSERT INTO sessions (session_id)
+    VALUES (?)
+    ''', (session_id,))
+    conn.commit()
+    conn.close()
+
 @app.post('/api/pay')
 def create_payment_intent(request: Request):
     session = stripe.checkout.Session.create(
@@ -146,6 +178,8 @@ def create_payment_intent(request: Request):
         ui_mode="embedded",
         return_url="https://localhost/paid?session_id={CHECKOUT_SESSION_ID}",
     )
+    session_id = session.id
+    save_session_to_db(session_id)
     return session.client_secret
 
 

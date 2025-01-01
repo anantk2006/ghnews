@@ -29,5 +29,11 @@ CREATE TABLE links (
     link TEXT
 )
 ''')
+cursor.execute('''DROP TABLE IF EXISTS sessions''')
+cursor.execute('''
+CREATE TABLE sessions (
+    session_id TEXT PRIMARY KEY
+)
+''')
 conn.commit()
 conn.close()
