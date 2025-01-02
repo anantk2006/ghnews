@@ -13,7 +13,6 @@ def get_topics_from_db():
 
 def main():
     topics = get_topics_from_db()
-    print(topics)
     app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
     links = []
     for topic in topics:
