@@ -3,6 +3,11 @@ from scrape import find_relevant_info
 from firecrawl import FirecrawlApp
 from llm_wrapper import LLMWrapper
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import markdown
+
 def get_topics_from_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -27,6 +32,30 @@ def get_text_for_all_topics(llm):
     for i, r in enumerate(batch_scrape_result['data']):
         topic_to_text[links[i][0]].append(r['markdown'])
     return topic_to_text
+
+def send_email(email_address, subject, markdown_text):
+    # Convert markdown to HTML
+    html_content = markdown.markdown(markdown_text)
+    
+    # Create message container
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = 'your_email@example.com'
+    msg['To'] = email_address
+    
+    # Record the MIME types of both parts - text/plain and text/html
+    part1 = MIMEText(markdown_text, 'plain')
+    part2 = MIMEText(html_content, 'html')
+    
+    # Attach parts into message container
+    msg.attach(part1)
+    msg.attach(part2)
+    
+    # Send the message via local SMTP server
+    with smtplib.SMTP('smtp.example.com', 587) as server:
+        server.starttls()
+        server.login('your_email@example.com', 'your_password')
+        server.sendmail('your_email@example.com', email_address, msg.as_string())
     
 def main():
     llm = LLMWrapper()
