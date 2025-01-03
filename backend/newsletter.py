@@ -12,10 +12,10 @@ def get_topics_from_db():
     
     return list(set([topic[0] for topic in topics]))
 
-def main():
+def get_text_for_all_topics(llm):
     topics = get_topics_from_db()
     app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
-    llm = LLMWrapper()
+
     links = []
     for topic in topics[:1]:
         relevant_info = find_relevant_info(topic, " news")
@@ -24,14 +24,15 @@ def main():
         relevant_info = [i for i in relevant_info['webPages']['value'] if llm.classify_importance(i['name'])]
         links.extend([(topic, r['url']) for i, r in enumerate(relevant_info) if i in recent])
     batch_scrape_result = app.batch_scrape_urls([l[1] for l in links][:1], {'formats': ['markdown']})
-    print(type(batch_scrape_result['data']))
-    if isinstance(batch_scrape_result['data'], list):
-        print(batch_scrape_result['data'][0].keys())
-    else:
-        print(batch_scrape_result['data'].keys())
+    topic_to_text = {topic: [] for topic in topics}
+    for r in batch_scrape_result['data']:
+        topic_to_text[r['url']].append(r['markdown'])
+    return topic_to_text
     
+def main():
+    llm = LLMWrapper()
+    topic_to_text = get_text_for_all_topics(llm)  
+    articles = llm.make_articles(topic_to_text)
     
-
-
 if __name__ == "__main__":
     main()
