@@ -12,8 +12,8 @@ class LLMWrapper:
         )
         return completion.choices[0].message.content
 
-    def get_topics(self, packages):
-        messages = [{"role": "user", "content": f"Generate a list of 30-40 topics pertaining to the following packages. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated and unordered format e.g. topic 1, topic 2, topic 3, topic 4. Each topic should be active and slightly broad--there should be tech updates and news related to them. \n Here are the packages: {packages}"},]
+    def get_topics(self, packages, struct_names):
+        messages = [{"role": "user", "content": f"Generate a list of 30-40 topics pertaining to the following packages and function/class names. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated and unordered format e.g. topic 1, topic 2, topic 3, topic 4. Each topic should be active and slightly broad--there should be tech updates and news related to them. \n Here are the packages: {packages}\n\nHere are the names: {struct_names}"},]
         return self.complete("gpt-4o-mini", messages).split(", ")
     
     def classify_importance(self, title):
