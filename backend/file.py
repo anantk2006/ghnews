@@ -32,16 +32,86 @@ class File:
                     require = line.split("require")
                     if len(require) > 1:
                         yield require[1]
-                    
+            elif "http" in line:
+                match = re.match(kLINK_DETECTION_REGEX, line)
+                if match:
+                    yield match.group(0)
+
+    def find_cpp_api(self, split):
+        for line in split:
+            if "include" in line:
+                words = line.split(" ")
+                if 'include' in words:
+                    yield words[words.index('include') + 1]
+            elif "http" in line:
+                match = re.match(kLINK_DETECTION_REGEX, line)
+                if match:
+                    yield match.group(0)
+    
+    def find_rust_api(self, split):
+        for line in split:
+            if "use" in line:
+                words = line.split(" ")
+                if 'use' in words:
+                    yield words[words.index('use') + 1]
+            elif "http" in line:
+                match = re.match(kLINK_DETECTION_REGEX, line)
+                if match:
+                    yield match.group(0)
+
+    
+    def find_python_struct_names(self, split):
+        for line in split:
+            if "class " in line:
+                match = re.match(r'class\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+            elif "def " in line:
+                match = re.match(r'def\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+    
+    def find_js_struct_names(self, split):
+        for line in split:
+            if "class " in line:
+                match = re.match(r'class\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+            elif "function " in line:
+                match = re.match(r'function\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+    
+    def find_cpp_struct_names(self, split):
+        for line in split:
+            if "class " in line:
+                match = re.match(r'class\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+            elif "struct " in line:
+                match = re.match(r'struct\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+    
+    def find_rust_struct_names(self, split):
+        for line in split:
+            if "struct " in line:
+                match = re.match(r'struct\s+(\w+)', line)
+                if match:
+                    yield match.group(1)
+            if "fn " in line:
+                match = re.match(r'fn\s+(\w+)', line)
+                if match:
+                    yield match.group(1)                
 
     def find_api(self):
         split = self.content.split("\n")
         if self.path.endswith(".py"):
-            return self.find_python_api(split)
+            api = self.find_python_api(split)
+            struct_names = self.find_python_struct_names(split)
+            
         elif self.path.endswith(".ts") or self.path.endswith(".js"):
             return self.find_js_api(split)
-        elif self.path.endswith(".html"):
-            return self.find_html_api(split)
         elif self.path.endswith(".cpp"):
             return self.find_cpp_api(split)
         elif self.path.endswith(".rs"):
