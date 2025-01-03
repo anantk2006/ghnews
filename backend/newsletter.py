@@ -19,10 +19,13 @@ def main():
     links = []
     for topic in topics[:10]:
         relevant_info = find_relevant_info(topic, " news")
-        relevant_info = [i for i in relevant_info['webPages']['value'] if LLMWrapper.classify_importance(i['name'])]
-        links.extend([r['url'] for r in relevant_info['webPages']['value']])
-    batch_scrape_result = app.batch_scrape_urls(links[:10], {'formats': ['markdown']})
-    print(batch_scrape_result)
+        dates_of_pub = ["9"*20 if 'datePublished' not in r else r['datePublished'] for r in relevant_info['webPages']['value']]
+        recent = {i for i, d in enumerate(dates_of_pub) if d and int(d[2:4])>=24 and int(d[5:7])>=10}
+        relevant_info = [i for i in relevant_info['webPages']['value'] if llm.classify_importance(i['name'])]
+        links.extend([(topic, r['url']) for i, r in enumerate(relevant_info) if i in recent])
+    batch_scrape_result = app.batch_scrape_urls([l[1] for l in links][:5], {'formats': ['markdown']})
+    print(type(batch_scrape_result))
+    
     
 
 
