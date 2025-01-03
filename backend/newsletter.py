@@ -15,7 +15,6 @@ def get_topics_from_db():
 def get_text_for_all_topics(llm):
     topics = get_topics_from_db()
     app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
-
     links = []
     for topic in topics[:1]:
         relevant_info = find_relevant_info(topic, " news")
