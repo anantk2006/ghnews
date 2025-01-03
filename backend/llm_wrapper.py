@@ -17,7 +17,7 @@ class LLMWrapper:
         return self.complete("gpt-4o-mini", messages).split(", ")
     
     def classify_importance(self, title):
-        messages = [{"role": "user", "content": f"Classify whether the following title is related to recent tech news or some technological update or if it is an old or unimportant article. Here is the title: {title}. Respond with 1 for the former and 2 for the latter, and say nothing else."},]
+        messages = [{"role": "user", "content": f"Classify whether the following title is important tech news or not. Important tech news involves some cool software or technique that is novel--it could include startup/company announcements, a research paper, interesting open-source progress, or news about recent government action. Here is the title:\n{title}.\n Respond with 1 for the former and 2 for the latter, and say nothing else."},]
         out = self.complete("gpt-4o-mini", messages)
         if "1" in out and "2" not in out:
             return True
