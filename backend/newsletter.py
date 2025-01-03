@@ -23,16 +23,17 @@ def get_text_for_all_topics(llm):
         recent = {i for i, d in enumerate(dates_of_pub) if d and int(d[2:4])>=24 and int(d[5:7])>=10}
         relevant_info = [i for i in relevant_info['webPages']['value'] if llm.classify_importance(i['name'])]
         links.extend([(topic, r['url']) for i, r in enumerate(relevant_info) if i in recent])
-    batch_scrape_result = app.batch_scrape_urls([l[1] for l in links][:1], {'formats': ['markdown']})
+    batch_scrape_result = app.batch_scrape_urls([l[1] for l in links][:3], {'formats': ['markdown']})
     topic_to_text = {topic: [] for topic in topics}
-    for r in batch_scrape_result['data']:
-        topic_to_text[r['url']].append(r['markdown'])
+    for i, r in enumerate(batch_scrape_result['data']):
+        topic_to_text[links[i][0]].append(r['markdown'])
     return topic_to_text
     
 def main():
     llm = LLMWrapper()
     topic_to_text = get_text_for_all_topics(llm)  
     articles = llm.make_articles(topic_to_text)
+    print(articles)
     
 if __name__ == "__main__":
     main()
