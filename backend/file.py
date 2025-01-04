@@ -66,19 +66,11 @@ class File:
                 match = re.match(r'class\s+(\w+)', line)
                 if match:
                     yield match.group(1)
-            elif "def " in line:
-                match = re.match(r'def\s+(\w+)', line)
-                if match:
-                    yield match.group(1)
     
     def find_js_struct_names(self, split):
         for line in split:
             if "class " in line:
                 match = re.match(r'class\s+(\w+)', line)
-                if match:
-                    yield match.group(1)
-            elif "function " in line:
-                match = re.match(r'function\s+(\w+)', line)
                 if match:
                     yield match.group(1)
     
@@ -88,21 +80,12 @@ class File:
                 match = re.match(r'class\s+(\w+)', line)
                 if match:
                     yield match.group(1)
-            elif "struct " in line:
-                match = re.match(r'struct\s+(\w+)', line)
-                if match:
-                    yield match.group(1)
-    
     def find_rust_struct_names(self, split):
         for line in split:
             if "struct " in line:
                 match = re.match(r'struct\s+(\w+)', line)
                 if match:
                     yield match.group(1)
-            if "fn " in line:
-                match = re.match(r'fn\s+(\w+)', line)
-                if match:
-                    yield match.group(1)                
 
     def find_api(self):
         split = self.content.split("\n")

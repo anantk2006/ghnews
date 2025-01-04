@@ -154,14 +154,12 @@ async def register(request: Request):
     for file in retrieve_user_content(access_token, repos):
         api, struct = file.find_api()
         apis.extend(api)
-        struct_names.extend(struct)
-    
-    apis = list(set(apis))
-    struct_names = list(set(struct_names))
+        struct_names.extend(struct)    
     # Contact LLM to generate list of topics
+    # Some degree of parsing should be used
     print("Extraction complete, beginning topic generation")
     llm_wrapper = LLMWrapper()
-    topics = llm_wrapper.get_topics(apis, struct_names)
+    topics = llm_wrapper.get_topics(list(set(apis)), list(set(struct_names)))
     print(topics)
     save_topics_to_db(username, topics)
 
