@@ -149,16 +149,20 @@ async def register(request: Request):
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
     repos = get_repos(access_token)
-    topics = []
+    apis = []
+    struct_names = []
     for file in retrieve_user_content(access_token, repos):
-        for api in file.find_api():
-            topics.append(api)
+        api, struct = file.find_api()
+        apis.extend(api)
+        struct_names.extend(struct)
     
-    topics = list(set(topics))
+    apis = list(set(apis))
+    struct_names = list(set(struct_names))
     # Contact LLM to generate list of topics
     print("Extraction complete, beginning topic generation")
     llm_wrapper = LLMWrapper()
-    topics = llm_wrapper.get_topics(topics)
+    topics = llm_wrapper.get_topics(apis, struct_names)
+    print(topics)
     save_topics_to_db(username, topics)
 
 def save_session_to_db(session_id):
