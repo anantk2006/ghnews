@@ -5,9 +5,10 @@ import requests
 from datetime import datetime
 import sqlite3
 import base64
-from file import File
-from llm_wrapper import LLMWrapper
 import stripe
+
+from file import File
+from topics import CodeSage
 
 
 app = FastAPI()
@@ -26,6 +27,7 @@ app.add_middleware(
 )
 
 stripe.api_key = 'sk_test_51QbcO9RpVERX1hynlK0Vx8QjZbR3XcGMmdoaV0rNYtyiSSErUa6YsjKbRfkZR9QQ4wZyawjYyIB771jqTrvG3jYy00tfJmgeeQ'
+codesage = CodeSage()
 
 def get_access_token(code):
     response = requests.post(
@@ -94,6 +96,7 @@ def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
     check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
                        or s.endswith(".cpp") or s.endswith('.rs')
+    count = 0
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
         try:
             tree = tree['tree']
@@ -105,6 +108,9 @@ def retrieve_user_content(access_token, repos):
                 if ('message' in f and f['message'] == 'Not Found') or 'content' not in f:
                     continue
                 else: yield File(file['path'], decode(f), owner, repo_name, sha)
+            count += 1
+            if count == 100:
+                break
 
 def save_topics_to_db(username, topics):
     conn = sqlite3.connect('database.db')
@@ -148,18 +154,12 @@ async def register(request: Request):
     access_token = get_access_token(code)
     username, user_email = get_username_and_email(access_token)
     upload_user_to_db(username, user_email, access_token)
-    repos = get_repos(access_token)
-    apis = []
-    struct_names = []
-    for file in retrieve_user_content(access_token, repos):
-        api, struct = file.find_api()
-        apis.extend(api)
-        struct_names.extend(struct)    
+    repos = get_repos(access_token)   
     # Contact LLM to generate list of topics
     # Some degree of parsing should be used
     print("Extraction complete, beginning topic generation")
-    llm_wrapper = LLMWrapper()
-    topics = llm_wrapper.get_topics(list(set(apis)), list(set(struct_names)))
+    files = list(retrieve_user_content(access_token, repos))
+    topics = codesage.get_topics_for_user(files)
     print(topics)
     save_topics_to_db(username, topics)
 
