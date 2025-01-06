@@ -8,17 +8,23 @@ class CodeSage:
         self.topics = open("topics.txt").read().split(", ")
         self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint, trust_remote_code=True, add_eos_token=True)
         self.model = AutoModel.from_pretrained(self.checkpoint, trust_remote_code=True).to(self.device)
-        self.topic_to_embed = self.embed_topics()
-    def get_similarities(self, text):
+        self.embeddings = self.embed_topics()
+    def get_similar_topics(self, text):
         text_embed = self.get_embedding(text)
-        for topic, topic_embed in self.topic_to_embed.items():
+        sims = torch.zeros((len(self.topics),))
+        for i, topic_embed in enumerate(self.embeddings):
             similarity = torch.cosine_similarity(text_embed, topic_embed, dim=0)
-                        
+            sims[i] = similarity
+        sims = torch.argsort(sims, descending=True)
+        vals = torch.sort(sims, descending=True)
+        return [self.topics[int(i)] for i in sims], vals
+    
+
     def embed_topics(self):
-        embeddings = {}
+        embeddings = []
         for topic in self.topics:
             embedding = self.get_embedding(topic)
-            embeddings[topic] = embedding
+            embeddings.append(embedding)
         return embeddings
     def get_embedding(self, text):
         inputs = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
