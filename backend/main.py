@@ -97,6 +97,7 @@ def retrieve_user_content(access_token, repos):
     check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
                        or s.endswith(".cpp") or s.endswith('.rs')
     count = 0
+
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
         try:
             tree = tree['tree']
@@ -157,8 +158,9 @@ async def register(request: Request):
     repos = get_repos(access_token)   
     # Contact LLM to generate list of topics
     # Some degree of parsing should be used
-    print("Extraction complete, beginning topic generation")
+    
     files = list(retrieve_user_content(access_token, repos))
+    print("Extraction complete, beginning topic generation")
     topics = codesage.get_topics_for_user(files)
     print(topics)
     save_topics_to_db(username, topics)

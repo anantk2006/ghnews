@@ -10,21 +10,23 @@ class CodeSage:
         self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint, trust_remote_code=True, add_eos_token=True)
         self.model = AutoModel.from_pretrained(self.checkpoint, trust_remote_code=True).to(self.device)
         self.embeddings = self.get_embedding(self.topics)
-        self.batch_size = 4
+        self.batch_size = 2
 
     def get_topic_similarity(self, text):
         text_embed = self.get_embedding(text)
         return self.embeddings @ text_embed.T
             
     def get_embedding(self, text):
-        if isinstance(text, list):
-            inputs = self.tokenizer(text, return_tensors="pt", padding=True).to(self.device)
-            out = self.model(input_ids = inputs['input_ids'], attention_mask = inputs['attention_mask'], return_dict=True)        
-        else:
-            inputs = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
-            out = self.model(input_ids = inputs, return_dict=True)        
-        code_vec = torch.nn.functional.normalize(out.pooler_output, p=2, dim=1)
-        return code_vec
+        with torch.no_grad():
+            if isinstance(text, list):
+                inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=1024).to(self.device)
+                # print(inputs["input_ids"].shape, inputs["attention_mask"].shape, inputs['input_ids'].max(), inputs['input_ids'].min())
+                out = self.model(input_ids = inputs['input_ids'], attention_mask = inputs['attention_mask'], return_dict=True)        
+            else:
+                inputs = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
+                out = self.model(input_ids = inputs, return_dict=True)        
+            code_vec = torch.nn.functional.normalize(out.pooler_output, p=2, dim=1)
+            return code_vec
 
     def get_topics_for_user(self, user_files):
         file_embeds = []
