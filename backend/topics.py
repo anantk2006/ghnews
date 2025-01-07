@@ -2,6 +2,8 @@ from transformers import AutoModel, AutoTokenizer
 import torch
 from file import File
 
+from llm_wrapper import LLMWrapper
+
 class CodeSage:
     def __init__(self):
         self.checkpoint = "codesage-small-v2"
@@ -29,17 +31,22 @@ class CodeSage:
             return code_vec
 
     def get_topics_for_user(self, user_files):
-        file_embeds = []
-        while user_files:
-            batch = user_files[:self.batch_size]
-            user_files = user_files[self.batch_size:]
-            file_embeds.append(self.get_topic_similarity([file.content for file in batch]))
-        file_embeds = torch.cat(file_embeds, dim=0)
-        most_liked = torch.argsort(torch.sum(file_embeds, dim=1), descending=True)
-        topics = []
-        for i in range(32):
-            topics.append(self.topics[int(most_liked[i])])
-        return topics           
+        llm = LLMWrapper()
+        files = [file.content for file in user_files]
+        return llm.analyze_readme(files)
+
+
+        # file_embeds = []
+        # while user_files:
+        #     batch = user_files[:self.batch_size]
+        #     user_files = user_files[self.batch_size:]
+        #     file_embeds.append(self.get_topic_similarity([file.content for file in batch]))
+        # file_embeds = torch.cat(file_embeds, dim=0)
+        # most_liked = torch.argsort(torch.sum(file_embeds, dim=1), descending=True)
+        # topics = []
+        # for i in range(32):
+        #     topics.append(self.topics[int(most_liked[i])])
+        # return topics           
         
 
 if __name__ == "__main__":

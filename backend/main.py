@@ -92,8 +92,7 @@ def get_commit_history(access_token, owner, repo, email):
     commit_data = response.json()
     for commit in commit_data:
         if commit['commit']['committer']['date'][2:4] > 21:
-            return commit['sha']
-    return commit_data
+            return commit['message']
 
 def get_file_contents(access_token, owner, repo, path, sha):
     response = requests.get(
@@ -105,8 +104,9 @@ def get_file_contents(access_token, owner, repo, path, sha):
 
 def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
-    check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
-                       or s.endswith(".cpp") or s.endswith('.rs')
+    # check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
+    #                   or s.endswith(".cpp") or s.endswith('.rs')
+    check_path = lambda s: s.endswith("README.md")
     count = 0
 
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
