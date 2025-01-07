@@ -107,8 +107,7 @@ def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
     check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
                        or s.endswith(".cpp") or s.endswith('.rs')
-    check_path_readme = lambda s: s.endswith("README.md")
-    count = 0
+    check_path_readme = lambda s: s.endswith("README.md") or s.endswith("readme.md")
     files_code = []
     files_readme = []
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
@@ -116,7 +115,7 @@ def retrieve_user_content(access_token, repos):
             tree = tree['tree']
         except KeyError:
             continue
-        for num, file in enumerate(tree):
+        for file in tree:
             code = check_path(file['path'])
             readme = check_path_readme(file['path'])
             if code or readme:
@@ -128,7 +127,7 @@ def retrieve_user_content(access_token, repos):
                         files_code.append(File(file['path'], decode(f), owner, repo_name, sha))
                     elif readme:
                         files_readme.append(File(file['path'], decode(f), owner, repo_name, sha))
-        return files_code, files_readme
+    return files_code, files_readme
 
 def save_topics_to_db(username, topics):
     conn = sqlite3.connect('database.db')
@@ -175,8 +174,9 @@ async def register(request: Request):
     repos = get_repos(access_token)   
     # Contact LLM to generate list of topics
     # Some degree of parsing should be used
-    print("Extraction complete, beginning topic generation")
+    
     files_code, files_readme = retrieve_user_content(access_token, repos)
+    print("Extraction complete, beginning topic generation")
     apis = []
     for file in files_code:
         for api in file.find_api():
