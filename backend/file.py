@@ -91,19 +91,19 @@ class File:
         split = self.content.split("\n")
         if self.path.endswith(".py"):
             api = self.find_python_api(split)
-            struct_names = self.find_python_struct_names(split)
-            return api, struct_names            
+            # struct_names = self.find_python_struct_names(split)
+            return api           
         elif self.path.endswith(".ts") or self.path.endswith(".js"):
             api = self.find_js_api(split)
-            struct_names = self.find_js_struct_names(split)
-            return api, struct_names
+            # struct_names = self.find_js_struct_names(split)
+            return api
         elif self.path.endswith(".cpp"):
             api = self.find_cpp_api(split)
-            struct_names = self.find_cpp_struct_names(split)
-            return api, struct_names
+            # struct_names = self.find_cpp_struct_names(split)
+            return api
         elif self.path.endswith(".rs"):
             api = self.find_rust_api(split)
-            struct_names = self.find_rust_struct_names(split)
-            return api, struct_names
+            # struct_names = self.find_rust_struct_names(split)
+            return api
         else:
             raise Exception("Unsupported file type")

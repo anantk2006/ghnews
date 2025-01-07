@@ -9,6 +9,7 @@ import stripe
 
 from file import File
 from topics import CodeSage
+from llm_wrapper import LLMWrapper
 
 
 app = FastAPI()
@@ -28,7 +29,7 @@ app.add_middleware(
 
 stripe.api_key = 'sk_test_51QbcO9RpVERX1hynlK0Vx8QjZbR3XcGMmdoaV0rNYtyiSSErUa6YsjKbRfkZR9QQ4wZyawjYyIB771jqTrvG3jYy00tfJmgeeQ'
 codesage = CodeSage()
-
+llm = LLMWrapper()
 def get_access_token(code):
     response = requests.post(
         "https://github.com/login/oauth/access_token",
@@ -104,25 +105,30 @@ def get_file_contents(access_token, owner, repo, path, sha):
 
 def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
-    # check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
-    #                   or s.endswith(".cpp") or s.endswith('.rs')
-    check_path = lambda s: s.endswith("README.md")
+    check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
+                       or s.endswith(".cpp") or s.endswith('.rs')
+    check_path_readme = lambda s: s.endswith("README.md")
     count = 0
-
+    files_code = []
+    files_readme = []
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
         try:
             tree = tree['tree']
         except KeyError:
             continue
         for num, file in enumerate(tree):
-            if check_path(file['path']):
+            code = check_path(file['path'])
+            readme = check_path_readme(file['path'])
+            if code or readme:
                 f = get_file_contents(access_token, owner, repo_name, file['path'], sha)
                 if ('message' in f and f['message'] == 'Not Found') or 'content' not in f:
                     continue
-                else: yield File(file['path'], decode(f), owner, repo_name, sha)
-            count += 1
-            if count == 100:
-                break
+                else: 
+                    if code:
+                        files_code.append(File(file['path'], decode(f), owner, repo_name, sha))
+                    elif readme:
+                        files_readme.append(File(file['path'], decode(f), owner, repo_name, sha))
+        return files_code, files_readme
 
 def save_topics_to_db(username, topics):
     conn = sqlite3.connect('database.db')
@@ -169,10 +175,17 @@ async def register(request: Request):
     repos = get_repos(access_token)   
     # Contact LLM to generate list of topics
     # Some degree of parsing should be used
-    
-    files = list(retrieve_user_content(access_token, repos))
     print("Extraction complete, beginning topic generation")
-    topics = codesage.get_topics_for_user(files)
+    files_code, files_readme = retrieve_user_content(access_token, repos)
+    apis = []
+    for file in files_code:
+        for api in file.find_api():
+            apis.append(api) 
+    
+    api_topics = llm.get_topics(apis) 
+    
+    readme_topics = codesage.get_topics_for_user(files_readme)
+    topics = list(set(api_topics + readme_topics))
     print(topics)
     save_topics_to_db(username, topics)
 

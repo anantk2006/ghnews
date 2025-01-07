@@ -12,13 +12,13 @@ class LLMWrapper:
         )
         return completion.choices[0].message.content
 
-    def get_topics(self, packages, struct_names):
-        messages = [{"role": "user", "content": f"Generate a list of 30-40 topics pertaining to the following packages and function/class names. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated and unordered format e.g. topic 1, topic 2, topic 3, topic 4. Each topic should be active and slightly broad--there should be tech updates and news related to them. \n Here are the packages: {packages}\n\nHere are the names: {struct_names}. What topics relate to these packages and class names?"},]
+    def get_topics(self, packages):
+        messages = [{"role": "user", "content": f"Generate a list of 20-25 topics pertaining to the following packages. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated and unordered format e.g. topic 1, topic 2, topic 3, topic 4. Each topic should be active and slightly broad--there should be tech updates and news related to them. \n Here are the packages: {packages}. What topics relate to these packages?"},]
         return self.complete("gpt-4o-mini", messages).split(", ")
     
     def analyze_readme(self, readmes):
         files = ["\n" + r + "\n" for r in readmes]
-        messages = [{"role": "user", "content": f"Analyze the README files given and provide a list of 30-40 tech news, research, and computer science topics of relevance in a comma-seperated and unordered format e.g. topic 1, topic 2, topic 3, etc. Here are the files: {files}"},]
+        messages = [{"role": "user", "content": f"Analyze the README files given and provide a list of 20-25 tech news, research, and computer science topics of relevance in a comma-seperated and unordered format e.g. topic 1, topic 2, topic 3, etc. Here are the files: {files}"},]
         return self.complete("gpt-4o-mini", messages).split(", ")
     
     def classify_importance(self, title):
