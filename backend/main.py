@@ -84,6 +84,17 @@ def get_file_links(access_token, repos):
         tree_data = response.json()
         yield tree_data, owner, repo_name, sha
 
+def get_commit_history(access_token, owner, repo, email):
+    response = requests.get(
+        f"https://api.github.com/repos/{owner}/{repo}/commits?author={email}",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    commit_data = response.json()
+    for commit in commit_data:
+        if commit['commit']['committer']['date'][2:4] > 21:
+            return commit['sha']
+    return commit_data
+
 def get_file_contents(access_token, owner, repo, path, sha):
     response = requests.get(
         f"https://api.github.com/repos/{owner}/{repo}/contents/{path}?ref={sha}",
