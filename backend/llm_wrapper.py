@@ -32,6 +32,7 @@ class LLMWrapper:
 
     def make_articles(self, topic_to_text):
         articles = {}
+        print("Generating articles")
         for topic, text in topic_to_text.items():
             messages = [{"role": "user", "content": f"Generate a concise tutorial about the text. Here it is: {text} \n\n Make sure the tutorial is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a brief tutorial designed for a software engineer. The article should be in markdown format."},]
             article = self.complete("gpt-4o-mini", messages)

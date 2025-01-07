@@ -18,6 +18,7 @@ def get_topics_from_db():
     return list(set([topic[0] for topic in topics]))
 
 def get_text_for_all_topics(llm):
+    print("Getting topics from database and webscraping")
     topics = get_topics_from_db()
     app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
     links = []
@@ -27,6 +28,8 @@ def get_text_for_all_topics(llm):
         recent = {i for i, d in enumerate(dates_of_pub) if d and int(d[2:4])>=24 and int(d[5:7])>=10}
         relevant_info = [i for i in relevant_info['webPages']['value'] if llm.classify_importance(i['name'])]
         links.extend([(topic, r['url']) for i, r in enumerate(relevant_info) if i in recent])
+
+    print("Scraping links using Firecrawl")
     batch_scrape_result = app.batch_scrape_urls([l[1] for l in links][:3], {'formats': ['markdown']})
     topic_to_text = {topic: [] for topic in topics}
     for i, r in enumerate(batch_scrape_result['data']):
@@ -40,7 +43,7 @@ def send_email(email_address, subject, markdown_text):
     # Create message container
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
-    msg['From'] = 'your_email@example.com'
+    msg['From'] = 'anantk2006@gmail.com'
     msg['To'] = email_address
     
     # Record the MIME types of both parts - text/plain and text/html
@@ -54,14 +57,15 @@ def send_email(email_address, subject, markdown_text):
     # Send the message via local SMTP server
     with smtplib.SMTP('smtp.example.com', 587) as server:
         server.starttls()
-        server.login('your_email@example.com', 'your_password')
-        server.sendmail('your_email@example.com', email_address, msg.as_string())
+        server.login('anantk2006@gmail.com', 'anantk2006')
+        server.sendmail("anantk2006@gmail.com", email_address, msg.as_string())
     
 def main():
     llm = LLMWrapper()
     topic_to_text = get_text_for_all_topics(llm)  
     articles = llm.make_articles(topic_to_text)
-    print(articles)
+    for topic, article in articles.items():
+        send_email("anantk2006@gmail.com", f"Newsletter for {topic}", article[0])
     
 if __name__ == "__main__":
     main()
