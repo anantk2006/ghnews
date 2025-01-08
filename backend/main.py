@@ -105,11 +105,10 @@ def get_file_contents(access_token, owner, repo, path, sha):
 
 def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
-    check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
-                       or s.endswith(".cpp") or s.endswith('.rs')
-    check_path = lambda s: s=="False not exists"
+    # check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
+    #                    or s.endswith(".cpp") or s.endswith('.rs')
     check_path_readme = lambda s: s.endswith("README.md") or s.endswith("readme.md")
-    files_code = []
+    # files_code = []
     files_readme = []
     for tree, owner, repo_name, sha in get_file_links(access_token, repos):
         try:
@@ -117,18 +116,17 @@ def retrieve_user_content(access_token, repos):
         except KeyError:
             continue
         for file in tree:
-            code = check_path(file['path'])
             readme = check_path_readme(file['path'])
-            if code or readme:
+            if readme:
                 f = get_file_contents(access_token, owner, repo_name, file['path'], sha)
                 if ('message' in f and f['message'] == 'Not Found') or 'content' not in f:
                     continue
                 else: 
-                    if code:
-                        files_code.append(File(file['path'], decode(f), owner, repo_name, sha))
-                    elif readme:
+                    # if code:
+                    #     files_code.append(File(file['path'], decode(f), owner, repo_name, sha))
+                    if readme:
                         files_readme.append(File(file['path'], decode(f), owner, repo_name, sha))
-    return files_code, files_readme
+    return files_readme
 
 def save_topics_to_db(username, topics):
     conn = sqlite3.connect('database.db')
@@ -176,7 +174,7 @@ async def register(request: Request):
     # Contact LLM to generate list of topics
     # Some degree of parsing should be used
     
-    files_code, files_readme = retrieve_user_content(access_token, repos)
+    files_readme = retrieve_user_content(access_token, repos)
     print("Extraction complete, beginning topic generation")
     # apis = []
     # for file in files_code:
@@ -206,7 +204,7 @@ def create_payment_intent(request: Request):
         mode="subscription",
         line_items=[{"price": 'price_1QbcQPRpVERX1hynqpNtMWed', "quantity": 1}],
         ui_mode="embedded",
-        return_url="https://localhost/paid?session_id={CHECKOUT_SESSION_ID}",
+        return_url="http://localhost/paid?session_id={CHECKOUT_SESSION_ID}",
     )
     session_id = session.id
     save_session_to_db(session_id)

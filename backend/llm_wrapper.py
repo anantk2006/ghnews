@@ -16,10 +16,14 @@ class LLMWrapper:
         messages = [{"role": "user", "content": f"Generate a list of 30-40 topics pertaining to the following packages. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated and unordered format e.g. topic 1, topic 2, topic 3, topic 4. Each topic should be broad--there should be tech updates and news related to them. Some packages are going to be mundane--like utils or requests or json. \n Here are the packages: {packages}. What topics relate to these packages?"},]
         return self.complete("gpt-4o-mini", messages).split(", ")
     
-    def analyze_readme(self, readmes):
-        files = ["\n" + r + "\n" for r in readmes]
-        messages = [{"role": "user", "content": f"Analyze the README files given and provide a list of 30-40 tech news, research, and computer science topics of relevance in a comma-seperated and unordered format e.g. topic 1, topic 2, topic 3, etc. I am going to use these topics to webscrape, so make sure that they would have news/tutorials/specific articles relating to them that would interesting to software developers. Here are the files: {files}"},]
-        return self.complete("gpt-4o-mini", messages).split(", ")
+    def analyze_readmes(self, readmes):
+        batches = [readmes[i:i+5] for i in range(0, len(readmes), 5)]
+        strings = ["\n\n".join(batch) for batch in batches]
+        topics = []
+        for string in strings:
+            messages = [{"role": "user", "content": f"Analyze the README files given and provide a list of 15-20 tech news, research, and computer science topics of relevance in a comma-seperated and unordered format e.g. topic 1, topic 2, topic 3, etc. I am going to use these topics to webscrape, so make sure that they would have news/tutorials/specific articles relating to them that would interesting to software developers. Here are the files: {strings}"},]
+            topics += self.complete("gpt-4o-mini", messages).split(", ")
+        return topics
     
     def classify_importance(self, title):
         messages = [{"role": "user", "content": f"Classify whether the following title is important tech news or not. Important tech news involves some cool software or technique that is novel--it could include startup/company announcements, a research paper, interesting open-source progress, or news about recent government action. Here is the title:\n{title}.\n Respond with 1 for the former and 2 for the latter, and say nothing else."},]

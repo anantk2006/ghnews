@@ -33,20 +33,14 @@ class CodeSage:
     def get_topics_for_user(self, user_files):
         llm = LLMWrapper()
         files = [file.content for file in user_files]
-        return llm.analyze_readme(files)
-
-
-        # file_embeds = []
-        # while user_files:
-        #     batch = user_files[:self.batch_size]
-        #     user_files = user_files[self.batch_size:]
-        #     file_embeds.append(self.get_topic_similarity([file.content for file in batch]))
-        # file_embeds = torch.cat(file_embeds, dim=0)
-        # most_liked = torch.argsort(torch.sum(file_embeds, dim=1), descending=True)
-        # topics = []
-        # for i in range(32):
-        #     topics.append(self.topics[int(most_liked[i])])
-        # return topics           
+        direct_topics = llm.analyze_readmes(files)
+        print(direct_topics)
+        user_embeds = self.get_embedding(direct_topics)
+        matrix = self.embeddings @ user_embeds.T # num server topics x num user topics
+        sims = torch.sum(matrix, dim=1).flatten()
+        most_liked = torch.argsort(sims, descending=True)
+        best_topics = [self.topics[int(i)] for i in most_liked[:64]]
+        return best_topics
         
 
 if __name__ == "__main__":
