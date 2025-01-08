@@ -107,6 +107,7 @@ def retrieve_user_content(access_token, repos):
     decode = lambda s: base64.b64decode(s['content']).decode('utf-8')
     check_path = lambda s: s.endswith('.py') or s.endswith('.js') or s.endswith('.ts') \
                        or s.endswith(".cpp") or s.endswith('.rs')
+    check_path = lambda s: s=="False not exists"
     check_path_readme = lambda s: s.endswith("README.md") or s.endswith("readme.md")
     files_code = []
     files_readme = []
@@ -177,15 +178,15 @@ async def register(request: Request):
     
     files_code, files_readme = retrieve_user_content(access_token, repos)
     print("Extraction complete, beginning topic generation")
-    apis = []
-    for file in files_code:
-        for api in file.find_api():
-            apis.append(api) 
+    # apis = []
+    # for file in files_code:
+    #     for api in file.find_api():
+    #         apis.append(api) 
     
-    api_topics = llm.get_topics(apis) 
+    # api_topics = llm.get_topics(apis) 
     
     readme_topics = codesage.get_topics_for_user(files_readme)
-    topics = list(set(api_topics + readme_topics))
+    topics = list(set(readme_topics))
     print(topics)
     save_topics_to_db(username, topics)
 

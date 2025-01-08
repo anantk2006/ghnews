@@ -1,5 +1,5 @@
 import sqlite3
-from scrape import find_relevant_info
+from backend.bing import find_relevant_info
 from firecrawl import FirecrawlApp
 from llm_wrapper import LLMWrapper
 
@@ -19,7 +19,7 @@ def get_topics_from_db():
 
 def get_text_for_all_topics(llm):
     print("Getting topics from database and webscraping")
-    topics = get_topics_from_db()
+    topics = open("topics.txt").read().split(", ")
     app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
     links = []
     for topic in topics[:1]:
