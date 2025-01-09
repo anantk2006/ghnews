@@ -1,7 +1,7 @@
  
 import requests
 from llm_wrapper import LLMWrapper
-
+from firecrawl import FirecrawlApp
 
 class BingSearch:
     def __init__(self, llm):
@@ -50,19 +50,40 @@ class BingSearch:
             links.append((response['value'][i]['name'], response['value'][i]['url']))
         return links, dates
 
+    def filter_quality(self, links, dates):
+        relevant_info = []
+        for i in range(len(links)):
+            if dates[i] and int(dates[i][2:4])>=24 and int(dates[i][5:7])>=10:
+                if self.llm.classify_importance(links[i][0]):
+                    relevant_info.append(links[i])
+        return relevant_info
 
     def find_relevant_links(self, package_name):
-        response = self.search(package_name)
-        response_news = self.search_news(package_name)
-        print(response_news)
-        print(response)
-        # dates_of_pub = ["9"*20 if 'datePublished' not in r else r['datePublished'] for r in relevant_info['webPages']['value']]
-        # recent = {i for i, d in enumerate(dates_of_pub) if d and int(d[2:4])>=24 and int(d[5:7])>=10}
-        # relevant_info = [i for i in relevant_info['webPages']['value'] if llm.classify_importance(i['name'])]
-
-        # for i in range(len(response['webPages']['value'])):
-        #     links.append((response['webPages']['value'][i]['name'], response['webPages']['value'][i]['url']))
-        # return response
+        # Get news from Bing Search API
+        response_web, dates_web = self.search(package_name)
+        response_news, dates_news = self.search_news(package_name)
+        
+        # Only use the good ones that are recent
+        relevant_web = self.filter_quality(response_web, dates_web)
+        relevant_news = self.filter_quality(response_news, dates_news)
+        return relevant_web, relevant_news
+    
+class Scrape:
+    def __init__(self, llm):
+        self.llm = llm
+        self.app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
+        self.bing = BingSearch(llm)
+    """
+    Will return a list of titles, classifications, and markdown content for news and tutorials and maybe papers.
+    [(title, classification, markdown_content),....]
+    @param query: str
+    @return: list
+    """
+    def get_markdown_content(self, query):
+        relevant_web, relevant_news = self.bing.find_relevant_links(query)
+        relevant_info = relevant_web + relevant_news
+        classifications = [self.llm.classify_type(info[0]) for info in relevant_info]
+    
 
 if __name__ == "__main__":
     llm = LLMWrapper()

@@ -1,5 +1,4 @@
 from openai import OpenAI
-import openai
 OPENAI_API_KEY = "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"
 class LLMWrapper:
     def __init__(self):
@@ -26,7 +25,7 @@ class LLMWrapper:
         return topics
     
     def classify_importance(self, title):
-        messages = [{"role": "user", "content": f"Classify whether the following title is important tech news or not. Important tech news involves some cool software or technique--it could include startup/company announcements, a research paper, interesting open-source progress, news about recent government action, or a useful tutorial. Here is the title:\n{title}.\n Respond with 1 for the former and 2 for the latter, and say nothing else."},]
+        messages = [{"role": "user", "content": f"Classify whether the following title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, a research paper, amazing open-source progress, news about recent government action, or a useful and cool tutorial. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere. Here is the title:\n{title}.\n Respond with 1 if it is useful and 2 if it is not, and say nothing else."},]
         out = self.complete("gpt-4o-mini", messages)
         if "1" in out and "2" not in out:
             return True

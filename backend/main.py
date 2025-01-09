@@ -8,7 +8,7 @@ import base64
 import stripe
 
 from file import File
-from topics import CodeSage
+from topics import Embedder
 from llm_wrapper import LLMWrapper
 
 
@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 stripe.api_key = 'sk_test_51QbcO9RpVERX1hynlK0Vx8QjZbR3XcGMmdoaV0rNYtyiSSErUa6YsjKbRfkZR9QQ4wZyawjYyIB771jqTrvG3jYy00tfJmgeeQ'
-codesage = CodeSage()
+embedder = Embedder()
 llm = LLMWrapper()
 def get_access_token(code):
     response = requests.post(
@@ -183,7 +183,7 @@ async def register(request: Request):
     
     # api_topics = llm.get_topics(apis) 
     
-    readme_topics = codesage.get_topics_for_user(files_readme)
+    readme_topics = embedder.get_topics_for_user(files_readme)
     topics = list(set(readme_topics))
     print(topics)
     save_topics_to_db(username, topics)
