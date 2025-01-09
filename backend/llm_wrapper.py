@@ -26,13 +26,17 @@ class LLMWrapper:
         return topics
     
     def classify_importance(self, title):
-        messages = [{"role": "user", "content": f"Classify whether the following title is important tech news or not. Important tech news involves some cool software or technique that is novel--it could include startup/company announcements, a research paper, interesting open-source progress, or news about recent government action. Here is the title:\n{title}.\n Respond with 1 for the former and 2 for the latter, and say nothing else."},]
+        messages = [{"role": "user", "content": f"Classify whether the following title is important tech news or not. Important tech news involves some cool software or technique--it could include startup/company announcements, a research paper, interesting open-source progress, news about recent government action, or a useful tutorial. Here is the title:\n{title}.\n Respond with 1 for the former and 2 for the latter, and say nothing else."},]
         out = self.complete("gpt-4o-mini", messages)
         if "1" in out and "2" not in out:
             return True
         elif "2" in out and "1" not in out:
             return False
         else: return False
+    
+    def classify_type(self, title):
+        messages = [{"role": "user", "content": f"Classify the type of the following title. The types are: 'news', 'tutorial', 'research paper', or 'other'. Here is the title:\n{title}.\n Respond with the type of the title, and say nothing else."},]
+        return self.complete("gpt-4o-mini", messages)
 
     def make_articles(self, topic_to_text):
         articles = {}

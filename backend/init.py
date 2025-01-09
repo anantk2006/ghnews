@@ -19,7 +19,8 @@ cursor.execute('''DROP TABLE IF EXISTS topics''')
 cursor.execute('''
 CREATE TABLE topics (
     username TEXT,
-    topic TEXT
+    topic TEXT,
+    skill_level FLOAT
 )
 ''')
 cursor.execute('''DROP TABLE IF EXISTS links''')

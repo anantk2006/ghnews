@@ -1,5 +1,5 @@
 import sqlite3
-from backend.bing import find_relevant_info
+from backend.scrape import find_relevant_info
 from firecrawl import FirecrawlApp
 from llm_wrapper import LLMWrapper
 
