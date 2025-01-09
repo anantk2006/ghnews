@@ -16,7 +16,6 @@ class ArcticEmbed:
         self.model = AutoModel.from_pretrained(self.checkpoint, add_pooling_layer=False, trust_remote_code=True)
         self.model.eval()
         self.embeddings = self.get_embedding(self.topics)
-        print(self.embeddings.shape)
     
     def get_topics_from_file(self):
         with open("topics.txt") as f:

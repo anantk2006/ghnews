@@ -2,6 +2,7 @@
 import requests
 from llm_wrapper import LLMWrapper
 from firecrawl import FirecrawlApp
+from bs4 import BeautifulSoup
 
 class BingSearch:
     def __init__(self, llm):
@@ -68,6 +69,31 @@ class BingSearch:
         relevant_news = self.filter_quality(response_news, dates_news)
         return relevant_web, relevant_news
     
+class ArxivSearch:
+    def __init__(self):
+        self.ARXIV_BASE_URL = "https://arxiv.org/list/cs/recent?skip=0&show=2000"
+        self.ARXIV_PAPER_URL = "https://arxiv.org/abs/"  
+    def get_arxiv_ids(self):
+        response = requests.get(self.ARXIV_BASE_URL)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        papers = soup.find_all('a', {'title': 'Download PDF'})
+        ids = []
+        for paper in papers:
+            ids.append(paper['href'].split('/')[-1])
+        return ids
+
+    def get_arxiv_abstracts(self):
+        abstracts = []
+        ids = self.get_arxiv_ids()
+        for id in ids:
+            response = requests.get(self.ARXIV_PAPER_URL + id)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            abstract = soup.find('blockquote', {'class': 'abstract mathjax'}).text
+            title = soup.find('h1', {'class': 'title mathjax'}).text
+            if self.llm.classify_importance(title):
+                abstracts.append((title, abstract))
+        return abstracts     
+        
 class Scrape:
     def __init__(self, llm):
         self.llm = llm
@@ -83,6 +109,7 @@ class Scrape:
         relevant_web, relevant_news = self.bing.find_relevant_links(query)
         relevant_info = relevant_web + relevant_news
         classifications = [self.llm.classify_type(info[0]) for info in relevant_info]
+
     
 
 if __name__ == "__main__":
