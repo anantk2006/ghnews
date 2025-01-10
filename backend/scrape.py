@@ -57,7 +57,7 @@ class BingSearch:
     def filter_quality(self, links, dates, news=False):
         relevant_info = []
         yr = 25 if news else 24
-        mo = 01 if news else 9
+        mo = 1 if news else 9
         for i in range(len(links)):
             if dates[i] and int(dates[i][2:4])>=yr and int(dates[i][5:7])>=mo:
                 if self.llm.classify_importance(links[i][0]):
@@ -80,9 +80,11 @@ class BingSearch:
         return relevant_news
     
 class ArxivSearch:
-    def __init__(self):
+    def __init__(self, llm):
         self.ARXIV_BASE_URL = "https://arxiv.org/list/cs/recent?skip=0&show=2000"
-        self.ARXIV_PAPER_URL = "https://arxiv.org/abs/"  
+        self.ARXIV_PAPER_URL = "https://arxiv.org/abs/" 
+        self.llm = llm 
+
     def get_arxiv_ids(self):
         response = requests.get(self.ARXIV_BASE_URL)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -95,7 +97,7 @@ class ArxivSearch:
     def get_arxiv_abstracts(self):
         abstracts = []
         ids = self.get_arxiv_ids()
-        for id in ids:
+        for id in ids[:10]:
             response = requests.get(self.ARXIV_PAPER_URL + id)
             soup = BeautifulSoup(response.text, 'html.parser')
             abstract = soup.find('blockquote', {'class': 'abstract mathjax'}).text
@@ -108,7 +110,7 @@ class Scrape:
     def __init__(self, llm):
         self.llm = llm
         self.bing = BingSearch(llm)
-        self.arxiv = ArxivSearch()
+        self.arxiv = ArxivSearch(llm)
         self.embed = ArcticEmbed()
     """
     Will return a list of titles, classifications, and markdown content for news and tutorials and maybe papers.
@@ -135,18 +137,27 @@ class Scrape:
         return topic_to_text
 
     def get_arxiv_content(self):
+        # Extract and format abstracts
         abstracts = self.arxiv.get_arxiv_abstracts()
         titles = [a[0] for a in abstracts]
         batched_titles = [titles[i:i + 250] for i in range(0, len(titles), 250)]
         all_embeddings = []
+        # Embed abstracts and discover topics
         for batch in batched_titles:
             embeddings = self.embed.get_embedding(batch)
             all_embeddings.append(embeddings)
         final_embeddings = torch.cat(all_embeddings, dim=0)
-        likes = final_embeddings @ self.embed.embeddings.T
-        sums = torch.sum(likes, dim=1)
-        user_topics = torch.argmax(sums, dim=1)
-
+        likes = final_embeddings @ self.embed.paper_embeds.T
+        user_topics = torch.argmax(likes, dim=1)
+        # Get the proper dictionary
+        topic_to_text = {}
+        for i, topic_idx in enumerate(user_topics):
+            topic = self.embed.paper_topics[int(topic_idx)]
+            if topic in topic_to_text:
+                topic_to_text[topic].append(abstracts[i][1])
+            else:
+                topic_to_text[topic] = [abstracts[i][1]]
+        return topic_to_text
 
 
 if __name__ == "__main__":

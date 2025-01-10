@@ -7,14 +7,22 @@ from llm_wrapper import LLMWrapper
 
 class ArcticEmbed:
     def __init__(self):
+
+        # Init info
         self.checkpoint = "Snowflake/snowflake-arctic-embed-m-v1.5"
         self.device = "cpu"  # for GPU usage or "cpu" for CPU usage
-
+        # Initialize topics and topic classifications
         self.topics, self.types = self.get_topics_from_file()
+        self.paper_topics = [topic for topic, type in zip(self.topics, self.types) if "papers" in type]
+        self.news_topics = [topic for topic, type in zip(self.topics, self.types) if "news" in type]
+        self.tutorial_topics = [topic for topic, type in zip(self.topics, self.types) if "tutorial" in type]
+        
+        # setup the model p well
         self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
         self.model = AutoModel.from_pretrained(self.checkpoint, add_pooling_layer=False, trust_remote_code=True)
         self.model.eval()
         self.embeddings = self.get_embedding(self.topics)
+        self.paper_embeds = self.get_embedding(self.paper_topics)
     
     def get_topics_from_file(self):
         with open("topics.txt") as f:
@@ -53,7 +61,7 @@ class ArcticEmbed:
 
         # Sum across all topic similarity to our topics
         sims = torch.sum(matrix, dim=1).flatten()
-        return list(sims)
+        return sims.tolist()
         
 
 if __name__ == "__main__":
