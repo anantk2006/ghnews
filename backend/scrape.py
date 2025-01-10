@@ -6,6 +6,23 @@ from bs4 import BeautifulSoup
 from topics import ArcticEmbed
 
 import torch
+import asyncio
+import aiohttp
+
+"""
+Helpers for async fetching of web content
+"""
+async def fetch(self, session, url):
+    async with session.get(url) as response:
+        return await response.text()
+
+async def fetch_all(self, urls):
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for url in urls:
+            tasks.append(self.fetch(session, url))
+        return await asyncio.gather(*tasks)
+
 
 class BingSearch:
     def __init__(self, llm):
@@ -90,14 +107,14 @@ class ArxivSearch:
         soup = BeautifulSoup(response.text, 'html.parser')
         papers = soup.find_all('a', {'title': 'Download PDF'})
         ids = []
-        for paper in papers:
+        for paper in papers[:300]:
             ids.append(paper['href'].split('/')[-1])
         return ids
 
     def get_arxiv_abstracts(self):
         abstracts = []
         ids = self.get_arxiv_ids()
-        for id in ids[:10]:
+        for id in ids:
             response = requests.get(self.ARXIV_PAPER_URL + id)
             soup = BeautifulSoup(response.text, 'html.parser')
             abstract = soup.find('blockquote', {'class': 'abstract mathjax'}).text
@@ -118,6 +135,8 @@ class Scrape:
     @param query: str
     @return: list
     """
+
+    
     def get_markdown_content(self, topics, type):
         topic_to_text = {}
         for topic in topics:
@@ -129,10 +148,8 @@ class Scrape:
             else:
                 raise ValueError("Type must be 'news' or 'web'")
             news_links = [l[1] for l in news_links]
-            news_content = []
-            for link in news_links:
-                content = requests.get(f"r.jina.ai/{link}").text
-                news_content.append(content)
+            loop = asyncio.get_event_loop()
+            news_content = loop.run_until_complete(self.fetch_all(news_links))
             topic_to_text[topic] = news_content
         return topic_to_text
 
