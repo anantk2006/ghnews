@@ -3,6 +3,9 @@ import requests
 from llm_wrapper import LLMWrapper
 from firecrawl import FirecrawlApp
 from bs4 import BeautifulSoup
+from topics import ArcticEmbed
+
+import torch
 
 class BingSearch:
     def __init__(self, llm):
@@ -51,23 +54,30 @@ class BingSearch:
             links.append((response['value'][i]['name'], response['value'][i]['url']))
         return links, dates
 
-    def filter_quality(self, links, dates):
+    def filter_quality(self, links, dates, news=False):
         relevant_info = []
+        yr = 25 if news else 24
+        mo = 01 if news else 9
         for i in range(len(links)):
-            if dates[i] and int(dates[i][2:4])>=24 and int(dates[i][5:7])>=10:
+            if dates[i] and int(dates[i][2:4])>=yr and int(dates[i][5:7])>=mo:
                 if self.llm.classify_importance(links[i][0]):
                     relevant_info.append(links[i])
         return relevant_info
-
-    def find_relevant_links(self, package_name):
+    
+    def find_relevant_links_web(self, topic):
         # Get news from Bing Search API
-        response_web, dates_web = self.search(package_name)
-        response_news, dates_news = self.search_news(package_name)
-        
+        response_web, dates_web = self.search(topic)
         # Only use the good ones that are recent
         relevant_web = self.filter_quality(response_web, dates_web)
-        relevant_news = self.filter_quality(response_news, dates_news)
-        return relevant_web, relevant_news
+        return relevant_web
+
+    def find_relevant_links_news(self, topic):
+        # Get news from Bing Search API
+        response_news, dates_news = self.search_news(topic)
+        
+        # Only use the good ones that are recent
+        relevant_news = self.filter_quality(response_news, dates_news, news=True)
+        return relevant_news
     
 class ArxivSearch:
     def __init__(self):
@@ -97,20 +107,47 @@ class ArxivSearch:
 class Scrape:
     def __init__(self, llm):
         self.llm = llm
-        self.app = FirecrawlApp(api_key="fc-571037d21e434541b3747bfdecb42eae")
         self.bing = BingSearch(llm)
+        self.arxiv = ArxivSearch()
+        self.embed = ArcticEmbed()
     """
     Will return a list of titles, classifications, and markdown content for news and tutorials and maybe papers.
     [(title, classification, markdown_content),....]
     @param query: str
     @return: list
     """
-    def get_markdown_content(self, query):
-        relevant_web, relevant_news = self.bing.find_relevant_links(query)
-        relevant_info = relevant_web + relevant_news
-        classifications = [self.llm.classify_type(info[0]) for info in relevant_info]
+    def get_markdown_content(self, topics, type):
+        topic_to_text = {}
+        for topic in topics:
+            topic_to_text[topic] = []     
+            if type == "news":       
+                news_links = self.bing.find_relevant_links_news(topic)
+            elif type == "web":
+                news_links = self.bing.find_relevant_links_web(topic + "tutorial")
+            else:
+                raise ValueError("Type must be 'news' or 'web'")
+            news_links = [l[1] for l in news_links]
+            news_content = []
+            for link in news_links:
+                content = requests.get(f"r.jina.ai/{link}").text
+                news_content.append(content)
+            topic_to_text[topic] = news_content
+        return topic_to_text
 
-    
+    def get_arxiv_content(self):
+        abstracts = self.arxiv.get_arxiv_abstracts()
+        titles = [a[0] for a in abstracts]
+        batched_titles = [titles[i:i + 250] for i in range(0, len(titles), 250)]
+        all_embeddings = []
+        for batch in batched_titles:
+            embeddings = self.embed.get_embedding(batch)
+            all_embeddings.append(embeddings)
+        final_embeddings = torch.cat(all_embeddings, dim=0)
+        likes = final_embeddings @ self.embed.embeddings.T
+        sums = torch.sum(likes, dim=1)
+        user_topics = torch.argmax(sums, dim=1)
+
+
 
 if __name__ == "__main__":
     llm = LLMWrapper()

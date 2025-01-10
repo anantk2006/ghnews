@@ -11,7 +11,6 @@ class ArcticEmbed:
         self.device = "cpu"  # for GPU usage or "cpu" for CPU usage
 
         self.topics, self.types = self.get_topics_from_file()
-
         self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
         self.model = AutoModel.from_pretrained(self.checkpoint, add_pooling_layer=False, trust_remote_code=True)
         self.model.eval()

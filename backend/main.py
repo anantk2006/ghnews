@@ -8,7 +8,7 @@ import base64
 import stripe
 
 from file import File
-from topics import Embedder
+from topics import ArcticEmbed
 from llm_wrapper import LLMWrapper
 
 
@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 stripe.api_key = 'sk_test_51QbcO9RpVERX1hynlK0Vx8QjZbR3XcGMmdoaV0rNYtyiSSErUa6YsjKbRfkZR9QQ4wZyawjYyIB771jqTrvG3jYy00tfJmgeeQ'
-embedder = Embedder()
+embedder = ArcticEmbed()
 llm = LLMWrapper()
 def get_access_token(code):
     response = requests.post(
