@@ -34,7 +34,11 @@ class LLMWrapper:
         else: return False
 
     def classify_importance_web(self, title):
-        prompt = "Classify whether the following title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, a research paper, open-source progress, news about recent government action, or a useful and cool tutorial. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere."
+        prompt = "Classify whether the following title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, a research paper, open-source progress, news about recent government action, or a useful and cool tutorial that isn't very simple. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere."
+        return self.classify_importance(title, prompt)
+
+    def classify_importance_news(self, title):
+        prompt = "Classify whether the following news title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, open-source progress, news about recent government action, etc. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. Note that if the title is not news, then it is not interesting and should classified as such. Titles that involve summary lists or broad overviews are also not interesting. The title should not be common knowledge in the tech sphere."
         return self.classify_importance(title, prompt)
     
     def classify_importance_research(self, title):

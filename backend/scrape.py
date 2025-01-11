@@ -81,10 +81,11 @@ class GoogleSearch:
             query_to_links[query] = ret            
         return query_to_links        
 
-    def filter_quality(self, links):
+    def filter_quality(self, links, search_type = "web"):
         relevant_info = []
+        classifier = self.llm.classify_importance_news if search_type == "news" else self.llm.classify_importance_web
         for i in range(len(links)):            
-            if self.llm.classify_importance_web(links[i][0]):
+            if classifier(links[i][0]):
                 relevant_info.append(links[i])
         return relevant_info
     
@@ -93,7 +94,7 @@ class GoogleSearch:
         response_web = self.search(topics, search_type=search_type)
         # Only use the good ones
         for query in response_web:
-            response_web[query] = self.filter_quality(response_web[query])    
+            response_web[query] = self.filter_quality(response_web[query], search_type=search_type)    
         return response_web
     
 class ArxivSearch:
@@ -188,14 +189,14 @@ if __name__ == "__main__":
     arxiv_t2t = scraper.get_arxiv_content()
     news_t2t, web_t2t = scraper.get_markdown_content()
     # Write arxiv content to file
-    with open('arxiv_content.json', 'w') as f:
+    with open('content/arxiv_content.json', 'w') as f:
         json.dump(arxiv_t2t, f, indent=4)
 
     # Write news content to file
-    with open('news_content.json', 'w') as f:
+    with open('content/news_content.json', 'w') as f:
         json.dump(news_t2t, f, indent=4)
 
     # Write web content to file
-    with open('web_content.json', 'w') as f:
+    with open('content/web_content.json', 'w') as f:
         json.dump(web_t2t, f, indent=4)
     
