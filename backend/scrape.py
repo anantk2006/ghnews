@@ -8,56 +8,82 @@ from topics import ArcticEmbed
 import torch
 import asyncio
 import aiohttp
+import datetime, time
 
 """
 Helpers for async fetching of web content
 """
-async def fetch(self, session, url):
+async def fetch_text(session, url):
     async with session.get(url) as response:
         return await response.text()
+    
+async def fetch_json(session, url):
+    async with session.get(url) as response:
+        return await response.json()
 
-async def fetch_all(self, urls):
+async def fetch_all(urls, format = "json"):
     async with aiohttp.ClientSession() as session:
         tasks = []
         for url in urls:
-            tasks.append(self.fetch(session, url))
+            if format == "json":
+                tasks.append(fetch_json(session, url))
+            elif format == "text":
+                tasks.append(fetch_text(session, url))
+            else:
+                raise ValueError("Format must be 'json' or 'text'")
         return await asyncio.gather(*tasks)
 
 
-class BingSearch:
+class GoogleSearch:
     def __init__(self, llm):
-        self.subscription_key = "eda35cadd4834ce997da0375b171e61c"
-        self.endpoint = "https://api.bing.microsoft.com/v7.0/search/"
-        self.news_endpoint = "https://api.bing.microsoft.com/v7.0/news/search"
+        week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        week_ago_day = week_ago.day
+        week_ago_month = week_ago.month
+        week_ago_year = week_ago.year
+        two_months_ago = datetime.datetime.now() - datetime.timedelta(days=60)
+        two_months_ago_day = two_months_ago.day
+        two_months_ago_month = two_months_ago.month
+        two_months_ago_year = two_months_ago.year
+
+        self.endpoint = f"https://www.google.com/search?rlz=1C1ONGR_enUS977US977&q=after:{two_months_ago_year}-{two_months_ago_month}-{two_months_ago_month}+"
+        self.news_endpoint = f"https://www.google.com/search?sca_esv=a5656b49a3739dcb&rlz=1C1ONGR_enUS977US977&sxsrf=ADLYWILKxjgubkuPUCIn18j-c9kzJ2CpDQ:1736549267956&tbm=nws&source=lnms&fbs=AEQNm0Aa4sjWe7Rqy32pFwRj0UkWxyMMuf0D-HOMEpzq2zertb7e7Ciu-gKKGrwTISbKLfFIYx49Dyz2pn9q3XAGT3GlZzYbV_yo73lZ_m2LipeQYsyJUKGJZPL_qptJKAatZvwmB_4U1rSVeZB6yCZoBjje8QMPLrSzGTZfEb08Se95XUxV45ehpxMas3jQD98fxKWLpOpC98hL9Z6jJvLxnZvrXgvKrQ&sa=X&sqi=2&ved=2ahUKEwjlnIGSnuyKAxVlRjABHR-8G2YQ0pQJegQIEhAB&biw=1536&bih=730&dpr=1.25&q=after:{week_ago_year}-{week_ago_month}-{week_ago_day}+"
         self.llm = llm
 
-    def search(self, query):
+    def search(self, queries):
         # Add your Bing Search V7 subscription key and endpoint to your environment variables.
         # Construct a request
-        mkt = 'en-US'
-        params = { 'q': query, 'mkt': mkt }
-        headers = { 'Ocp-Apim-Subscription-Key': self.subscription_key }
-
         # Call the API
-        try:
-            response = requests.get(self.endpoint, headers=headers, params=params)
-            response.raise_for_status()
-            response = response.json()
-        except Exception as ex:
-            raise ex
-        links = []
-        dates = [False if 'datePublished' not in r else r['datePublished'] for r in response['webPages']['value']]
-        for i in range(len(response['webPages']['value'])):
-            links.append((response['webPages']['value'][i]['name'], response['webPages']['value'][i]['url']))
-        return links, dates
+        print("fuck you", flush=True)
+        query_to_links = []
+        queries = ["+".join(query.split(" ")) for query in queries]
+        links = [self.endpoint + query for query in queries]
+        loop = asyncio.get_event_loop()
+        news_content = loop.run_until_complete(self.fetch_all())
+        
+        for r in res:
 
-    def search_news(self, query):
+        # for query in queries:
+        #     res = 
+        #     soup = BeautifulSoup(res.text, 'html.parser')
+        #     links = soup.find_all('a')
+        #     domains = set()
+        #     fins = []
+        #     titles = []
+        #     for link in links:
+        #         href = link.get('href')
+        #         if "google" not in href and "https" in href:
+        #             bound = href.index("//") + 2
+        #             up = href[bound:].index("/")
+        #             domain = href[bound:bound + up]
+        #             if domain not in domains:
+        #                 fins.append(link.get('href'))
+        #                 domains.add(domain)
+        #                 title = link.text
+        #                 titles.append(title)
+
+    def search_news(self, queries):
         # Add your Bing Search V7 subscription key and endpoint to your environment variables.
         # Construct a request
-        mkt = 'en-US'
-        params = { 'q': query, 'mkt': mkt }
-        headers = { 'Ocp-Apim-Subscription-Key': self.subscription_key }
-
         # Call the API
         try:
             response = requests.get(self.news_endpoint, headers=headers, params=params)
@@ -65,11 +91,7 @@ class BingSearch:
             response = response.json()
         except Exception as ex:
             raise ex
-        links = []
-        dates = [False if 'datePublished' not in r else r['datePublished'] for r in response['value']]
-        for i in range(len(response['value'])):
-            links.append((response['value'][i]['name'], response['value'][i]['url']))
-        return links, dates
+        
 
     def filter_quality(self, links, dates, news=False):
         relevant_info = []
@@ -179,5 +201,5 @@ class Scrape:
 
 if __name__ == "__main__":
     llm = LLMWrapper()
-    bing = BingSearch(llm)
-    bing.find_relevant_links("machine learning")
+    ggl = GoogleSearch(llm)
+    asyncio.run(ggl.search(["software engineering", "machine learning"]))
