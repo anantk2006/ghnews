@@ -1,3 +1,0 @@
-[submodule "backend/codesage-small-v2"]
-	path = backend/codesage-small-v2
-	url = https://huggingface.co/codesage/codesage-small-v2
