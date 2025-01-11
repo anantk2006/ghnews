@@ -12,6 +12,7 @@ import torch
 import datetime
 import re
 import json
+import time
 
 
 """
@@ -89,7 +90,7 @@ class GoogleSearch:
     
     def find_relevant_links(self, topics, search_type = "web"):
         # Get news from google search
-        response_web = self.search(topics, search_type="web")
+        response_web = self.search(topics, search_type=search_type)
         # Only use the good ones
         for query in response_web:
             response_web[query] = self.filter_quality(response_web[query])    
@@ -137,7 +138,13 @@ class Scrape:
             # Construct jina links and scrape for markdown content
             jina_links = ["https://r.jina.ai/" + link[1] for link in links]
             content = asyncio.get_event_loop().run_until_complete(fetch_all(jina_links, format="text"))
-            cleaned_content = content
+            # Prevent rate limiting
+            init_len = len(content)
+            content = [c for c in content if "Slow down, turbo!" not in c]
+            if len(content) != init_len:
+                print("Rate limited, sleeping for 60 seconds")
+                time.sleep(60)
+            cleaned_content = []
             for c in content:
                 cleaned = re.sub(r'\(.*?\)', '', c)
                 cleaned = re.sub(r'\[.*?\]', '', cleaned)
