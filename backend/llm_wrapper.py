@@ -20,18 +20,27 @@ class LLMWrapper:
         strings = ["\n\n".join(batch) for batch in batches]
         topics = []
         for string in strings:
-            messages = [{"role": "user", "content": f"Analyze the README files given and provide a list of 15-20 tech news, research, and computer science topics of relevance in a comma-seperated and unordered format e.g. topic 1, topic 2, topic 3, etc. I am going to use these topics to webscrape, so make sure that they would have news/tutorials/specific articles relating to them that would interesting to software developers. Here are the files: {strings}"},]
+            messages = [{"role": "user", "content": f"Analyze the README file given and provide a list of 15-20 tech news, research, and computer science topics of relevance in a comma-seperated and unordered format e.g. topic 1, topic 2, topic 3, etc. I am going to use these topics to webscrape, so make sure that they would have news/tutorials/specific articles relating to them that would interesting to software developers. Here is the file: {string}"},]
             topics += self.complete("gpt-4o-mini", messages).split(", ")
         return topics
     
-    def classify_importance(self, title):
-        messages = [{"role": "user", "content": f"Classify whether the following title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, a research paper, amazing open-source progress, news about recent government action, or a useful and cool tutorial. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere. Here is the title:\n{title}.\n Respond with 1 if it is useful and 2 if it is not, and say nothing else."},]
+    def classify_importance(self, title, prompt):
+        messages = [{"role": "user", "content": f"{prompt}. Here is the title:\n{title}.\n Respond with 1 if it is useful and 2 if it is not, and say nothing else."},]
         out = self.complete("gpt-4o-mini", messages)
         if "1" in out and "2" not in out:
             return True
         elif "2" in out and "1" not in out:
             return False
         else: return False
+
+    def classify_importance_web(self, title):
+        prompt = "Classify whether the following title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, a research paper, open-source progress, news about recent government action, or a useful and cool tutorial. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere."
+        return self.classify_importance(title, prompt)
+    
+    def classify_importance_research(self, title):
+        prompt = "Classify whether the following research paper title is interesting/important or not. These papers come from Arxiv, so many will be unpublished preprints with uninportant and arbitrary. Papers about niche applications or specific electronics are not important/interesting. Interesting/important papers will have impact. These titles will be sent to software engineers--they should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere."
+        return self.classify_importance(title, prompt)
+        
     
     def classify_type(self, title):
         messages = [{"role": "user", "content": f"Classify the type of the following title. The types are: 'news', 'tutorial', 'research paper', or 'other'. Here is the title:\n{title}.\n Respond with the type of the title, and say nothing else."},]

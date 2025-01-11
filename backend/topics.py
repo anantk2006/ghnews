@@ -10,7 +10,6 @@ class ArcticEmbed:
 
         # Init info
         self.checkpoint = "Snowflake/snowflake-arctic-embed-m-v1.5"
-        self.device = "cpu"  # for GPU usage or "cpu" for CPU usage
         # Initialize topics and topic classifications
         self.topics, self.types = self.get_topics_from_file()
         self.paper_topics = [topic for topic, type in zip(self.topics, self.types) if "papers" in type]
@@ -27,7 +26,7 @@ class ArcticEmbed:
     def get_topics_from_file(self):
         with open("topics.txt") as f:
             topics = f.read().split("), ")
-            topics = [topic.split("(") for topic in topics if len(topic) > 2]
+            topics = [topic.split(" (") for topic in topics if len(topic) > 2]
             types = [topic[1].split(", ") for topic in topics]
             topics = [topic[0] for topic in topics]
             return topics, types            
