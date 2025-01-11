@@ -46,77 +46,53 @@ class GoogleSearch:
         two_months_ago_year = two_months_ago.year
 
         self.endpoint = f"https://www.google.com/search?rlz=1C1ONGR_enUS977US977&q=after:{two_months_ago_year}-{two_months_ago_month}-{two_months_ago_month}+"
-        self.news_endpoint = f"https://www.google.com/search?sca_esv=a5656b49a3739dcb&rlz=1C1ONGR_enUS977US977&sxsrf=ADLYWILKxjgubkuPUCIn18j-c9kzJ2CpDQ:1736549267956&tbm=nws&source=lnms&fbs=AEQNm0Aa4sjWe7Rqy32pFwRj0UkWxyMMuf0D-HOMEpzq2zertb7e7Ciu-gKKGrwTISbKLfFIYx49Dyz2pn9q3XAGT3GlZzYbV_yo73lZ_m2LipeQYsyJUKGJZPL_qptJKAatZvwmB_4U1rSVeZB6yCZoBjje8QMPLrSzGTZfEb08Se95XUxV45ehpxMas3jQD98fxKWLpOpC98hL9Z6jJvLxnZvrXgvKrQ&sa=X&sqi=2&ved=2ahUKEwjlnIGSnuyKAxVlRjABHR-8G2YQ0pQJegQIEhAB&biw=1536&bih=730&dpr=1.25&q=after:{week_ago_year}-{week_ago_month}-{week_ago_day}+"
+        self.news_endpoint = f"https://www.google.com/search?sca_esv=a5656b49a3739dcb&rlz=1C1ONGR_enUS977US977&sxsrf=ADLYWILKxjgubkuPUCIn18j-c9kzJ2CpDQ:1736549267956&tbm=nws&source=lnms&q=after:{week_ago_year}-{week_ago_month}-{week_ago_day}+"
         self.llm = llm
 
-    def search(self, queries):
-        # Add your Bing Search V7 subscription key and endpoint to your environment variables.
-        # Construct a request
-        # Call the API
-        print("fuck you", flush=True)
-        query_to_links = []
+    def search(self, queries, search_type = "web"):
+        # batch requests to google search for all queries
+        query_to_links = {}
         queries = ["+".join(query.split(" ")) for query in queries]
-        links = [self.endpoint + query for query in queries]
+        links = [(self.endpoint if search_type == "web" else self.news_endpoint) + query for query in queries]
         loop = asyncio.get_event_loop()
-        news_content = loop.run_until_complete(self.fetch_all())
-        
-        for r in res:
+        content = loop.run_until_complete(fetch_all(links, format="text"))
+        # Analyze one by one and map to query
+        for query, html in zip(queries, content):
+            soup = BeautifulSoup(html, 'html.parser')
+            to_scrape = soup.find_all('a')
+            domains = set()            
+            ret = []
+            for link in to_scrape:
+                href = link.get('href')
+                if "google" not in href and "https" in href:
+                    bound = href.index("//") + 2
+                    up = href[bound:].index("/")
+                    domain = href[bound:bound + up]
+                    # google gives many different links for a single thing
+                    if domain not in domains:
+                        domains.add(domain)
+                        ret.append((link.text, href[7:href.index("&sa=")]))
+            query_to_links[query] = ret            
+        return query_to_links        
 
-        # for query in queries:
-        #     res = 
-        #     soup = BeautifulSoup(res.text, 'html.parser')
-        #     links = soup.find_all('a')
-        #     domains = set()
-        #     fins = []
-        #     titles = []
-        #     for link in links:
-        #         href = link.get('href')
-        #         if "google" not in href and "https" in href:
-        #             bound = href.index("//") + 2
-        #             up = href[bound:].index("/")
-        #             domain = href[bound:bound + up]
-        #             if domain not in domains:
-        #                 fins.append(link.get('href'))
-        #                 domains.add(domain)
-        #                 title = link.text
-        #                 titles.append(title)
-
-    def search_news(self, queries):
-        # Add your Bing Search V7 subscription key and endpoint to your environment variables.
-        # Construct a request
-        # Call the API
-        try:
-            response = requests.get(self.news_endpoint, headers=headers, params=params)
-            response.raise_for_status()
-            response = response.json()
-        except Exception as ex:
-            raise ex
-        
-
-    def filter_quality(self, links, dates, news=False):
+    def filter_quality(self, links):
         relevant_info = []
-        yr = 25 if news else 24
-        mo = 1 if news else 9
-        for i in range(len(links)):
-            if dates[i] and int(dates[i][2:4])>=yr and int(dates[i][5:7])>=mo:
-                if self.llm.classify_importance(links[i][0]):
-                    relevant_info.append(links[i])
+        for i in range(len(links)):            
+            if self.llm.classify_importance(links[i][0]):
+                relevant_info.append(links[i])
         return relevant_info
     
-    def find_relevant_links_web(self, topic):
-        # Get news from Bing Search API
-        response_web, dates_web = self.search(topic)
-        # Only use the good ones that are recent
-        relevant_web = self.filter_quality(response_web, dates_web)
-        return relevant_web
-
-    def find_relevant_links_news(self, topic):
-        # Get news from Bing Search API
-        response_news, dates_news = self.search_news(topic)
-        
-        # Only use the good ones that are recent
-        relevant_news = self.filter_quality(response_news, dates_news, news=True)
-        return relevant_news
+    def find_relevant_links(self, topics, search_type = "web"):
+        # Get news from google search
+        if search_type == "news":
+            queries = [topic + "news" for topic in topics]
+        else:
+            queries = [topic + "tutorial" for topic in topics]
+        response_web = self.search(queries, search_type="web")
+        # Only use the good ones
+        for query in response_web:
+            response_web[query] = self.filter_quality(response_web[query])    
+        return response_web
     
 class ArxivSearch:
     def __init__(self, llm):
@@ -136,8 +112,10 @@ class ArxivSearch:
     def get_arxiv_abstracts(self):
         abstracts = []
         ids = self.get_arxiv_ids()
-        for id in ids:
-            response = requests.get(self.ARXIV_PAPER_URL + id)
+        urls = [self.ARXIV_PAPER_URL + id for id in ids]
+        loop = asyncio.get_event_loop()
+        content = loop.run_until_complete(fetch_all(urls, format="text"))
+        for response in content:
             soup = BeautifulSoup(response.text, 'html.parser')
             abstract = soup.find('blockquote', {'class': 'abstract mathjax'}).text
             title = soup.find('h1', {'class': 'title mathjax'}).text
@@ -148,7 +126,7 @@ class ArxivSearch:
 class Scrape:
     def __init__(self, llm):
         self.llm = llm
-        self.bing = BingSearch(llm)
+        self.ggl = GoogleSearch(llm)
         self.arxiv = ArxivSearch(llm)
         self.embed = ArcticEmbed()
     """
@@ -159,21 +137,11 @@ class Scrape:
     """
 
     
-    def get_markdown_content(self, topics, type):
-        topic_to_text = {}
-        for topic in topics:
-            topic_to_text[topic] = []     
-            if type == "news":       
-                news_links = self.bing.find_relevant_links_news(topic)
-            elif type == "web":
-                news_links = self.bing.find_relevant_links_web(topic + "tutorial")
-            else:
-                raise ValueError("Type must be 'news' or 'web'")
-            news_links = [l[1] for l in news_links]
-            loop = asyncio.get_event_loop()
-            news_content = loop.run_until_complete(self.fetch_all(news_links))
-            topic_to_text[topic] = news_content
-        return topic_to_text
+    # def get_markdown_content(self, topics, search_type):
+    #     query_to_links = self.ggl.find_relevant_links(topics, search_type=search_type)
+    #     loop = asyncio.get_event_loop()
+    #     news_content = loop.run_until_complete(self.fetch_all(news_links))
+            
 
     def get_arxiv_content(self):
         # Extract and format abstracts
@@ -202,4 +170,4 @@ class Scrape:
 if __name__ == "__main__":
     llm = LLMWrapper()
     ggl = GoogleSearch(llm)
-    asyncio.run(ggl.search(["software engineering", "machine learning"]))
+    print(ggl.find_relevant_links(["software engineering ", "machine learning "], search_type="news"))
