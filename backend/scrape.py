@@ -138,10 +138,10 @@ class Scrape:
             jina_links = ["https://r.jina.ai/" + link[1] for link in links]
             content = asyncio.get_event_loop().run_until_complete(fetch_all(jina_links, format="text"))
             cleaned_content = content
-            # for c in content:
-            #     cleaned = re.sub(r'(.*?)', '', c)
-            #     cleaned = re.sub(r'[.*?]', '', cleaned)
-            # cleaned_content.append(cleaned)
+            for c in content:
+                cleaned = re.sub(r'\(.*?\)', '', c)
+                cleaned = re.sub(r'\[.*?\]', '', cleaned)
+            cleaned_content.append(cleaned)
             topic_to_links[topic] = cleaned_content
         return topic_to_links
 
@@ -178,11 +178,11 @@ class Scrape:
 if __name__ == "__main__":
     llm = LLMWrapper()
     scraper = Scrape(llm)
-    # arxiv_t2t = scraper.get_arxiv_content()
+    arxiv_t2t = scraper.get_arxiv_content()
     news_t2t, web_t2t = scraper.get_markdown_content()
     # Write arxiv content to file
-    # with open('arxiv_content.json', 'w') as f:
-    #     json.dump(arxiv_t2t, f, indent=4)
+    with open('arxiv_content.json', 'w') as f:
+        json.dump(arxiv_t2t, f, indent=4)
 
     # Write news content to file
     with open('news_content.json', 'w') as f:
