@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import asyncio
 import aiohttp
+import sqlite3 
 
 from llm_wrapper import LLMWrapper
 
@@ -111,11 +112,14 @@ class ArxivSearch:
         for paper in papers[:300]:
             ids.append(paper['href'].split('/')[-1])
         return ids
+    
+    def get_arxiv_urls(self):
+        ids = self.get_arxiv_ids()
+        return [self.ARXIV_PAPER_URL + id for id in ids]
 
     def get_arxiv_abstracts(self):
         abstracts = []
-        ids = self.get_arxiv_ids()
-        urls = [self.ARXIV_PAPER_URL + id for id in ids][:20]
+        urls = self.get_arxiv_urls()
         loop = asyncio.get_event_loop()
         content = loop.run_until_complete(fetch_all(urls, format="text"))
         for response in content:
@@ -133,7 +137,41 @@ class Scrape:
         self.arxiv = ArxivSearch(llm)
         self.embed = ArcticEmbed()
     
+    def add_links_to_db(self, topic_to_links, search_type):
+        db = sqlite3.connect('database.db')
+        cursor = db.cursor()
+        for topic, links in topic_to_links.items():
+            for link in links:
+                cursor.execute('''
+                INSERT INTO links (topic, search_type, link)
+                VALUES (?, ?, ?)
+                ''', (topic, search_type, link))
+        db.commit()
+        db.close()
+    
+    def get_links_from_db(self, search_type, topics):
+        db = sqlite3.connect('database.db')
+        cursor = db.cursor()
+        topic_to_links = {}
+        count = 0
+        for topic in topics:
+            cursor.execute('''
+                SELECT link FROM links WHERE topic = ? AND search_type = ?
+                ''', (topic, search_type))
+            cursor.execute('''
+                DELETE FROM links WHERE topic = ? AND search_type = ?
+                ''', (topic, search_type))   
+            links = cursor.fetchall()
+            topic_to_links[topic] = links
+            count += len(links)
+        db.commit()
+        db.close()        
+        return topic_to_links, count
+    
     def markdown_helper(self, topics, search_type):
+        links, count = self.get_links_from_db(search_type, topics)
+        if count < :50
+
         topic_to_links = self.ggl.find_relevant_links(topics, search_type=search_type)
         for topic, links in topic_to_links.items():
             # Construct jina links and scrape for markdown content
@@ -155,8 +193,8 @@ class Scrape:
 
     def get_markdown_content(self):
         # Get news and web content
-        news_t2t = self.markdown_helper(self.embed.news_topics[:5], "news")
-        web_t2t = self.markdown_helper(self.embed.tutorial_topics[:5], "web")
+        news_t2t = self.markdown_helper(self.embed.news_topics, "news")
+        web_t2t = self.markdown_helper(self.embed.tutorial_topics, "web")
         return news_t2t, web_t2t              
         
     def get_arxiv_content(self):
