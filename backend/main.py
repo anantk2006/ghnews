@@ -211,31 +211,3 @@ def create_payment_intent(request: Request):
     session_id = session.id
     save_session_to_db(session_id)
     return session.client_secret
-
-
-
-    
-
-    
-        
-        
-
-
-    
-
-
-
-
-
-    
-    
-    
-    
-
-    
-
-
-    
-    
-
-    

@@ -7,6 +7,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import markdown
+import schedule
+import time
 
 def send_email(email_address, subject, markdown_text):
     # Convert markdown to HTML
@@ -32,31 +34,26 @@ def send_email(email_address, subject, markdown_text):
         server.login('anantk2006@gmail.com', 'anantk2006')
         server.sendmail("anantk2006@gmail.com", email_address, msg.as_string())
 
-def send_arxiv_content(llm, embedder, scrape):
-    abstracts = scrape.get_arxiv_abstracts()
-    for abstract in abstracts:
-        title, abstract = abstract
-
-
-    
-def main():
+def newsletter():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('''
-    SELECT user_email
-    FROM users
+    SELECT user_id, user_email FROM users
     ''')
-    users = cursor.fetchall()
+    emails = cursor.fetchall()
+    emails = [email[0] for email in emails]
+    
+    
+
     conn.close()
-    
-    llm = LLMWrapper()
-    scrape = Scrape(llm)
-    embed = ArcticEmbed()
-    
-    
-        
-    
-    
+
+
+def main():
+    schedule.every(1).day.do(newsletter)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(10)  
     
 if __name__ == "__main__":
     main()

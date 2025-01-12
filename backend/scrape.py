@@ -156,13 +156,14 @@ class Scrape:
         count = 0
         for topic in topics:
             cursor.execute('''
-                SELECT link FROM links WHERE topic = ? AND search_type = ?
+                SELECT link FROM links WHERE topic = ? AND search_type = ? LIMIT 200
                 ''', (topic, search_type))
-            cursor.execute('''
-                DELETE FROM links WHERE topic = ? AND search_type = ?
-                ''', (topic, search_type))   
             links = cursor.fetchall()
-            topic_to_links[topic] = links
+            for link in links:
+                cursor.execute('''
+                    DELETE FROM links WHERE link = ?
+                    ''', (link[0],))            
+            topic_to_links[topic] = [link[0] for link in links]
             count += len(links)
         db.commit()
         db.close()        
