@@ -60,7 +60,9 @@ class ArcticEmbed:
 
         # Sum across all topic similarity to our topics
         sims = torch.sum(matrix, dim=1).flatten()
-        return sims.tolist()
+        skills = sims.tolist()
+        topic_to_skill = {topic: skill for topic, skill in zip(self.topics, skills)}
+        return topic_to_skill
         
 
 if __name__ == "__main__":

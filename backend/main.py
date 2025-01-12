@@ -130,12 +130,15 @@ def retrieve_user_content(access_token, repos):
 
 def save_topics_to_db(username, topics):
     conn = sqlite3.connect('database.db')
+    get_topic_id = lambda topic: conn.execute("SELECT topic_id FROM topics WHERE topic=?", (topic,)).fetchone()[0]
+    get_user_id = lambda username: conn.execute("SELECT user_id FROM users WHERE username=?", (username,)).fetchone()[0]
     cursor = conn.cursor()
-    for topic in topics:
+    user_id = get_user_id(username)
+    topics = {get_topic_id(topic):skill for topic, skill in topics.items()}
+    for topic, skill in topics.items():
         cursor.execute('''
-        INSERT INTO topics (username, topic)
-        VALUES (?, ?)
-        ''', (username, topic))
+        INSERT INTO user_skills (user_id, topic_id, skill_level) VALUES (?, ?, ?)
+        ''', (user_id, topic, skill))
     conn.commit()
     conn.close()
 
@@ -183,8 +186,7 @@ async def register(request: Request):
     
     # api_topics = llm.get_topics(apis) 
     
-    readme_topics = embedder.get_topics_for_user(files_readme)
-    topics = list(set(readme_topics))
+    topics = embedder.get_topics_for_user(files_readme)
     print(topics)
     save_topics_to_db(username, topics)
 

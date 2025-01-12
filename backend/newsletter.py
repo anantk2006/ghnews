@@ -1,5 +1,5 @@
 import sqlite3
-from firecrawl import FirecrawlApp
+from topics import ArcticEmbed
 from llm_wrapper import LLMWrapper
 from scrape import Scrape
 
@@ -31,6 +31,13 @@ def send_email(email_address, subject, markdown_text):
         server.starttls()
         server.login('anantk2006@gmail.com', 'anantk2006')
         server.sendmail("anantk2006@gmail.com", email_address, msg.as_string())
+
+def send_arxiv_content(llm, embedder, scrape):
+    abstracts = scrape.get_arxiv_abstracts()
+    for abstract in abstracts:
+        title, abstract = abstract
+
+
     
 def main():
     conn = sqlite3.connect('database.db')
@@ -39,12 +46,12 @@ def main():
     SELECT user_email
     FROM users
     ''')
-
     users = cursor.fetchall()
     conn.close()
     
     llm = LLMWrapper()
     scrape = Scrape(llm)
+    embed = ArcticEmbed()
     
     
         

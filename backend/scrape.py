@@ -170,8 +170,9 @@ class Scrape:
     
     def markdown_helper(self, topics, search_type):
         links, count = self.get_links_from_db(search_type, topics)
-        if count < :50
-
+        if count < 50:
+            topic_to_links = self.ggl.find_relevant_links(topics, search_type=search_type)
+            self.add_links_to_db(topic_to_links, search_type)
         topic_to_links = self.ggl.find_relevant_links(topics, search_type=search_type)
         for topic, links in topic_to_links.items():
             # Construct jina links and scrape for markdown content
