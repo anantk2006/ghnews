@@ -9,7 +9,7 @@ class ArcticEmbed:
     def __init__(self):
 
         # Init info
-        self.checkpoint = "Snowflake/snowflake-arctic-embed-m-v1.5"
+        self.checkpoint = "codesage/codesage-small-v2"
         # Initialize topics and topic classifications
         self.topics, self.types = self.get_topics_from_file()
         self.paper_topics = [topic for topic, type in zip(self.topics, self.types) if "papers" in type]
@@ -17,8 +17,11 @@ class ArcticEmbed:
         self.tutorial_topics = [topic for topic, type in zip(self.topics, self.types) if "tutorial" in type]
         
         # setup the model p well
-        self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
-        self.model = AutoModel.from_pretrained(self.checkpoint, add_pooling_layer=False, trust_remote_code=True)
+        # self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
+        # self.model = AutoModel.from_pretrained(self.checkpoint, add_pooling_layer=False, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint, trust_remote_code=True, add_eos_token=True)
+        self.model = AutoModel.from_pretrained(self.checkpoint, trust_remote_code=True)
+
         self.model.eval()
         self.embeddings = self.get_embedding(self.topics)
         self.paper_embeds = self.get_embedding(self.paper_topics)
@@ -37,15 +40,15 @@ class ArcticEmbed:
             
     def get_embedding(self, text):
         with torch.no_grad():
-            # Batched or unbatched input
-            document_tokens =  self.tokenizer(text, 
-                                              padding=True, 
-                                              truncation=True, 
-                                              return_tensors='pt', 
-                                              max_length=8192)
-            document_embeddings = self.model(**document_tokens)[0][:, 0]
-            document_embeddings = torch.nn.functional.normalize(document_embeddings, p=2, dim=1)
-        return document_embeddings
+            if isinstance(text, list):
+                inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=1024)
+                # print(inputs["input_ids"].shape, inputs["attention_mask"].shape, inputs['input_ids'].max(), inputs['input_ids'].min())
+                out = self.model(input_ids = inputs['input_ids'], attention_mask = inputs['attention_mask'], return_dict=True)        
+            else:
+                inputs = self.tokenizer.encode(text, return_tensors="pt")
+                out = self.model(input_ids = inputs, return_dict=True)        
+            code_vec = torch.nn.functional.normalize(out.pooler_output, p=2, dim=1)
+            return code_vec
 
     def get_topics_for_user(self, user_files):
         # We first analyze the readmes that the user has uploaded

@@ -40,9 +40,12 @@ def run_arxiv():
     cursor.execute('''
     SELECT user_id, user_email FROM users
     ''')
+   
     emails = cursor.fetchall()
-    emails = [email[0] for email in emails]
-    ids = [email[1] for email in emails]
+    print(emails)
+    emails = [email[0] for email in emails if email]
+    ids = [email[1] for email in emails if email]
+    
     id_to_email = dict(zip(ids, emails))
     cursor.execute('''
                    SELECT user_id, topic, skill_level FROM user_skills
@@ -81,11 +84,12 @@ def run_arxiv():
 
 
 def main():
-    schedule.every(1).day.do(run_arxiv)
+    # schedule.every(1).day.do(run_arxiv)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(10)  
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(10)  
+    run_arxiv()
     
 if __name__ == "__main__":
     main()
