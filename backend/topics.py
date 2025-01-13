@@ -43,9 +43,8 @@ class ArcticEmbed:
                                               truncation=True, 
                                               return_tensors='pt', 
                                               max_length=8192)
-            with torch.no_grad():
-                document_embeddings = self.model(**document_tokens)[0][:, 0]
-                document_embeddings = torch.nn.functional.normalize(document_embeddings, p=2, dim=1)
+            document_embeddings = self.model(**document_tokens)[0][:, 0]
+            document_embeddings = torch.nn.functional.normalize(document_embeddings, p=2, dim=1)
         return document_embeddings
 
     def get_topics_for_user(self, user_files):
