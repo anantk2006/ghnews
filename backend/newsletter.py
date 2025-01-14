@@ -10,6 +10,8 @@ import markdown
 import schedule
 import time
 
+top_k_topics = 4
+
 def send_email(email_address, subject, markdown_text):
     # Convert markdown to HTML
     html_content = markdown.markdown(markdown_text)
@@ -34,17 +36,16 @@ def send_email(email_address, subject, markdown_text):
         server.login('anantk2006@gmail.com', 'anantk2006')
         server.sendmail("anantk2006@gmail.com", email_address, msg.as_string())
 
-def run_arxiv():
+def retrieve_user_info():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('''
     SELECT user_id, user_email FROM users
     ''')
    
-    emails = cursor.fetchall()
-    print(emails)
-    emails = [email[0] for email in emails if email]
-    ids = [email[1] for email in emails if email]
+    info = cursor.fetchall()
+    emails = [email[0] for email in info if email]
+    ids = [email[1] for email in info if email]
     
     id_to_email = dict(zip(ids, emails))
     cursor.execute('''
@@ -52,35 +53,46 @@ def run_arxiv():
                    ''')
     user_skills = cursor.fetchall()
     user_to_topic_to_skill = {}
-    user_to_skill_sort = {}
+    
     for user_id, topic, skill in user_skills:
         if user_id not in user_to_topic_to_skill:
             user_to_topic_to_skill[user_id] = {}
         user_to_topic_to_skill[user_id][topic] = skill
-        if user_id not in user_to_skill_sort:
-            user_to_skill_sort[user_id] = []
-        user_to_skill_sort[user_id].append((skill, topic))
-    for user_id, skill_topic in user_to_skill_sort.items():
-        skill_topic.sort(reverse=True)
-        user_to_skill_sort[user_id] = set(skill_topic[:50])
+    return id_to_email, user_to_topic_to_skill
+
+def run_arxiv():
+    id_to_email, user_to_topic_to_skill = retrieve_user_info()    
 
     llm = LLMWrapper()
     scrape = Scrape(llm)
-    arxiv_abstracts = scrape.get_arxiv_abstracts()
+    arxiv_abstracts = scrape.get_arxiv_content()
     user_emails = {}
-    for topic, abstract in arxiv_abstracts:
-        for user_id, topic_to_skill in user_to_topic_to_skill.items():
-            if topic in topic_to_skill:
-                if topic in user_to_skill_sort[user_id]:
-                    if user_id not in emails:
-                        user_emails[user_id] = []
-                    user_emails[user_id].append((topic, abstract))
-    print(user_emails)
-    
+    for user_id in user_to_topic_to_skill:
+        todays_topics = list(arxiv_abstracts.keys())
+        top_k = [(topic, user_to_topic_to_skill[user_id][topic]) for topic in todays_topics[:top_k_topics]]
+        for topic in todays_topics[top_k_topics:]:
+            if topic in user_to_topic_to_skill[user_id]:
+                if user_to_topic_to_skill[user_id][topic] > top_k[-1][1]:
+                    i = top_k_topics - 1
+                    while i >= 0 and user_to_topic_to_skill[user_id][topic] > top_k[i][1]:
+                        if i<=top_k_topics-2: top_k[i+1] = top_k[i]
+                        i -= 1
+                    top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
+        user_emails[user_id] = [arxiv_abstracts[topic] for topic, _ in top_k]
 
-        
+def run_web():
+    run_search(search_type="web")
 
-    conn.close()
+def run_news():
+    run_search(search_type="news")
+
+def run_search(search_type):
+    id_to_email, user_to_topic_to_skill = retrieve_user_info()
+    llm = LLMWrapper()
+    scrape = Scrape(llm)
+    topics = scrape.embed.topics
+
+
 
 
 def main():
