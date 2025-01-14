@@ -7,7 +7,7 @@ cursor = conn.cursor()
 cursor.execute('''DROP TABLE IF EXISTS users''')
 cursor.execute('''
 CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
+    user_id INTEGER PRIMARY KEY,
     username TEXT,
     user_email TEXT,
     access_token TEXT,

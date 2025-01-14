@@ -170,6 +170,8 @@ async def register(request: Request):
 
     access_token = get_access_token(code)
     username, user_email = get_username_and_email(access_token)
+    print(username, user_email)
+    # exit()
     upload_user_to_db(username, user_email, access_token)
     repos = get_repos(access_token)   
     # Contact LLM to generate list of topics
