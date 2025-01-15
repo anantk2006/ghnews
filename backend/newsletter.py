@@ -60,15 +60,10 @@ def retrieve_user_info():
         user_to_topic_to_skill[user_id][topic] = skill
     return id_to_email, user_to_topic_to_skill
 
-def run_arxiv():
-    id_to_email, user_to_topic_to_skill = retrieve_user_info()    
-
-    llm = LLMWrapper()
-    scrape = Scrape(llm)
-    arxiv_abstracts = scrape.get_arxiv_content()
+def match_content(user_to_topic_to_skill, content):
     user_emails = {}
     for user_id in user_to_topic_to_skill:
-        todays_topics = list(arxiv_abstracts.keys())
+        todays_topics = list(content.keys())
         top_k = [(topic, user_to_topic_to_skill[user_id][topic]) for topic in todays_topics[:top_k_topics]]
         for topic in todays_topics[top_k_topics:]:
             if topic in user_to_topic_to_skill[user_id]:
@@ -78,7 +73,15 @@ def run_arxiv():
                         if i<=top_k_topics-2: top_k[i+1] = top_k[i]
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
-        user_emails[user_id] = [arxiv_abstracts[topic] for topic, _ in top_k]
+        user_emails[user_id] = [content[topic] for topic, _ in top_k]
+    return user_emails
+
+def run_arxiv():
+    id_to_email, user_to_topic_to_skill = retrieve_user_info()   
+    llm = LLMWrapper()
+    scrape = Scrape(llm)
+    arxiv_abstracts = scrape.get_arxiv_content()
+    user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
 
 def run_web():
     run_search(search_type="web")
@@ -91,6 +94,13 @@ def run_search(search_type):
     llm = LLMWrapper()
     scrape = Scrape(llm)
     topics = scrape.embed.topics
+    topic_to_links = scrape.get_links_from_db(search_type, topics)[0]
+    topic_to_content = scrape.markdown_helper(topic_to_links, search_type)
+    user_emails = match_content(user_to_topic_to_skill, topic_to_content)
+    print(user_emails)
+
+
+
 
 
 
@@ -101,7 +111,8 @@ def main():
     # while True:
     #     schedule.run_pending()
     #     time.sleep(10)  
-    run_arxiv()
+    # run_arxiv()
+    run_web()
     
 if __name__ == "__main__":
     main()

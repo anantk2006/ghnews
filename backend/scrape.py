@@ -169,8 +169,7 @@ class Scrape:
         db.close()        
         return topic_to_links, count
     
-    def markdown_helper(self, topics, search_type):
-        topic_to_links = self.ggl.find_relevant_links(topics, search_type=search_type)
+    def markdown_helper(self, topic_to_links, search_type):
         for topic, links in topic_to_links.items():
             # Construct jina links and scrape for markdown content
             jina_links = ["https://r.jina.ai/" + link[1] for link in links]
@@ -182,11 +181,12 @@ class Scrape:
                 print("Rate limited, sleeping for 60 seconds")
                 time.sleep(60)
             cleaned_content = []
-            for c in content:
-                cleaned = re.sub(r'\(.*?\)', '', c)
-                cleaned = re.sub(r'\[.*?\]', '', cleaned)
-            cleaned_content.append(cleaned)
-            topic_to_links[topic] = cleaned_content
+            if content:
+                for c in content:
+                    cleaned = re.sub(r'\(.*?\)', '', c)
+                    cleaned = re.sub(r'\[.*?\]', '', cleaned)
+                cleaned_content.append(cleaned)
+                topic_to_links[topic] = cleaned_content
         return topic_to_links
 
     def get_markdown_content(self):
