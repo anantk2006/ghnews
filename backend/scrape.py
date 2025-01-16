@@ -20,11 +20,21 @@ import time
 Helpers for async fetching of web content
 """
 async def fetch_text(session, url):
-    async with session.get(url) as response:
-        print(response)
-        g = await response.text()
-        print(g)
-        return g
+    try:
+        async with session.get(url) as response:
+            return await response.text()
+    except UnicodeDecodeError as e:
+        time.sleep(30)
+        try:
+            async with session.get(url) as response:
+                return await response.text()
+        except Exception as e:
+            print(e)
+            return ""
+    except Exception as e:
+        print(e)
+        return ""
+    
     
 async def fetch_json(session, url):
     async with session.get(url) as response:
