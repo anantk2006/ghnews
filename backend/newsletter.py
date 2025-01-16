@@ -8,9 +8,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import markdown
 import schedule
-import time
+import datetime, time
 
-top_k_topics = 4
+top_k_topics = 10
+llm = LLMWrapper()
+scrape = Scrape(llm)
 
 def send_email(email_address, subject, markdown_text):
     # Convert markdown to HTML
@@ -84,17 +86,29 @@ def run_arxiv():
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
 
 def run_web():
-    run_search(search_type="web")
+
+    run_search(scrape, llm, search_type="web")
 
 def run_news():
-    run_search(search_type="news")
+    run_search(scrape, llm, search_type="news")
 
-def run_search(search_type):
+def run_search(scrape, llm, search_type):
+    
+    if datetime.datetime.now() > scrape.last_scraped_news + datetime.timedelta(days=1):
+        scrape.last_scraped_news = datetime.datetime.now()
+        ttl = scrape.ggl.find_relevant_links(topics, search_type)
+        scrape.add_links_to_db(ttl, search_type)
+    if datetime.datetime.now() > scrape.last_scraped_tutorials + datetime.timedelta(days=90):
+        scrape.last_scraped_tutorials = datetime.datetime.now()
+        ttl = scrape.ggl.find_relevant_links(topics, search_type)
+        scrape.add_links_to_db(ttl, search_type)
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
-    llm = LLMWrapper()
-    scrape = Scrape(llm)
     topics = scrape.embed.topics
-    topic_to_links = scrape.get_links_from_db(search_type, topics)[0]
+    topic_to_links, count = scrape.get_links_from_db(search_type, topics)
+    print(topic_to_links)
+    if count < 200:
+        ttl = scrape.ggl.find_relevant_links(topics, search_type)
+        scrape.add_links_to_db(ttl, search_type)
     topic_to_content = scrape.markdown_helper(topic_to_links, search_type)
     user_emails = match_content(user_to_topic_to_skill, topic_to_content)
     print(user_emails)

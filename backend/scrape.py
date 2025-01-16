@@ -21,7 +21,10 @@ Helpers for async fetching of web content
 """
 async def fetch_text(session, url):
     async with session.get(url) as response:
-        return await response.text()
+        print(response)
+        g = await response.text()
+        print(g)
+        return g
     
 async def fetch_json(session, url):
     async with session.get(url) as response:
@@ -57,12 +60,14 @@ class GoogleSearch:
 
     def search(self, searches, search_type = "web"):
         # batch requests to google search for all queries
+        
         query_to_links = {}
         ext = " news" if search_type == "news" else " tutorial"
         queries = ["+".join(query.split(" ")) + ext for query in searches]
         links = [(self.endpoint if search_type == "web" else self.news_endpoint) + query for query in queries]
         loop = asyncio.get_event_loop()
         content = loop.run_until_complete(fetch_all(links, format="text"))
+        print(content)
         # Analyze one by one and map to query
         for query, html in zip(searches, content):
             soup = BeautifulSoup(html, 'html.parser')
@@ -72,6 +77,7 @@ class GoogleSearch:
             for link in to_scrape:
                 href = link.get('href')
                 if "google" not in href and "https" in href:
+                    print(href)
                     bound = href.index("//") + 2
                     up = href[bound:].index("/")
                     domain = href[bound:bound + up]
@@ -136,6 +142,8 @@ class Scrape:
         self.ggl = GoogleSearch(llm)
         self.arxiv = ArxivSearch(llm)
         self.embed = ArcticEmbed()
+        self.last_scraped_news = datetime.datetime.now()
+        self.last_scraped_tutorials = datetime.datetime.now()
     
     def add_links_to_db(self, topic_to_links, search_type):
         db = sqlite3.connect('database.db')
