@@ -20,24 +20,12 @@ import time
 Helpers for async fetching of web content
 """
 async def fetch_text(session, url):
-    try:
-        async with session.get(url) as response:
-            return await response.text()
-    except UnicodeDecodeError as e:
-        time.sleep(30)
-        try:
-            async with session.get(url) as response:
-                return await response.text()
-        except Exception as e:
-            print(e)
-            return ""
-    except Exception as e:
-        print(e)
-        return ""
     
+    async with session.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"}) as response:
+        return await response.text()
     
 async def fetch_json(session, url):
-    async with session.get(url) as response:
+    async with session.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"}) as response:
         return await response.json()
 
 async def fetch_all(urls, format = "json"):
@@ -52,6 +40,20 @@ async def fetch_all(urls, format = "json"):
                 raise ValueError("Format must be 'json' or 'text'")
         return await asyncio.gather(*tasks)
 
+class GoogleSearchAPI:
+    def __init__(self, llm):
+        week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        week_ago_day = week_ago.day
+        week_ago_month = week_ago.month
+        week_ago_year = week_ago.year
+        two_months_ago = datetime.datetime.now() - datetime.timedelta(days=60)
+        two_months_ago_day = two_months_ago.day
+        two_months_ago_month = two_months_ago.month
+        two_months_ago_year = two_months_ago.year
+
+        self.endpoint = f"https://www.google.com/search?rlz=1C1ONGR_enUS977US977&q=after:{two_months_ago_year}-{two_months_ago_month}-{two_months_ago_month}+"
+        self.news_endpoint = f"https://www.google.com/search?sca_esv=a5656b49a3739dcb&rlz=1C1ONGR_enUS977US977&sxsrf=ADLYWILKxjgubkuPUCIn18j-c9kzJ2CpDQ:1736549267956&tbm=nws&source=lnms&q=after:{week_ago_year}-{week_ago_month}-{week_ago_day}+"
+        self.llm = llm
 
 class GoogleSearch:
     def __init__(self, llm):
@@ -70,14 +72,19 @@ class GoogleSearch:
 
     def search(self, searches, search_type = "web"):
         # batch requests to google search for all queries
-        
+        def get_links_rate_limit(batched_links):
+            content = []
+            for batch in batched_links:
+                print(batch)
+                content.extend(asyncio.get_event_loop().run_until_complete(fetch_all(batch, format="text")))
+                time.sleep(1)
+            return content
         query_to_links = {}
-        ext = " news" if search_type == "news" else " tutorial"
+        ext = "+news" if search_type == "news" else "+tutorial"
         queries = ["+".join(query.split(" ")) + ext for query in searches]
         links = [(self.endpoint if search_type == "web" else self.news_endpoint) + query for query in queries]
-        loop = asyncio.get_event_loop()
-        content = loop.run_until_complete(fetch_all(links, format="text"))
-        print(content)
+        batched_links = [links[i: i + 1] for i in range(0, len(links), 1)]
+        content = get_links_rate_limit(batched_links)
         # Analyze one by one and map to query
         for query, html in zip(searches, content):
             soup = BeautifulSoup(html, 'html.parser')
@@ -86,7 +93,7 @@ class GoogleSearch:
             ret = []
             for link in to_scrape:
                 href = link.get('href')
-                if "google" not in href and "https" in href:
+                if "google" not in href and "https://" in href:
                     print(href)
                     bound = href.index("//") + 2
                     up = href[bound:].index("/")
@@ -239,18 +246,6 @@ class Scrape:
 
 if __name__ == "__main__":
     llm = LLMWrapper()
-    scraper = Scrape(llm)
-    arxiv_t2t = scraper.get_arxiv_content()
-    news_t2t, web_t2t = scraper.get_markdown_content()
-    # Write arxiv content to file
-    with open('content/arxiv_content.json', 'w') as f:
-        json.dump(arxiv_t2t, f, indent=4)
-
-    # Write news content to file
-    with open('content/news_content.json', 'w') as f:
-        json.dump(news_t2t, f, indent=4)
-
-    # Write web content to file
-    with open('content/web_content.json', 'w') as f:
-        json.dump(web_t2t, f, indent=4)
+    ggl = GoogleSearch(llm)
+    print(ggl.find_relevant_links(["python", "java", "c++"], search_type="web"))
     

@@ -107,7 +107,8 @@ def run_search(scrape, llm, search_type):
     topic_to_links, count = scrape.get_links_from_db(search_type, topics)
     print(topic_to_links)
     if count < 200:
-        ttl = scrape.ggl.find_relevant_links(topics, search_type)
+        ttl = scrape.ggl.find_relevant_links(topics[:5], search_type)
+        print(ttl)
         scrape.add_links_to_db(ttl, search_type)
     topic_to_content = scrape.markdown_helper(topic_to_links, search_type)
     user_emails = match_content(user_to_topic_to_skill, topic_to_content)
