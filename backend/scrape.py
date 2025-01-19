@@ -4,6 +4,7 @@ import requests
 import asyncio
 import aiohttp
 import sqlite3 
+from gnews import GNews
 
 from llm_wrapper import LLMWrapper
 
@@ -40,11 +41,17 @@ async def fetch_all(urls, format = "json"):
                 raise ValueError("Format must be 'json' or 'text'")
         return await asyncio.gather(*tasks)
 
-class GoogleSearchAPI:
+class GoogleNews:
     def __init__(self, llm):
-        self.API_KEY = "AIzaSyBJyaA-4flyK6yh8lcN-EXAE9IEf7L4alw"
-        self.endpoint = "https://customsearch.googleapis.com/customsearch/v1?dateRestrict=d60"
-        
+        self.llm = llm
+        self.gnews = GNews()
+        self.gnews.period = "7d"
+    def search(self, topics):
+        topic_to_links = {}
+        for topic in topics:
+            links = [(g['title'], g['url']) for g in self.gnews.get_news(topic)]
+            topic_to_links[topic] = [link[1] for link in links if self.llm.classify_importance_news(link[0])]
+        return topic_to_links
 
 class GoogleSearch:
     def __init__(self, llm):
@@ -236,7 +243,10 @@ class Scrape:
 
 
 if __name__ == "__main__":
+    embed = ArcticEmbed()
     llm = LLMWrapper()
-    ggl = GoogleSearch(llm)
-    print(ggl.find_relevant_links(["python", "java", "c++"], search_type="web"))
+    ggl = GoogleNews(llm)
+    print(ggl.search(embed.news_topics))
+
+
     
