@@ -127,7 +127,7 @@ def main():
     #     schedule.run_pending()
     #     time.sleep(10)  
     # run_arxiv()
-    run_web()
+    run_news()
     
 if __name__ == "__main__":
     main()

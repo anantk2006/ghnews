@@ -42,18 +42,9 @@ async def fetch_all(urls, format = "json"):
 
 class GoogleSearchAPI:
     def __init__(self, llm):
-        week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-        week_ago_day = week_ago.day
-        week_ago_month = week_ago.month
-        week_ago_year = week_ago.year
-        two_months_ago = datetime.datetime.now() - datetime.timedelta(days=60)
-        two_months_ago_day = two_months_ago.day
-        two_months_ago_month = two_months_ago.month
-        two_months_ago_year = two_months_ago.year
-
-        self.endpoint = f"https://www.google.com/search?rlz=1C1ONGR_enUS977US977&q=after:{two_months_ago_year}-{two_months_ago_month}-{two_months_ago_month}+"
-        self.news_endpoint = f"https://www.google.com/search?sca_esv=a5656b49a3739dcb&rlz=1C1ONGR_enUS977US977&sxsrf=ADLYWILKxjgubkuPUCIn18j-c9kzJ2CpDQ:1736549267956&tbm=nws&source=lnms&q=after:{week_ago_year}-{week_ago_month}-{week_ago_day}+"
-        self.llm = llm
+        self.API_KEY = "AIzaSyBJyaA-4flyK6yh8lcN-EXAE9IEf7L4alw"
+        self.endpoint = "https://customsearch.googleapis.com/customsearch/v1?dateRestrict=d60"
+        
 
 class GoogleSearch:
     def __init__(self, llm):
