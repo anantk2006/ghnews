@@ -49,7 +49,7 @@ class GoogleNews:
     def search(self, topics):
         topic_to_links = {}
         for topic in topics:
-            links = [(g['title'], g['url']) for g in self.gnews.get_news(topic)]
+            links = [(g['title'], g['url']) for g in self.gnews.get_news(topic)][:5]
             topic_to_links[topic] = [link[1] for link in links if self.llm.classify_importance_news(link[0])]
         return topic_to_links
 
