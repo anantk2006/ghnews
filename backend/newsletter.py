@@ -9,10 +9,13 @@ from email.mime.text import MIMEText
 import markdown
 import schedule
 import datetime, time
+import random
+from scrape import GoogleNews
 
-top_k_topics = 10
+top_k_topics = 20
 llm = LLMWrapper()
 scrape = Scrape(llm)
+google_news = GoogleNews(llm)
 
 def send_email(email_address, subject, markdown_text):
     # Convert markdown to HTML
@@ -75,7 +78,7 @@ def match_content(user_to_topic_to_skill, content):
                         if i<=top_k_topics-2: top_k[i+1] = top_k[i]
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
-        user_emails[user_id] = [content[topic] for topic, _ in top_k]
+        user_emails[user_id] = random.sample([content[topic] for topic, _ in top_k], 5)
     return user_emails
 
 def run_arxiv():
@@ -90,8 +93,20 @@ def run_web():
     run_search(scrape, llm, search_type="web")
 
 def run_news():
-    run_search(scrape, llm, search_type="news")
+    
+    id_to_email, user_to_topic_to_skill = retrieve_user_info()
+    topic_to_links = google_news.search(scrape.embed.news_topics[:5])
+    user_emails = match_content(user_to_topic_to_skill, topic_to_links)
+    for user, list_of_links in user_emails.items():
+        links = []
+        for link in list_of_links:
+            links.extend(link)
+        user_emails[user] = links        
 
+    user_to_content = scrape.markdown_helper(user_emails, search_type="news")
+    
+    
+    print(user_to_content)
 def run_search(scrape, llm, search_type):
     
     if datetime.datetime.now() > scrape.last_scraped_news + datetime.timedelta(days=1):
