@@ -95,20 +95,23 @@ def links_to_articles(user_emails):
     links_to_user = {}
     for user_id, emails in user_emails.items():
         for email in emails:
-            link = email[1]
-            if link not in links_to_user:
-                links_to_user[link] = []
-            else: links_to_user[link].append(user_id)
+            for link_holder in email:
+                link = link_holder[1]
+                if link not in links_to_user:
+                    links_to_user[link] = []
+                else: links_to_user[link].append(user_id)
     links = list(links_to_user.keys())
+    
     scraped = scrape.markdown_helper(links, "news")
     articles = llm.make_articles(scraped)
+    print(articles)
     ret = {}
-    for link, text in zip(links, scraped):
+    for link, text in zip(links, articles):
         for user_id in links_to_user[link]:
             if user_id not in ret:
                 ret[user_id] = [text]
             else: ret[user_id].append(text)
-
+    
     return ret
 
     
@@ -124,6 +127,8 @@ def run_news():
     topic_to_links = bing_news.search(topics)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
     user_emails = links_to_articles(user_emails)
+    print(user_emails)
+    exit()
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
 def run_search(scrape, llm, search_type):

@@ -272,26 +272,17 @@ class Scrape:
         return topic_to_links, count
     
     def markdown_helper(self, links, search_type):
-        batched_links = [links[i:i + 5] for i in range(0, len(links), 5)]
         ret = []
-        for batch in batched_links:
-            jina_links = ["https://r.jina.ai/" + link[1] for link in batch]
-            content = asyncio.get_event_loop().run_until_complete(fetch_all(jina_links, format="text"))
-            # Prevent rate limiting
-            init_len = len(content)
-            content = [c for c in content if "Slow down, turbo!" not in c]
-            if len(content) != init_len:
-                print("Rate limited, sleeping for 60 seconds")
+        for link in links:
+            text = requests.get("https://r.jina.ai/" + link).text
+            if "Slow down, turbo".lower() in text.lower():
+                ret.append('None')
                 time.sleep(60)
-            cleaned_content = []
-            if content:
-                for c in content:
-                    cleaned = re.sub(r'\(.*?\)', '', c)
-                    cleaned = re.sub(r'\[.*?\]', '', cleaned)
-                cleaned_content.append(cleaned)
-                ret.extend(cleaned_content)
-                ret.extend("None" for _ in range(5 - len(cleaned_content)))
-        return ret
+            else:
+                cleaned = re.sub(r'\(.*?\)', '', text)
+                cleaned = re.sub(r'\[.*?\]', '', cleaned)
+                ret.append(cleaned)
+        return ret                
 
     def get_markdown_content(self):
         # Get news and web content

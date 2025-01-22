@@ -50,15 +50,12 @@ class LLMWrapper:
         messages = [{"role": "user", "content": f"Classify the type of the following title. The types are: 'news', 'tutorial', 'research paper', or 'other'. Here is the title:\n{title}.\n Respond with the type of the title, and say nothing else."},]
         return self.complete("gpt-4o-mini", messages)
 
-    def make_articles(self, topic_to_text):
-        articles = {}
+    def make_articles(self, mds):
+        articles = []
         print("Generating articles")
-        for topic, text in topic_to_text.items():
-            messages = [{"role": "user", "content": f"Generate a concise tutorial about the text. Here it is: {text} \n\n Make sure the tutorial is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a brief tutorial designed for a software engineer. The article should be in markdown format."},]
+        for text in mds:
+            messages = [{"role": "user", "content": f"Generate a concise news article about the text. Here it is: {text} \n\n Make sure the tutorial is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a brief tutorial designed for a software engineer. The article should be in markdown format. Use visual abilities e.g. bullet point lists. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
             article = self.complete("gpt-4o-mini", messages)
-            if topic in articles:
-                articles[topic].append(article)
-            else:
-                articles[topic] = [article]
+            articles.append(article)            
         return articles
 
