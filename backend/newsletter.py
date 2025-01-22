@@ -91,6 +91,21 @@ def run_arxiv():
     user_emails = text_to_articles(user_emails)
     make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
+def text_to_articles(user_emails):
+    set_of_texts = set()
+    for user_id, emails in user_emails.items():
+        for email in emails:
+            set_of_texts.add(email)
+    texts = list(set_of_texts)
+    arts = llm.make_articles(texts)
+    ret = {}
+    for user_id, emails in user_emails.items():
+        for art, text in zip(arts, texts):
+            if texts in emails:
+                if user_id not in ret:
+                    ret[user_id] = [arts]
+                else: ret[user_id].append(arts)
+
 def links_to_articles(user_emails):
     links_to_user = {}
     for user_id, emails in user_emails.items():
@@ -98,20 +113,17 @@ def links_to_articles(user_emails):
             for link_holder in email:
                 link = link_holder[1]
                 if link not in links_to_user:
-                    links_to_user[link] = []
+                    links_to_user[link] = [user_id]
                 else: links_to_user[link].append(user_id)
-    links = list(links_to_user.keys())
-    
+    links = list(links_to_user.keys()) 
     scraped = scrape.markdown_helper(links, "news")
     articles = llm.make_articles(scraped)
-    print(articles)
     ret = {}
     for link, text in zip(links, articles):
         for user_id in links_to_user[link]:
             if user_id not in ret:
                 ret[user_id] = [text]
-            else: ret[user_id].append(text)
-    
+            else: ret[user_id].append(text)    
     return ret
 
     
