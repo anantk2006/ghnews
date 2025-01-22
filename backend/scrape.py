@@ -53,6 +53,85 @@ class GoogleNews:
             topic_to_links[topic] = [link for link in links if self.llm.classify_importance_news(link[0])]
         return topic_to_links
 
+class BingSearch:
+    def __init__(self, llm):
+        self.subscription_key = "eda35cadd4834ce997da0375b171e61c"
+        self.endpoint = "https://api.bing.microsoft.com/v7.0/search/"
+        self.news_endpoint = "https://api.bing.microsoft.com/v7.0/news/search"
+        self.llm = llm
+
+    def search(self, query):
+        # Add your Bing Search V7 subscription key and endpoint to your environment variables.
+        # Construct a request
+        mkt = 'en-US'
+        params = { 'q': query, 'mkt': mkt }
+        headers = { 'Ocp-Apim-Subscription-Key': self.subscription_key }
+
+        # Call the API
+        try:
+            response = requests.get(self.endpoint, headers=headers, params=params)
+            response.raise_for_status()
+            response = response.json()
+        except Exception as ex:
+            raise ex
+        links = []
+        dates = [False if 'datePublished' not in r else r['datePublished'] for r in response['webPages']['value']]
+        for i in range(len(response['webPages']['value'])):
+            links.append((response['webPages']['value'][i]['name'], response['webPages']['value'][i]['url']))
+        return links, dates
+
+    def search_news(self, query):
+        # Add your Bing Search V7 subscription key and endpoint to your environment variables.
+        # Construct a request
+        mkt = 'en-US'
+        params = { 'q': query, 'mkt': mkt }
+        headers = { 'Ocp-Apim-Subscription-Key': self.subscription_key }
+
+        # Call the API
+        try:
+            response = requests.get(self.news_endpoint, headers=headers, params=params)
+            response.raise_for_status()
+            response = response.json()
+        except Exception as ex:
+            raise ex
+        links = []
+        dates = [False if 'datePublished' not in r else r['datePublished'] for r in response['value']]
+        for i in range(len(response['value'])):
+            links.append((response['value'][i]['name'], response['value'][i]['url']))
+        return links, dates
+
+    def filter_quality(self, links, dates, news=False):
+        relevant_info = []
+        yr = 25 if news else 24
+        mo = 1 if news else 9
+        for i in range(len(links)):
+            if dates[i] and int(dates[i][2:4])>=yr and int(dates[i][5:7])>=mo:
+                if self.llm.classify_importance_news(links[i][0]):
+                    relevant_info.append(links[i])
+        return relevant_info
+    
+    def find_relevant_links_web(self, topic):
+        # Get news from Bing Search API
+        response_web, dates_web = self.search(topic)
+        # Only use the good ones that are recent
+        relevant_web = self.filter_quality(response_web, dates_web)
+        return relevant_web
+
+    def find_relevant_links_news(self, topic):
+        # Get news from Bing Search API
+        response_news, dates_news = self.search_news(topic)
+        
+        # Only use the good ones that are recent
+        relevant_news = self.filter_quality(response_news, dates_news, news=True)
+        return relevant_news
+    
+    def search(self, topics):
+        topic_to_links = {}
+        for topic in topics:
+            links = self.find_relevant_links_news(topic)
+            topic_to_links[topic] = links
+        return topic_to_links
+
 class GoogleSearch:
     def __init__(self, llm):
         week_ago = datetime.datetime.now() - datetime.timedelta(days=7)

@@ -10,12 +10,13 @@ import markdown
 import schedule
 import datetime, time
 import random
-from scrape import GoogleNews
+from scrape import GoogleNews, BingSearch
 
 top_k_topics = 20
 llm = LLMWrapper()
 scrape = Scrape(llm)
 google_news = GoogleNews(llm)
+bing_news = BingSearch(llm)
 
 def send_email(email_address, subject, markdown_text):
     # Convert markdown to HTML
@@ -95,18 +96,12 @@ def run_web():
 def run_news():
     
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
-    topic_to_links = google_news.search(scrape.embed.news_topics[:5])
+    topics = random.sample(scrape.embed.topics, 6)
+    topic_to_links = bing_news.search(topics)
+    topic_to_content = scrape.markdown_helper(topic_to_links, search_type="news")
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
-    for user, list_of_links in user_emails.items():
-        links = []
-        for link in list_of_links:
-            links.extend(link)
-        user_emails[user] = links        
-
-    user_to_content = scrape.markdown_helper(user_emails, search_type="news")
     
-    
-    print(user_to_content)
+    print(user_emails)
 def run_search(scrape, llm, search_type):
     
     if datetime.datetime.now() > scrape.last_scraped_news + datetime.timedelta(days=1):
