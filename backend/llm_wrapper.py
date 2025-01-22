@@ -64,10 +64,10 @@ class LLMWrapper:
         print("Generating articles")
         for text in mds:
             messages = [{"role": "user", "content": f"Generate a concise research summary about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
-            print(messages)
+
             article = self.complete("gpt-4o-mini", messages)
             articles.append(article)
-            print(article)          
+      
         return articles
 
 

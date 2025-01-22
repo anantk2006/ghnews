@@ -115,9 +115,11 @@ def links_to_articles(user_emails, scrape = True):
             for link_holder in email:
                 if scrape: link = link_holder[1]
                 else: link = link_holder[1]
+
+                r_link = link if scrape else link_holder[2]
                 if link not in links_to_user:
-                    links_to_user[link] = [(user_id, link_holder[0])]
-                else: links_to_user[link].append((user_id, link_holder[0]))
+                    links_to_user[link] = [(user_id, link_holder[0], r_link)]
+                else: links_to_user[link].append((user_id, link_holder[0], r_link))
     links = list(links_to_user.keys()) 
     if scrape: 
         var = scrape.markdown_helper(links, "news")
@@ -126,10 +128,10 @@ def links_to_articles(user_emails, scrape = True):
         articles = llm.make_research_summaries(links)    
     ret = {}
     for link, text in zip(links, articles):
-        for user_id, title in links_to_user[link]:
+        for user_id, title, r_link in links_to_user[link]:
             if user_id not in ret:
                 ret[user_id] = [(text, title)]
-            else: ret[user_id].append((text, title))  
+            else: ret[user_id].append((text, title, r_link))  
       
     return ret
 
