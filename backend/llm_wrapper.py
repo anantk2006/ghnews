@@ -54,8 +54,20 @@ class LLMWrapper:
         articles = []
         print("Generating articles")
         for text in mds:
-            messages = [{"role": "user", "content": f"Generate a concise news article about the text. Here it is: {text} \n\n Make sure the tutorial is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a brief tutorial designed for a software engineer. The article should be in markdown format. Use visual abilities e.g. bullet point lists. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
+            messages = [{"role": "user", "content": f"Generate a concise news article about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
             article = self.complete("gpt-4o-mini", messages)
-            articles.append(article)            
+            articles.append(article)          
         return articles
+    
+    def make_research_summaries(self, mds):
+        articles = []
+        print("Generating articles")
+        for text in mds:
+            messages = [{"role": "user", "content": f"Generate a concise research summary about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
+            print(messages)
+            article = self.complete("gpt-4o-mini", messages)
+            articles.append(article)
+            print(article)          
+        return articles
+
 

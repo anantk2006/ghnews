@@ -88,8 +88,9 @@ def run_arxiv():
     scrape = Scrape(llm)
     arxiv_abstracts = scrape.get_arxiv_content()
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
-    user_emails = text_to_articles(user_emails)
-    make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
+    user_emails = links_to_articles(user_emails, scrape = False)
+    print(user_emails)
+    # make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
 def text_to_articles(user_emails):
     set_of_texts = set()
@@ -101,29 +102,35 @@ def text_to_articles(user_emails):
     ret = {}
     for user_id, emails in user_emails.items():
         for art, text in zip(arts, texts):
-            if texts in emails:
+            if text in emails:
                 if user_id not in ret:
-                    ret[user_id] = [arts]
-                else: ret[user_id].append(arts)
+                    ret[user_id] = [art]
+                else: ret[user_id].append(art)
+    return ret
 
-def links_to_articles(user_emails):
+def links_to_articles(user_emails, scrape = True):
     links_to_user = {}
     for user_id, emails in user_emails.items():
         for email in emails:
             for link_holder in email:
-                link = link_holder[1]
+                if scrape: link = link_holder[1]
+                else: link = link_holder[1]
                 if link not in links_to_user:
-                    links_to_user[link] = [user_id]
-                else: links_to_user[link].append(user_id)
+                    links_to_user[link] = [(user_id, link_holder[0])]
+                else: links_to_user[link].append((user_id, link_holder[0]))
     links = list(links_to_user.keys()) 
-    scraped = scrape.markdown_helper(links, "news")
-    articles = llm.make_articles(scraped)
+    if scrape: 
+        var = scrape.markdown_helper(links, "news")
+        articles = llm.make_articles(var)
+    else:
+        articles = llm.make_research_summaries(links)    
     ret = {}
     for link, text in zip(links, articles):
-        for user_id in links_to_user[link]:
+        for user_id, title in links_to_user[link]:
             if user_id not in ret:
-                ret[user_id] = [text]
-            else: ret[user_id].append(text)    
+                ret[user_id] = [(text, title)]
+            else: ret[user_id].append((text, title))  
+      
     return ret
 
     
@@ -184,7 +191,7 @@ def main():
     #     schedule.run_pending()
     #     time.sleep(10)  
     # run_arxiv()
-    run_news()
+    run_arxiv()
     
 if __name__ == "__main__":
     main()

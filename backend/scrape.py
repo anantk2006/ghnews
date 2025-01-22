@@ -209,7 +209,7 @@ class ArxivSearch:
         soup = BeautifulSoup(response.text, 'html.parser')
         papers = soup.find_all('a', {'title': 'Download PDF'})
         ids = []
-        for paper in papers[:300]:
+        for paper in papers[:10]:
             ids.append(paper['href'].split('/')[-1])
         return ids
     
@@ -222,12 +222,12 @@ class ArxivSearch:
         urls = self.get_arxiv_urls()
         loop = asyncio.get_event_loop()
         content = loop.run_until_complete(fetch_all(urls, format="text"))
-        for response in content:
+        for i, response in enumerate(content):
             soup = BeautifulSoup(response, 'html.parser')
             abstract = soup.find('blockquote', {'class': 'abstract mathjax'}).text
             title = soup.find('h1', {'class': 'title mathjax'}).text
             if self.llm.classify_importance_research(title):
-                abstracts.append((title, abstract))
+                abstracts.append((title, abstract, urls[i]))
         return abstracts     
         
 class Scrape:
@@ -308,9 +308,9 @@ class Scrape:
         for i, topic_idx in enumerate(user_topics):
             topic = self.embed.paper_topics[int(topic_idx)]
             if topic in topic_to_text:
-                topic_to_text[topic].append(abstracts[i][1])
+                topic_to_text[topic].append(abstracts[i])
             else:
-                topic_to_text[topic] = [abstracts[i][1]]
+                topic_to_text[topic] = [abstracts[i]]
         return topic_to_text
 
 
