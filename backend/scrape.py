@@ -271,10 +271,11 @@ class Scrape:
         db.close()        
         return topic_to_links, count
     
-    def markdown_helper(self, topic_to_links, search_type):
-        for topic, links in topic_to_links.items():
-            # Construct jina links and scrape for markdown content
-            jina_links = ["https://r.jina.ai/" + link[1] for link in links]
+    def markdown_helper(self, links, search_type):
+        batched_links = [links[i:i + 5] for i in range(0, len(links), 5)]
+        ret = []
+        for batch in batched_links:
+            jina_links = ["https://r.jina.ai/" + link[1] for link in batch]
             content = asyncio.get_event_loop().run_until_complete(fetch_all(jina_links, format="text"))
             # Prevent rate limiting
             init_len = len(content)
@@ -288,8 +289,9 @@ class Scrape:
                     cleaned = re.sub(r'\(.*?\)', '', c)
                     cleaned = re.sub(r'\[.*?\]', '', cleaned)
                 cleaned_content.append(cleaned)
-                topic_to_links[topic] = cleaned_content
-        return topic_to_links
+                ret.extend(cleaned_content)
+                ret.extend("None" for _ in range(5 - len(cleaned_content)))
+        return ret
 
     def get_markdown_content(self):
         # Get news and web content

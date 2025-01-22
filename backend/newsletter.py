@@ -12,7 +12,7 @@ import datetime, time
 import random
 from scrape import GoogleNews, BingSearch
 
-top_k_topics = 20
+top_k_topics = 10
 llm = LLMWrapper()
 scrape = Scrape(llm)
 google_news = GoogleNews(llm)
@@ -88,20 +88,44 @@ def run_arxiv():
     scrape = Scrape(llm)
     arxiv_abstracts = scrape.get_arxiv_content()
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
+    user_emails = text_to_articles(user_emails)
+    make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
-def run_web():
+def links_to_articles(user_emails):
+    links_to_user = {}
+    for user_id, emails in user_emails.items():
+        for email in emails:
+            link = email[1]
+            if link not in links_to_user:
+                links_to_user[link] = []
+            else: links_to_user[link].append(user_id)
+    links = list(links_to_user.keys())
+    scraped = scrape.markdown_helper(links, "news")
+    articles = llm.make_articles(scraped)
+    ret = {}
+    for link, text in zip(links, scraped):
+        for user_id in links_to_user[link]:
+            if user_id not in ret:
+                ret[user_id] = [text]
+            else: ret[user_id].append(text)
 
-    run_search(scrape, llm, search_type="web")
+    return ret
+
+    
+
+
+
+
 
 def run_news():
     
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
     topics = random.sample(scrape.embed.topics, 6)
     topic_to_links = bing_news.search(topics)
-    topic_to_content = scrape.markdown_helper(topic_to_links, search_type="news")
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
+    user_emails = links_to_articles(user_emails)
+    make_and_send_emails(user_emails, id_to_email, search_type="news")
     
-    print(user_emails)
 def run_search(scrape, llm, search_type):
     
     if datetime.datetime.now() > scrape.last_scraped_news + datetime.timedelta(days=1):
@@ -124,7 +148,13 @@ def run_search(scrape, llm, search_type):
     user_emails = match_content(user_to_topic_to_skill, topic_to_content)
     print(user_emails)
 
-
+def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
+    type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
+    user_emails = llm.make_articles(user_emails)
+    for user_id, emails in user_emails.items():
+        email_address = id_to_email[user_id]
+        for email in emails:
+            send_email(email_address, type_str, email)
 
 
 
