@@ -186,7 +186,6 @@ async def register(request: Request):
     # api_topics = llm.get_topics(apis) 
     
     topics = embedder.get_topics_for_user(files_readme)
-    print(topics)
     save_topics_to_db(username, topics)
 
 def save_session_to_db(session_id):
