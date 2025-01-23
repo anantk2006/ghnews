@@ -90,7 +90,8 @@ def run_arxiv():
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
     user_emails = links_to_articles(user_emails, scrape = False)
     print(user_emails)
-    # make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
+    exit()
+    make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
 def text_to_articles(user_emails):
     set_of_texts = set()
@@ -176,11 +177,14 @@ def run_search(scrape, llm, search_type):
 
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
-    user_emails = llm.make_articles(user_emails)
+
     for user_id, emails in user_emails.items():
         email_address = id_to_email[user_id]
-        for email in emails:
-            send_email(email_address, type_str, email)
+        titles = [t[1] for t in emails] 
+        content = [t[0] for t in emails]
+        urls = [t[2] for t in emails]
+        for title, text, url in zip(titles, content, urls):
+            
 
 
 
