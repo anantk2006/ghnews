@@ -11,6 +11,7 @@ import schedule
 import datetime, time
 import random
 from scrape import GoogleNews, BingSearch
+from jinja2 import Environment, FileSystemLoader
 
 top_k_topics = 10
 llm = LLMWrapper()
@@ -18,9 +19,14 @@ scrape = Scrape(llm)
 google_news = GoogleNews(llm)
 bing_news = BingSearch(llm)
 
-def send_email(email_address, subject, markdown_text):
+template_loader = FileSystemLoader(searchpath="./")  # Path to your templates folder
+env = Environment(loader=template_loader)
+
+# Load the template
+template = env.get_template("template.html")
+
+def send_email(email_address, subject, text, alternative = None):
     # Convert markdown to HTML
-    html_content = markdown.markdown(markdown_text)
     
     # Create message container
     msg = MIMEMultipart('alternative')
@@ -29,15 +35,12 @@ def send_email(email_address, subject, markdown_text):
     msg['To'] = email_address
     
     # Record the MIME types of both parts - text/plain and text/html
-    part1 = MIMEText(markdown_text, 'plain')
-    part2 = MIMEText(html_content, 'html')
-    
     # Attach parts into message container
-    msg.attach(part1)
-    msg.attach(part2)
+    msg.attach(text)
+    
     
     # Send the message via local SMTP server
-    with smtplib.SMTP('smtp.example.com', 587) as server:
+    with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
         server.login('anantk2006@gmail.com', 'anantk2006')
         server.sendmail("anantk2006@gmail.com", email_address, msg.as_string())
@@ -50,8 +53,8 @@ def retrieve_user_info():
     ''')
    
     info = cursor.fetchall()
-    emails = [email[0] for email in info if email]
-    ids = [email[1] for email in info if email]
+    emails = [email[1] for email in info if email]
+    ids = [email[0] for email in info if email]
     
     id_to_email = dict(zip(ids, emails))
     cursor.execute('''
@@ -64,6 +67,7 @@ def retrieve_user_info():
         if user_id not in user_to_topic_to_skill:
             user_to_topic_to_skill[user_id] = {}
         user_to_topic_to_skill[user_id][topic] = skill
+    conn.close()
     return id_to_email, user_to_topic_to_skill
 
 def match_content(user_to_topic_to_skill, content):
@@ -87,10 +91,10 @@ def run_arxiv():
     llm = LLMWrapper()
     scrape = Scrape(llm)
     arxiv_abstracts = scrape.get_arxiv_content()
+ 
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
     user_emails = links_to_articles(user_emails, scrape = False)
-    print(user_emails)
-    exit()
+
     make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
 def text_to_articles(user_emails):
@@ -131,7 +135,7 @@ def links_to_articles(user_emails, scrape = True):
     for link, text in zip(links, articles):
         for user_id, title, r_link in links_to_user[link]:
             if user_id not in ret:
-                ret[user_id] = [(text, title)]
+                ret[user_id] = [(text, title, r_link)]
             else: ret[user_id].append((text, title, r_link))  
       
     return ret
@@ -166,24 +170,24 @@ def run_search(scrape, llm, search_type):
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
     topics = scrape.embed.topics
     topic_to_links, count = scrape.get_links_from_db(search_type, topics)
-    print(topic_to_links)
     if count < 200:
         ttl = scrape.ggl.find_relevant_links(topics[:5], search_type)
-        print(ttl)
         scrape.add_links_to_db(ttl, search_type)
     topic_to_content = scrape.markdown_helper(topic_to_links, search_type)
     user_emails = match_content(user_to_topic_to_skill, topic_to_content)
-    print(user_emails)
+
+def get_jinja_contents(emails):
+    return template.render(emails = emails)
 
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
-
     for user_id, emails in user_emails.items():
         email_address = id_to_email[user_id]
-        titles = [t[1] for t in emails] 
-        content = [t[0] for t in emails]
-        urls = [t[2] for t in emails]
-        for title, text, url in zip(titles, content, urls):
+        em = [{'content': email[0], 'title': email[1], 'url': email[2]} for email in emails]
+        contents = get_jinja_contents(em)
+        alternative = "\n\n".join([f"{email['title']}\n{email['url']}\n{email['content']}" for email in em])
+        send_email(email_address, f'{type_str}', contents, alternative = alternative)       
+    
             
 
 

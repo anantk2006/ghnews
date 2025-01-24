@@ -152,7 +152,7 @@ class GoogleSearch:
         def get_links_rate_limit(batched_links):
             content = []
             for batch in batched_links:
-                print(batch)
+
                 content.extend(asyncio.get_event_loop().run_until_complete(fetch_all(batch, format="text")))
                 time.sleep(1)
             return content
@@ -171,7 +171,6 @@ class GoogleSearch:
             for link in to_scrape:
                 href = link.get('href')
                 if "google" not in href and "https://" in href:
-                    print(href)
                     bound = href.index("//") + 2
                     up = href[bound:].index("/")
                     domain = href[bound:bound + up]
