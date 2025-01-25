@@ -3,6 +3,7 @@ import './index.css';
 import { useState } from 'react';
 import CheckoutForm from './Payment';
 import './modal.css'
+import NavBar from './NavBar';
 
 function Landing() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,11 +12,26 @@ function Landing() {
 
 
     return (
+        <div>
+            <NavBar modal={openModal}/>
         <div className="landing-page">
+            
             <header className="hero-section">
-                <h1>Virsitile</h1>
-                <p>Making sure your tech knowledge remains state-of-the-art in a fast-paced tech world.</p>
-                <p>For just $5 a month, get adaptive information relating to your exact software interests. </p>
+
+                
+                <div>
+                    <div>
+                    <p>
+                        There has never been more demand for tech knowledge. New frameworks, languages, models, and APIs are released every day. Additionally, employers in this labor market are looking for candidates with a wide range of skills that can instantly be applied to their projects. This includes everything from the latest AI models, cloud services, and fintech platforms. 
+                    </p>
+                    <p>
+                        Virsitile is a learning platform and newsletter that will send you a. recent tech news and b. the latest important papers in the field. It is just 1.99$ a month--going entirely to the cost of tokens and search APIs (tokens aren't cheap!).
+                    </p>
+
+                    </div>
+
+
+                </div>
                 <button onClick={openModal} className="github-button">
                     <img src="/github-logo.svg" alt="GitHub Logo" className="github-logo" />
                     <p>Subscribe to the newsletter</p>
@@ -34,6 +50,7 @@ function Landing() {
                 </div>
                 </div>
             )}
+        </div>
         </div>
     );
 }
