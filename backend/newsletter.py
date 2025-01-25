@@ -5,6 +5,7 @@ from scrape import Scrape
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 from email.message import EmailMessage
 import schedule
@@ -25,7 +26,7 @@ env = Environment(loader=template_loader)
 # Load the template
 template = env.get_template("template.html")
 
-def send_email(email_address, subject, text, alternative = None):
+def send_email(email_address, subject, text):
     # Convert markdown to HTML
     
     # Create message container
@@ -37,7 +38,10 @@ def send_email(email_address, subject, text, alternative = None):
     
     # Record the MIME types of both parts - text/plain and text/html
     # Attach parts into message container
-    
+    with open("logo.png", "rb") as img_file:
+        img = MIMEImage(img_file.read())
+        img.add_header("Content-ID", "<embedded_image>")
+        msg.attach(img)
     
     # Send the message via local SMTP server
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
@@ -176,7 +180,7 @@ def run_search(scrape, llm, search_type):
     user_emails = match_content(user_to_topic_to_skill, topic_to_content)
 
 def get_jinja_contents(emails):
-    return template.render(emails = emails)
+    return template.render(emails = emails, date = datetime.datetime.now().strftime("%m/%d/%Y"))
 
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
@@ -185,7 +189,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         em = [{'content': email[0], 'title': email[1], 'url': email[2]} for email in emails]
         contents = get_jinja_contents(em)
         alternative = "\n\n".join([f"{email['title']}\n{email['url']}\n{email['content']}" for email in em])
-        send_email(email_address, f'{type_str}', contents, alternative = alternative)       
+        send_email(email_address, f'{type_str}', contents)       
     
             
 
@@ -200,7 +204,11 @@ def main():
     #     schedule.run_pending()
     #     time.sleep(10)  
     # run_arxiv()
+    # run_arxiv()
+    # text = template.render(emails = [{'content': 'This is a test', 'title': 'Test', 'url': 'https://www.google.com'}], date = datetime.datetime.now().strftime("%m/%d/%Y"))
+    # send_email('anantk2006@gmail.com', 'Test', text)
     run_arxiv()
+    run_news()
     
 if __name__ == "__main__":
     main()

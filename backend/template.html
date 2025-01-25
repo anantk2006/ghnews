@@ -3,17 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        div a {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            font-family: 'Inter', sans-serif;
+            background-color: lightgray;
+        }
+        .subpart{
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        body{
+            background-color: lightgray;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 85%;
+            }
+        }
+        @media (min-width: 768px) {
+            .container {
+                width: 50%;
+            }
+        }
+        .container {
+            margin: auto;
+            background-color: white;
+        }
+        .heading{
+            background-color: rgba(2, 55, 139, 0.948);
+            color: white;
+            display: flex;
+        }
+        h3 {
+            text-align: center;
+            text-decoration: none;
+            color: black;
+        }
+        .text {
+            padding: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Your report for the day from Virsitile</h1>
+        <div class="heading"><img src="cid:embedded_image" alt="Virsitile Logo" style="max-width: 20%; height: auto;">
+        <div class="subpart"><h1>Daily Virsitile Report</h1><p>{{ date }}</p>
+        </div></div>
+        
+        <hr>
         {% for email in emails %}
             <div class="email-item">
                 <a href="{{ email.url }}">
                     <h3>{{ email.title }}</h3>
                 </a>
-                <p>{{ email.content }}</p>
+                <p class="text">{{ email.content }}</p>
             </div>
+            <hr>
         {% endfor %}
     </div>
 </body>
