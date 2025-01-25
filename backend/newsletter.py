@@ -205,8 +205,10 @@ def main():
     #     time.sleep(10)  
     # run_arxiv()
     # run_arxiv()
-    text = template.render(emails = [{'content': 'This is a test', 'title': 'Test', 'url': 'https://www.google.com'}], date = datetime.datetime.now().strftime("%m/%d/%Y"))
-    send_email('anantk2006@gmail.com', 'Test', text)
+    # text = template.render(emails = [{'content': 'This is a test', 'title': 'Test', 'url': 'https://www.google.com'}], date = datetime.datetime.now().strftime("%m/%d/%Y"))
+    # send_email('anantk2006@gmail.com', 'Test', text)
+    run_arxiv()
+    run_news()
     
 if __name__ == "__main__":
     main()
