@@ -23,7 +23,7 @@ class LLMWrapper:
             {'role': 'system', 'content': 'Write a simple, few bullet point critique of the article. Ensure that the critique is constructive and helpful. Do not include any fluff or unnecessary information. Be concise and to the point. Ensure it is clear enough for a software engineer to understand.'}, 
               ]
         critique = self.complete('gpt-4o-mini', nm)
-        nm = messages + [nm[0]] + [{'role': 'user', 'content': critique}] + [{'role': 'system', 'content': 'Incorporate the feedback that is valualbe and relevant into the article. Ensure that the article is improved and that the feedback is integrated in a way that makes sense. Make sure the article sounds insightful and professional, like a news reporter wrote it.'}]
+        nm = messages + [nm[0]] + [{'role': 'user', 'content': critique}] + [{'role': 'system', 'content': 'Incorporate the feedback that is valuable and relevant into the article. Ensure that the article is improved and that the feedback is integrated in a way that makes sense. Make sure the article sounds insightful and professional, like a news reporter wrote it.'}]
         return self.complete('deepseek-chat', nm)
 
 
@@ -70,7 +70,7 @@ class LLMWrapper:
         articles = []
         print("Generating articles")
         for text in mds:
-            messages = [{"role": "user", "content": f"Generate a concise news article about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
+            messages = [{"role": "user", "content": f"Generate a concise news article (2 paragraphs) about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
             article = self.critic_complete(messages)
             articles.append(article)          
         return articles
@@ -79,7 +79,7 @@ class LLMWrapper:
         articles = []
         print("Generating articles")
         for text in mds:
-            messages = [{"role": "user", "content": f"Generate a concise research summary about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
+            messages = [{"role": "user", "content": f"Generate a concise and brief (1-2 paragraphs) article about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into some amount of technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
 
             article = self.critic_complete(messages)
             articles.append(article)

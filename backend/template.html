@@ -3,10 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        div a {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            font-family: 'Inter', sans-serif;
+            background-color: lightgray;
+        }
+        h1 {
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        body{
+            background-color: lightgray;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            background-color: white;
+        }
+        .heading{
+            background-color: rgba(0, 98, 255, 0.242);
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Your report for the day from Virsitile</h1>
+        <div class="heading"><img src="logo.png" alt="Virsitile Logo">
+        <div class="subpart"><h1>Daily Virsitile Report</h1><p>{{ date }}</p>
+        </div></div>
+        
+        <hr>
         {% for email in emails %}
             <div class="email-item">
                 <a href="{{ email.url }}">
@@ -14,6 +44,7 @@
                 </a>
                 <p>{{ email.content }}</p>
             </div>
+            <hr>
         {% endfor %}
     </div>
 </body>

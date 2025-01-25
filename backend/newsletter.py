@@ -176,7 +176,7 @@ def run_search(scrape, llm, search_type):
     user_emails = match_content(user_to_topic_to_skill, topic_to_content)
 
 def get_jinja_contents(emails):
-    return template.render(emails = emails)
+    return template.render(emails = emails, date = datetime.datetime.now().strftime("%m/%d/%Y"))
 
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
