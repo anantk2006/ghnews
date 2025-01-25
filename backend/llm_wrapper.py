@@ -3,13 +3,29 @@ OPENAI_API_KEY = "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"
 class LLMWrapper:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.critic_client = OpenAI(api_key="sk-82f67e287ba046efbf85a6b8d43ab517", base_url="https://api.deepseek.com/v1")
     def complete(self, model, messages):
-        messages = [{"role": "developer", "content": "You are a helpful assistant. Be concise in your answers and do not give intros or conclusions. Just answer the questions in the specified format"},] + messages
-        completion = self.client.chat.completions.create(
+        if model == "gpt-4o-mini":
+            client = self.client
+        else:
+            client = self.critic_client
+        messages = [{"role": "system", "content": "You are a helpful assistant. Be concise in your answers and do not give intros or conclusions. Just answer the questions in the specified format"},] + messages
+        completion = client.chat.completions.create(
             model=model,
             messages=messages
         )
         return completion.choices[0].message.content
+    
+    def critic_complete(self, messages):
+        unfiltered = self.complete('deepseek-chat', messages)
+        nm = messages + [
+            {'role': 'assistant', 'content': unfiltered},
+            {'role': 'system', 'content': 'Write a simple, few bullet point critique of the article. Ensure that the critique is constructive and helpful. Do not include any fluff or unnecessary information. Be concise and to the point. Ensure it is clear enough for a software engineer to understand.'}, 
+              ]
+        critique = self.complete('gpt-4o-mini', nm)
+        nm = messages + [nm[0]] + [{'role': 'user', 'content': critique}] + [{'role': 'system', 'content': 'Incorporate the feedback that is valualbe and relevant into the article. Ensure that the article is improved and that the feedback is integrated in a way that makes sense. Make sure the article sounds insightful and professional, like a news reporter wrote it.'}]
+        return self.complete('deepseek-chat', nm)
+
 
     def get_topics(self, packages):
         messages = [{"role": "user", "content": f"Generate a list of 30-40 topics pertaining to the following packages. These could be anything about any computer science/engineering topic. Include nothing but the list itself in comma seperated and unordered format e.g. topic 1, topic 2, topic 3, topic 4. Each topic should be broad--there should be tech updates and news related to them. Some packages are going to be mundane--like utils or requests or json. \n Here are the packages: {packages}. What topics relate to these packages?"},]
@@ -55,7 +71,7 @@ class LLMWrapper:
         print("Generating articles")
         for text in mds:
             messages = [{"role": "user", "content": f"Generate a concise news article about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
-            article = self.complete("gpt-4o-mini", messages)
+            article = self.critic_complete(messages)
             articles.append(article)          
         return articles
     
@@ -65,7 +81,7 @@ class LLMWrapper:
         for text in mds:
             messages = [{"role": "user", "content": f"Generate a concise research summary about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
 
-            article = self.complete("gpt-4o-mini", messages)
+            article = self.critic_complete(messages)
             articles.append(article)
       
         return articles
