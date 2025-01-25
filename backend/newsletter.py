@@ -14,7 +14,7 @@ import random
 from scrape import GoogleNews, BingSearch
 from jinja2 import Environment, FileSystemLoader
 
-top_k_topics = 10
+top_k_topics = 5
 llm = LLMWrapper()
 scrape = Scrape(llm)
 google_news = GoogleNews(llm)
@@ -96,7 +96,7 @@ def run_arxiv():
     arxiv_abstracts = scrape.get_arxiv_content()
  
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
-    user_emails = links_to_articles(user_emails, scrape = False)
+    user_emails = links_to_articles(user_emails, scrape_do= False)
 
     make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
@@ -116,20 +116,20 @@ def text_to_articles(user_emails):
                 else: ret[user_id].append(art)
     return ret
 
-def links_to_articles(user_emails, scrape = True):
+def links_to_articles(user_emails, scrape_do = True):
     links_to_user = {}
     for user_id, emails in user_emails.items():
         for email in emails:
             for link_holder in email:
-                if scrape: link = link_holder[1]
+                if scrape_do: link = link_holder[1]
                 else: link = link_holder[1]
 
-                r_link = link if scrape else link_holder[2]
+                r_link = link if scrape_do else link_holder[2]
                 if link not in links_to_user:
                     links_to_user[link] = [(user_id, link_holder[0], r_link)]
                 else: links_to_user[link].append((user_id, link_holder[0], r_link))
     links = list(links_to_user.keys()) 
-    if scrape: 
+    if scrape_do: 
         var = scrape.markdown_helper(links, "news")
         articles = llm.make_articles(var)
     else:
@@ -137,9 +137,11 @@ def links_to_articles(user_emails, scrape = True):
     ret = {}
     for link, text in zip(links, articles):
         for user_id, title, r_link in links_to_user[link]:
-            if user_id not in ret:
-                ret[user_id] = [(text, title, r_link)]
-            else: ret[user_id].append((text, title, r_link))  
+            # if "None" in text or len(text) < 20:
+                title_str = title if scrape_do else title[7:]
+                if user_id not in ret:
+                    ret[user_id] = [(text, title, r_link)]
+                else: ret[user_id].append((text, title, r_link))  
       
     return ret
 
@@ -152,12 +154,10 @@ def links_to_articles(user_emails, scrape = True):
 def run_news():
     
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
-    topics = random.sample(scrape.embed.topics, 6)
-    topic_to_links = bing_news.search(topics)
+    topics = random.sample(scrape.embed.news_topics, 30)
+    topic_to_links = bing_news.search_news(topics)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
     user_emails = links_to_articles(user_emails)
-    print(user_emails)
-    exit()
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
 def run_search(scrape, llm, search_type):
@@ -185,10 +185,10 @@ def get_jinja_contents(emails):
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
     for user_id, emails in user_emails.items():
+        # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
         em = [{'content': email[0], 'title': email[1], 'url': email[2]} for email in emails]
         contents = get_jinja_contents(em)
-        alternative = "\n\n".join([f"{email['title']}\n{email['url']}\n{email['content']}" for email in em])
         send_email(email_address, f'{type_str}', contents)       
     
             

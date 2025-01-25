@@ -41,7 +41,7 @@ class LLMWrapper:
         return topics
     
     def classify_importance(self, title, prompt):
-        messages = [{"role": "user", "content": f"{prompt}. Here is the title:\n{title}.\n Respond with 1 if it is useful and 2 if it is not, and say nothing else."},]
+        messages = [{"role": "user", "content": f"{prompt}. Here is the title:\n{title}.\n Respond with 1 if it is good/useful and 2 if it is not, and say nothing else."},]
         out = self.complete("gpt-4o-mini", messages)
         if "1" in out and "2" not in out:
             return True
@@ -54,11 +54,11 @@ class LLMWrapper:
         return self.classify_importance(title, prompt)
 
     def classify_importance_news(self, title):
-        prompt = "Classify whether the following news title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, open-source progress, news about recent government action, etc. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. Note that if the title is not news, then it is not interesting and should classified as such. Titles that involve summary lists or broad overviews are also not interesting. The title should not be common knowledge in the tech sphere."
+        prompt = "Classify whether the following news title is interesting or not. Interesting involves some cool software or technique--it could include startup/company announcements, open-source progress, news about recent government action, etc. These titles will be sent to software engineers--They should find it insightful, helpful, and non-redundant. Note that if the title is not news, then it is not interesting and should classified as such. Titles that involve summary lists or broad overviews are also not interesting. The title should not be common knowledge in the tech sphere. It should not be non-specific or outdated."
         return self.classify_importance(title, prompt)
     
     def classify_importance_research(self, title):
-        prompt = "Classify whether the following research paper title is interesting/important or not. These papers come from Arxiv, so many will be unpublished preprints with uninportant and arbitrary. Papers about niche applications or specific electronics are not important/interesting. Interesting/important papers will have impact. These titles will be sent to software engineers--they should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere."
+        prompt = "Classify whether the following research paper title is interesting/important or not. These papers come from Arxiv, so many will be unpublished preprints with uninportant and arbitrary. Papers about niche applications or specific electronics are not important/interesting. Interesting/important papers will have impact. These titles will be sent to software engineers--they should find it insightful, helpful, and non-redundant. It should not be common knowledge in the tech sphere. It should not be non-specific or outdated."
         return self.classify_importance(title, prompt)
         
     
@@ -70,7 +70,7 @@ class LLMWrapper:
         articles = []
         print("Generating articles")
         for text in mds:
-            messages = [{"role": "user", "content": f"Generate a concise news article (2 paragraphs) about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If no article can be made, say 'None' and nothing else."},]
+            messages = [{"role": "user", "content": f"Generate a concise news article (2 paragraphs) about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development."},]
             article = self.critic_complete(messages)
             articles.append(article)          
         return articles

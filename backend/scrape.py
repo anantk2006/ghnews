@@ -208,7 +208,7 @@ class ArxivSearch:
         soup = BeautifulSoup(response.text, 'html.parser')
         papers = soup.find_all('a', {'title': 'Download PDF'})
         ids = []
-        for paper in papers[:10]:
+        for paper in papers[:300]:
             ids.append(paper['href'].split('/')[-1])
         return ids
     
