@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 const oddlini = localFont({
-  src: "./fonts/oddlini-bold.ttf",
+  src: "../fonts/oddlini-bold.ttf",
   variable: "--font-oddlini",
 });
 
