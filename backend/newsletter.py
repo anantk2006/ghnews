@@ -6,7 +6,7 @@ from scrape import Scrape
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import markdown
+from email.message import EmailMessage
 import schedule
 import datetime, time
 import random
@@ -29,21 +29,20 @@ def send_email(email_address, subject, text, alternative = None):
     # Convert markdown to HTML
     
     # Create message container
-    msg = MIMEMultipart('alternative')
+    msg = EmailMessage()
     msg['Subject'] = subject
     msg['From'] = 'anantk2006@gmail.com'
     msg['To'] = email_address
+    msg.add_alternative(text, subtype='html')
     
     # Record the MIME types of both parts - text/plain and text/html
     # Attach parts into message container
-    msg.attach(text)
     
     
     # Send the message via local SMTP server
-    with smtplib.SMTP('smtp.gmail.com', 587) as server:
-        server.starttls()
-        server.login('anantk2006@gmail.com', 'anantk2006')
-        server.sendmail("anantk2006@gmail.com", email_address, msg.as_string())
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login("virsitilenews@gmail.com", "buei lsjm bpxf xjag")
+        smtp.send_message(msg)
 
 def retrieve_user_info():
     conn = sqlite3.connect('database.db')
