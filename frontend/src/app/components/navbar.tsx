@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { UserRoundIcon } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -16,17 +17,12 @@ export default function Navbar() {
           Virsitile
         </Link>
       </div>
-      <div className="flex items-center gap-6 justify-center">
+      <div className="flex items-center justify-center">
         <Link
-          href="/login"
-          className="text-sm font-medium hover:text-foreground/8 flex items-center justify-center font-oddlini mt-0.5 hover:text-foreground/90"
-        >
-          Login
-        </Link>
-        <Link
-          href="/signup"
+          href="#"
           className="text-sm font-medium bg-foreground text-background px-4 py-2 pt-2.5 rounded-lg flex items-center justify-center font-oddlini hover:bg-foreground/80"
         >
+          <UserRoundIcon className="size-3 mr-2 mb-0.5" />
           Sign up
         </Link>
       </div>
