@@ -1,35 +1,63 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function Pricing() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="text-base font-semibold leading-7 text-purple-600 font-oddlini">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-base font-semibold leading-7 text-purple-600 font-oddlini"
+          >
             Pricing
-          </p>
-          <h2 className="mt-2 text-4xl font-oddlini sm:text-7xl">
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-2 text-4xl font-oddlini sm:text-7xl"
+          >
             Simple pricing for everyone.
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600 font-hanken">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-6 text-lg leading-8 text-gray-600 font-hanken"
+          >
             Choose an <span className="font-medium">affordable plan</span>{" "}
             that's packed with the best features for engaging your audience,
             creating customer loyalty, and driving sales.
-          </p>
+          </motion.p>
         </div>
 
-        <div className="mt-6 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-6 flex items-center justify-center"
+        >
           <div className="rounded-full border border-purple-600/10 bg-purple-50/50 px-3 py-1">
             <p className="text-sm font-medium text-purple-600 font-hanken">
-              ✨ 14 days free trial
+              ✨ 14 day free trial
             </p>
           </div>
-        </div>
+        </motion.div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-          <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm"
+          >
             <h3 className="text-lg font-semibold text-gray-900 font-oddlini">
               Basic
             </h3>
@@ -92,8 +120,13 @@ export default function Pricing() {
                 5 projects limit
               </li>
             </ul>
-          </div>
-          <div className="rounded-2xl border border-purple-600 bg-white p-8 shadow-sm ring-1 ring-purple-600">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="rounded-2xl border border-purple-600 bg-white p-8 shadow-sm ring-1 ring-purple-600"
+          >
             <h3 className="text-lg font-semibold text-gray-900 font-oddlini">
               Premium
             </h3>
@@ -156,7 +189,7 @@ export default function Pricing() {
                 Unlimited projects
               </li>
             </ul>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
