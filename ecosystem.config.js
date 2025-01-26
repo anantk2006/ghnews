@@ -9,8 +9,8 @@ module.exports = {
       },
       {
         name: 'fastapi-backend',
-        script: 'hypercorn',
-        args: 'backend.main:app',
+        script: 'gunicorn',
+        args: '-w 1 -k uvicorn.workers.UvicornWorker backend.main:app', 
         watch: false,
         instances: 1,
       },
