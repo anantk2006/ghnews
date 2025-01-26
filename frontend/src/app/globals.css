@@ -77,3 +77,9 @@ body {
   font-weight: 700;
   font-style: normal;
 }
+
+@font-face {
+  font-family: "Hanken";
+  src: url("../fonts/hanken-grotesk.ttf") format("truetype");
+  font-style: normal;
+}
