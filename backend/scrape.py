@@ -302,14 +302,20 @@ class Scrape:
         final_embeddings = torch.cat(all_embeddings, dim=0)
         likes = final_embeddings @ self.embed.paper_embeds.T
         user_topics = torch.argmax(likes, dim=1)
+        
+        cross_sim = final_embeddings @ final_embeddings.T
+        cross_likes = torch.topk(cross_sim, 5, dim=1)[1]
         # Get the proper dictionary
         topic_to_text = {}
         for i, topic_idx in enumerate(user_topics):
             topic = self.embed.paper_topics[int(topic_idx)]
+            abstract = abstracts[i]
+            abstract = list(abstract) + [abstracts[int(j)][2] for j in cross_likes[i][1:]]
             if topic in topic_to_text:
-                topic_to_text[topic].append(abstracts[i])
+                topic_to_text[topic].append(abstract)
             else:
-                topic_to_text[topic] = [abstracts[i]]
+                topic_to_text[topic] = [abstract]
+        print(topic_to_text)
         return topic_to_text
 
 

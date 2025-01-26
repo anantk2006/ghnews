@@ -94,10 +94,13 @@ def run_arxiv():
     llm = LLMWrapper()
     scrape = Scrape(llm)
     arxiv_abstracts = scrape.get_arxiv_content()
- 
+    # print(arxiv_abstracts)
+    exit()
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
+    # print(user_emails)
+    # exit()
     user_emails = links_to_articles(user_emails, scrape_do= False)
-
+    
     make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
 
 def text_to_articles(user_emails):
@@ -208,7 +211,7 @@ def main():
     # text = template.render(emails = [{'content': 'This is a test', 'title': 'Test', 'url': 'https://www.google.com'}], date = datetime.datetime.now().strftime("%m/%d/%Y"))
     # send_email('anantk2006@gmail.com', 'Test', text)
     run_arxiv()
-    run_news()
+    # run_news()
     
 if __name__ == "__main__":
     main()
