@@ -5,7 +5,7 @@ import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-export default function Pricing() {
+export default function Pricing({ openModal }: { openModal: () => void }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
@@ -73,7 +73,7 @@ export default function Pricing() {
                 / month
               </span>
             </p>
-            <button className="mt-6 w-full font-hanken rounded-lg bg-white px-3 py-2 text-center text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <button onClick={openModal} className="mt-6 w-full font-hanken rounded-lg bg-white px-3 py-2 text-center text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
               Subscribe
             </button>
             <ul className="mt-8 space-y-4 text-sm font-hanken">
@@ -142,7 +142,7 @@ export default function Pricing() {
                 / month
               </span>
             </p>
-            <button className="mt-6 w-full font-hanken rounded-lg bg-purple-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-500">
+            <button onClick={openModal} className="mt-6 w-full font-hanken rounded-lg bg-purple-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-500">
               Subscribe
             </button>
             <ul className="mt-8 space-y-4 text-sm font-hanken">

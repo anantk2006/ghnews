@@ -16,8 +16,8 @@ export default function Home() {
   return (
     <div>
       <Navbar openModal={openModal} />
-      <Hero isModalOpen={isModalOpen} closeModal={closeModal} />
-      <Pricing />
+      <Hero isModalOpen={isModalOpen} closeModal={closeModal} openModal={openModal} />
+      <Pricing openModal={openModal} />
       <Footer />
     </div>
 

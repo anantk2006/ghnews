@@ -12,7 +12,7 @@ import CheckoutForm from "../components/checkoutform";
 
 import "./modal.css";
 
-export default function Hero({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) {
+export default function Hero({ isModalOpen, closeModal, openModal }: { isModalOpen: boolean; closeModal: () => void; openModal: () => void }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="flex items-center justify-center h-screen">
@@ -39,7 +39,7 @@ export default function Hero({ isModalOpen, closeModal }: { isModalOpen: boolean
             </div>
         )}
             <AnimatedShinyText className="inline-flex font-hanken items-center justify-center px-4 py-1 transition ease-in-out">
-              <span>✨ Sign up now for a free 14 day trial</span>
+              <span onClick={openModal}>✨ Sign up now for a free 14 day trial</span>
               <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
             </AnimatedShinyText>
           </motion.div>
@@ -73,13 +73,13 @@ export default function Hero({ isModalOpen, closeModal }: { isModalOpen: boolean
             transition={{ duration: 0.5, delay: 0.5 }}
             className="flex items-center justify-center mt-5"
           >
-            <Link
-              href="/signup"
+            <button
+              onClick={openModal}
               className="text-sm font-medium bg-foreground text-background px-4 py-2 pt-2.5 rounded-lg flex items-center justify-center font-oddlini hover:bg-foreground/80"
             >
               Get Started for Free
               <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-            </Link>
+            </button>
           </motion.div>
         </div>
       </div>
