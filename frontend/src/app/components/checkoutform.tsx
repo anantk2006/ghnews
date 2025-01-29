@@ -33,8 +33,7 @@ const CheckoutForm: React.FC = () => {
     const options = { fetchClientSecret };
 
   return (
-    <div id="checkout" className="flex">
-      <meta httpEquiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <div id="checkout">
       <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>

@@ -8,8 +8,9 @@ import { InteractiveGridPattern } from "../components/magic-background-grid";
 import { AnimatedShinyText } from "../components/magic-shiny-text";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import CheckoutForm from "../components/checkoutform";
 
-export default function Hero() {
+export default function Hero({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="flex items-center justify-center h-screen">
@@ -22,6 +23,19 @@ export default function Hero() {
               "group rounded-full border bg-white border-black/10 text-base text-black transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800 mb-4",
             )}
           >
+            {isModalOpen && (
+            <div className="modal-overlay" onClick={closeModal}>
+            <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+            >
+                <button className="close-modal-button" onClick={closeModal}>
+                &times;
+                </button>
+                <CheckoutForm />
+            </div>
+            </div>
+        )}
             <AnimatedShinyText className="inline-flex font-hanken items-center justify-center px-4 py-1 transition ease-in-out">
               <span>✨ Sign up now for a free 14 day trial</span>
               <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
