@@ -10,6 +10,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CheckoutForm from "../components/checkoutform";
 
+import "./modal.css";
+
 export default function Hero({ isModalOpen, closeModal }: { isModalOpen: boolean; closeModal: () => void }) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">

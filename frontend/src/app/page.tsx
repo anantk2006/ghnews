@@ -19,19 +19,6 @@ export default function Home() {
       <Hero isModalOpen={isModalOpen} closeModal={closeModal} />
       <Pricing />
       <Footer />
-      {isModalOpen && (
-            <div className="modal-overlay" onClick={closeModal}>
-            <div
-                className="modal-content"
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-            >
-                <button className="close-modal-button" onClick={closeModal}>
-                &times;
-                </button>
-                <CheckoutForm />
-            </div>
-            </div>
-        )}
     </div>
 
   );
