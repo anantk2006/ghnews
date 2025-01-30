@@ -12,7 +12,15 @@ import CheckoutForm from "../components/checkoutform";
 
 import "./modal.css";
 
-export default function Hero({ isModalOpen, closeModal, openModal }: { isModalOpen: boolean; closeModal: () => void; openModal: () => void }) {
+export default function Hero({
+  isModalOpen,
+  closeModal,
+  openModal,
+}: {
+  isModalOpen: boolean;
+  closeModal: () => void;
+  openModal: () => void;
+}) {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="flex items-center justify-center h-screen">
@@ -26,20 +34,22 @@ export default function Hero({ isModalOpen, closeModal, openModal }: { isModalOp
             )}
           >
             {isModalOpen && (
-            <div className="modal-overlay" onClick={closeModal}>
-            <div
-                className="modal-content"
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-            >
-                <button className="close-modal-button" onClick={closeModal}>
-                &times;
-                </button>
-                <CheckoutForm />
-            </div>
-            </div>
-        )}
+              <div className="modal-overlay" onClick={closeModal}>
+                <div
+                  className="modal-content"
+                  onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+                >
+                  <button className="close-modal-button" onClick={closeModal}>
+                    &times;
+                  </button>
+                  <CheckoutForm />
+                </div>
+              </div>
+            )}
             <AnimatedShinyText className="inline-flex font-hanken items-center justify-center px-4 py-1 transition ease-in-out">
-              <span onClick={openModal}>✨ Sign up now for a free 14 day trial</span>
+              <span onClick={openModal}>
+                ✨ Sign up now for a free 14 day trial
+              </span>
               <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
             </AnimatedShinyText>
           </motion.div>

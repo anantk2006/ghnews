@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { GridPattern } from "../components/magic-static-grid";
 
 export default function Pricing({ openModal }: { openModal: () => void }) {
   return (
@@ -70,7 +71,10 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                 / month
               </span>
             </p>
-            <button onClick={openModal} className="mt-6 w-full font-hanken rounded-lg bg-white px-3 py-2 text-center text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <button
+              onClick={openModal}
+              className="mt-6 w-full font-hanken rounded-lg bg-white px-3 py-2 text-center text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
               Subscribe
             </button>
             <ul className="mt-8 space-y-4 text-sm font-hanken">
@@ -139,7 +143,10 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                 / month
               </span>
             </p>
-            <button onClick={openModal} className="mt-6 w-full font-hanken rounded-lg bg-purple-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-500">
+            <button
+              onClick={openModal}
+              className="mt-6 w-full font-hanken rounded-lg bg-purple-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
+            >
               Subscribe
             </button>
             <ul className="mt-8 space-y-4 text-sm font-hanken">
@@ -188,6 +195,29 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
             </ul>
           </motion.div>
         </div>
+      </div>
+
+      {/* Arc background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[140%] aspect-[2.5/1] bg-gradient-to-t from-purple-500/5 via-purple-100/5 to-transparent"
+          style={{
+            borderRadius: "100% 100% 0 0",
+            filter: "blur(100px)",
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[100%] h-[2px] bg-gradient-to-r from-transparent via-purple-100 to-transparent"
+          style={{
+            filter: "blur(200px)",
+          }}
+        />
+        <GridPattern
+          className="opacity-20"
+          width={40}
+          height={40}
+          squares={[[48, 32]]}
+        />
       </div>
     </div>
   );
