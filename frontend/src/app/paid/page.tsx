@@ -23,7 +23,7 @@ export default function PaidPage() {
   };
 
   return (
-    <div className='px-44'>
+    <div className='px-44 w-full relative'>
         <Navbar openModal={nullMethod} />
         <div className="flex flex-col items-center justify-center h-screen gap-2 z-[99]">
   <AnimatedShinyText className="flex flex-row font-hanken items-center justify-center px-4 py-1 transition ease-in-out mb-4">
@@ -34,7 +34,7 @@ export default function PaidPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex items-center justify-center mt-5"
+            className="group bg-white border-black/10 text-base text-black transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800 mb-4"
           >
   <form onSubmit={handleSubmit} className="flex flex-col items-center">
     <input
