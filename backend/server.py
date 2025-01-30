@@ -163,13 +163,16 @@ async def register(request: Request):
     data = await request.json()
     code = data.get("code")
     session_id = data.get("session_id")
+    session_id, user_email = session_id.split("ABCHASH")
+    print(session_id, user_email)
+    
 
     paid = check_session_id(session_id)
     if not paid:
         return {"error": "Payment required"}
 
     access_token = get_access_token(code)
-    username, user_email = get_username_and_email(access_token)
+    username, _ = get_username_and_email(access_token)
     # exit()
     upload_user_to_db(username, user_email, access_token)
     repos = get_repos(access_token)   

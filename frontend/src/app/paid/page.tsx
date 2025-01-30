@@ -18,8 +18,10 @@ export default function PaidPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting email to GitHub OAuth");
     if (session_id && email) {
-      window.location.href = `/some-link?email=${email}&session_id=${session_id}`;
+      console.log("Redirecting to GitHub OAuth");
+      window.location.href = `https://github.com/login/oauth/authorize?client_id=Iv23liyZsfVUeLCoHC5L&scope=repo&state=${session_id}ABCHASH${email}`;
     }
   };
 
@@ -38,8 +40,8 @@ export default function PaidPage() {
           className="group bg-white border-black/10 text-base text-black transition-all ease-in hover:cursor-pointer mb-4"
         >
           <form
-            onSubmit={handleSubmit}
             className="flex flex-col items-center z-[99]"
+            onSubmit={handleSubmit}
           >
             <input
               type="email"
@@ -59,7 +61,7 @@ export default function PaidPage() {
         </motion.div>
       </div>
       <Footer />
-      <div className="absolute inset-0 w-screen h-screen flex items-center justify-center">
+      <div className="pointer-events-none absolute inset-0 w-screen h-screen flex items-center justify-center">
         <GridPattern
           className="opacity-30 w-screen [mask-image:radial-gradient(ellipse_at_center,_black_0%,_black_25%,_rgba(0,0,0,0.5)_40%,_transparent_75%)]"
           width={40}
