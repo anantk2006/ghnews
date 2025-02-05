@@ -46,18 +46,17 @@ CREATE TABLE user_skills (
 )
 ''')
 
-cursor.execute('''DROP TABLE IF EXISTS links''')
-cursor.execute('''
-CREATE TABLE links (
-    topic TEXT,
-    search_type TEXT,
-    link TEXT
-)
-''')
 cursor.execute('''DROP TABLE IF EXISTS sessions''')
 cursor.execute('''
 CREATE TABLE sessions (
     session_id TEXT PRIMARY KEY
+)
+''')
+
+cursor.execute('''DROP TABLE IF EXISTS articles''')
+cursor.execute('''CREATE TABLE articles (
+    article_id SERIAL PRIMARY KEY,
+    article TEXT
 )
 ''')
 conn.commit()

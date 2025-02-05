@@ -4,12 +4,9 @@ from llm_wrapper import LLMWrapper
 from scrape import Scrape
 
 import smtplib
-from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
-from email.mime.text import MIMEText
 from email.message import EmailMessage
-import schedule
-import datetime, time
+import datetime
 import random
 from scrape import GoogleNews, BingSearch
 from jinja2 import Environment, FileSystemLoader
@@ -95,10 +92,9 @@ def run_arxiv():
     scrape = Scrape(llm)
     arxiv_abstracts = scrape.get_arxiv_content()
     # print(arxiv_abstracts)
-    exit()
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
-    # print(user_emails)
-    # exit()
+    print(user_emails)
+    
     user_emails = links_to_articles(user_emails, scrape_do= False)
     
     make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
@@ -128,9 +124,10 @@ def links_to_articles(user_emails, scrape_do = True):
                 else: link = link_holder[1]
 
                 r_link = link if scrape_do else link_holder[2]
+                other_links = link_holder[3:]
                 if link not in links_to_user:
-                    links_to_user[link] = [(user_id, link_holder[0], r_link)]
-                else: links_to_user[link].append((user_id, link_holder[0], r_link))
+                    links_to_user[link] = [(user_id, link_holder[0], r_link, other_links)]
+                else: links_to_user[link].append((user_id, link_holder[0], r_link, other_links))
     links = list(links_to_user.keys()) 
     if scrape_do: 
         var = scrape.markdown_helper(links, "news")
@@ -139,12 +136,12 @@ def links_to_articles(user_emails, scrape_do = True):
         articles = llm.make_research_summaries(links)    
     ret = {}
     for link, text in zip(links, articles):
-        for user_id, title, r_link in links_to_user[link]:
+        for user_id, title, r_link, other_links in links_to_user[link]:
             # if "None" in text or len(text) < 20:
                 title_str = title if scrape_do else title[7:]
                 if user_id not in ret:
-                    ret[user_id] = [(text, title, r_link)]
-                else: ret[user_id].append((text, title, r_link))  
+                    ret[user_id] = [(text, title_str, r_link, other_links)]
+                else: ret[user_id].append((text, title_str, r_link, other_links))  
       
     return ret
 
@@ -157,9 +154,11 @@ def links_to_articles(user_emails, scrape_do = True):
 def run_news():
     
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
-    topics = random.sample(scrape.embed.news_topics, 30)
-    topic_to_links = bing_news.search_news(topics)
+    topics = random.sample(scrape.embed.news_topics, 5)
+    topic_to_links = bing_news.search(topics)
+    print(topic_to_links)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
+    print(user_emails)
     user_emails = links_to_articles(user_emails)
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
@@ -201,17 +200,9 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
 
 
 def main():
-    # schedule.every(1).day.do(run_arxiv)
-
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(10)  
-    # run_arxiv()
-    # run_arxiv()
-    # text = template.render(emails = [{'content': 'This is a test', 'title': 'Test', 'url': 'https://www.google.com'}], date = datetime.datetime.now().strftime("%m/%d/%Y"))
-    # send_email('anantk2006@gmail.com', 'Test', text)
+   
     run_arxiv()
-    # run_news()
-    
+    run_news()
+
 if __name__ == "__main__":
     main()

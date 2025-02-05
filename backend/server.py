@@ -11,6 +11,10 @@ from file import File
 from topics import ArcticEmbed
 from llm_wrapper import LLMWrapper
 
+from newsletter import main
+import schedule
+import threading, time
+
 
 app = FastAPI()
 origins = [
@@ -212,3 +216,17 @@ def create_payment_intent(request: Request):
     session_id = session.id
     save_session_to_db(session_id)
     return session.client_secret
+
+def run_daily():
+    main()
+
+schedule.every().day.at("00:00").do(run_daily)
+
+
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(10)
+
+scheduler_thread = threading.Thread(target=run_scheduler)
+scheduler_thread.start()

@@ -60,25 +60,6 @@ class BingSearch:
         self.news_endpoint = "https://api.bing.microsoft.com/v7.0/news/search"
         self.llm = llm
 
-    def search(self, query):
-        # Add your Bing Search V7 subscription key and endpoint to your environment variables.
-        # Construct a request
-        mkt = 'en-US'
-        params = { 'q': query, 'mkt': mkt }
-        headers = { 'Ocp-Apim-Subscription-Key': self.subscription_key }
-
-        # Call the API
-        try:
-            response = requests.get(self.endpoint, headers=headers, params=params)
-            response.raise_for_status()
-            response = response.json()
-        except Exception as ex:
-            raise ex
-        links = []
-        dates = [False if 'datePublished' not in r else r['datePublished'] for r in response['webPages']['value']]
-        for i in range(len(response['webPages']['value'])):
-            links.append((response['webPages']['value'][i]['name'], response['webPages']['value'][i]['url']))
-        return links, dates
 
     def search_news(self, query):
         # Add your Bing Search V7 subscription key and endpoint to your environment variables.
@@ -218,7 +199,7 @@ class ArxivSearch:
 
     def get_arxiv_abstracts(self):
         abstracts = []
-        urls = self.get_arxiv_urls()
+        urls = self.get_arxiv_urls()[:10]
         loop = asyncio.get_event_loop()
         content = loop.run_until_complete(fetch_all(urls, format="text"))
         for i, response in enumerate(content):
