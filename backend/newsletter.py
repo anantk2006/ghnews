@@ -189,7 +189,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     for user_id, emails in user_emails.items():
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
-        em = [{'content': email[0], 'title': email[1], 'url': email[2]} for email in emails]
+        em = [{'content': email[0], 'title': email[1], 'url': email[2], 'others': email[3]} for email in emails]
         contents = get_jinja_contents(em)
         send_email(email_address, f'{type_str}', contents)       
     

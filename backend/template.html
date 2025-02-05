@@ -32,7 +32,7 @@
             background-color: white;
         }
         .heading{
-            background-color: rgba(2, 55, 139, 0.948);
+            background-color: #a855f7;
             color: white;
             display: flex;
         }
@@ -45,11 +45,17 @@
         .text {
             padding: 1.5rem;
         }
+        .related {
+            padding: 1rem;
+            grid-column: 3;
+            display: flex;
+
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="heading"><img src="cid:embedded_image" alt="Virsitile Logo" style="max-width: 20%; height: auto;">
+        <div class="heading"><img src="cid:embedded_image" alt="Virsitile Logo" style="width: 20%; height: 20%;">
         <div class="subpart"><h1>Daily Virsitile Report</h1><p>{{ date }}</p>
         </div></div>
         
@@ -59,7 +65,13 @@
                 <a href="{{ email.url }}">
                     <h3>{{ email.title }}</h3>
                 </a>
-                <p class="text">{{ email.content }}</p>
+            </div>
+            
+            <div class="related">
+                <p>Related Articles:</p>
+            {% for other in email.others %}
+                <a href="{{ other.url }}">{{ other.title }}</a><br>
+            {% endfor %}
             </div>
             <hr>
         {% endfor %}
