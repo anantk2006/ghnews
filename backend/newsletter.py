@@ -124,13 +124,12 @@ def links_to_articles(user_emails, scrape_do = True):
                 else: link = link_holder[1]
 
                 r_link = link if scrape_do else link_holder[2]
-                other_links = [e[1] for e in emails] if scrape_do else link_holder[3:]
+
+                other_links = email if scrape_do else link_holder[3:]
                 if link not in links_to_user:
                     links_to_user[link] = [(user_id, link_holder[0], r_link, other_links)]
                 else: links_to_user[link].append((user_id, link_holder[0], r_link, other_links))
     links = list(links_to_user.keys()) 
-    print(links_to_user)
-    exit()
     if scrape_do: 
         var = scrape.markdown_helper(links, "news")
         articles = llm.make_articles(var)
@@ -138,6 +137,7 @@ def links_to_articles(user_emails, scrape_do = True):
         articles = llm.make_research_summaries(links)    
     ret = {}
     for link, text in zip(links, articles):
+        if "None" in text and len(text) < 10: continue
         for user_id, title, r_link, other_links in links_to_user[link]:
             title_str = title if scrape_do else title[7:]
             if user_id not in ret:
@@ -188,7 +188,12 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     for user_id, emails in user_emails.items():
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
-        em = [{'content': email[0], 'title': email[1], 'url': email[2], 'others': email[3]} for email in emails]
+        
+        em = [{'content': email[0][:100] + "...",
+                'title': email[1], 'url': email[2],
+                'others': random.sample([{'title': art[0], 'url': art[1]} 
+                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
+                                         for email in emails]
         contents = get_jinja_contents(em)
         send_email(email_address, f'{type_str}', contents)       
     
