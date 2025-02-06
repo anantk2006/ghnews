@@ -291,7 +291,8 @@ class Scrape:
         for i, topic_idx in enumerate(user_topics):
             topic = self.embed.paper_topics[int(topic_idx)]
             abstract = abstracts[i]
-            abstract = list(abstract) + [abstracts[int(j)][2] for j in cross_likes[i][1:]]
+            abstract = list(abstract) + [{"link": abstracts[int(j)][2], "title": abstracts[int(j)][0]}
+                                          for j in cross_likes[i][1:]]
             if topic in topic_to_text:
                 topic_to_text[topic].append(abstract)
             else:

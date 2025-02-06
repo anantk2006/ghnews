@@ -124,11 +124,13 @@ def links_to_articles(user_emails, scrape_do = True):
                 else: link = link_holder[1]
 
                 r_link = link if scrape_do else link_holder[2]
-                other_links = link_holder[3:]
+                other_links = [e[1] for e in emails] if scrape_do else link_holder[3:]
                 if link not in links_to_user:
                     links_to_user[link] = [(user_id, link_holder[0], r_link, other_links)]
                 else: links_to_user[link].append((user_id, link_holder[0], r_link, other_links))
     links = list(links_to_user.keys()) 
+    print(links_to_user)
+    exit()
     if scrape_do: 
         var = scrape.markdown_helper(links, "news")
         articles = llm.make_articles(var)
@@ -137,11 +139,10 @@ def links_to_articles(user_emails, scrape_do = True):
     ret = {}
     for link, text in zip(links, articles):
         for user_id, title, r_link, other_links in links_to_user[link]:
-            # if "None" in text or len(text) < 20:
-                title_str = title if scrape_do else title[7:]
-                if user_id not in ret:
-                    ret[user_id] = [(text, title_str, r_link, other_links)]
-                else: ret[user_id].append((text, title_str, r_link, other_links))  
+            title_str = title if scrape_do else title[7:]
+            if user_id not in ret:
+                ret[user_id] = [(text, title_str, r_link, other_links)]
+            else: ret[user_id].append((text, title_str, r_link, other_links))  
       
     return ret
 
@@ -156,9 +157,7 @@ def run_news():
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
     topics = random.sample(scrape.embed.news_topics, 5)
     topic_to_links = bing_news.search(topics)
-    print(topic_to_links)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
-    print(user_emails)
     user_emails = links_to_articles(user_emails)
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
@@ -201,7 +200,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
 
 def main():
    
-    run_arxiv()
+    #run_arxiv()
     run_news()
 
 if __name__ == "__main__":

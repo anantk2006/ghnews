@@ -56,7 +56,9 @@ CREATE TABLE sessions (
 cursor.execute('''DROP TABLE IF EXISTS articles''')
 cursor.execute('''CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY,
-    article TEXT
+    article TEXT,
+    title TEXT,
+    related_articles TEXT
 )
 ''')
 conn.commit()
