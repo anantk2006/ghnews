@@ -183,6 +183,30 @@ def run_search(scrape, llm, search_type):
 def get_jinja_contents(emails):
     return template.render(emails = emails, date = datetime.datetime.now().strftime("%m/%d/%Y"))
 
+def save_art_to_db(emails):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    ids = []
+    for email in emails:
+        others = email['others']
+        rtitle1 = others[0]['title'] if len(others) > 0 else None
+        rlink1 = others[0]['url'] if len(others) > 0 else None
+        rtitle2 = others[1]['title'] if len(others) > 1 else None
+        rlink2 = others[1]['url'] if len(others) > 1 else None
+        rtitle3 = others[2]['title'] if len(others) > 2 else None
+        rlink3 = others[2]['url'] if len(others) > 2 else None
+        cursor.execute('''
+        INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3))
+        cursor.execute('SELECT last_insert_rowid()')
+        user_id = cursor.fetchone()[0]
+        ids.append(user_id)
+
+    conn.commit()
+    conn.close()
+    return ids
+
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
     for user_id, emails in user_emails.items():
@@ -194,8 +218,13 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                 'others': random.sample([{'title': art[0], 'url': art[1]} 
                                          for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
                                          for email in emails]
-        contents = get_jinja_contents(em)
-        send_email(email_address, f'{type_str}', contents)       
+        save_art_to_db(em)
+        for e in em:
+            e['url'] = "http://localhost/article/" + str(e['id'])
+        contents = get_jinja_contents(em)        
+        send_email(email_address, f'{type_str}', contents)  
+
+           
     
             
 

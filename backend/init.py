@@ -58,8 +58,15 @@ cursor.execute('''CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY,
     article TEXT,
     title TEXT,
-    related_articles TEXT
+    rlink1 TEXT,
+    rlink2 TEXT,
+    rlink3 TEXT,
+    rtitle1 TEXT,
+    rtitle2 TEXT,
+    rtitle3 TEXT,
 )
+
 ''')
+
 conn.commit()
 conn.close()
