@@ -200,8 +200,8 @@ class ArxivSearch:
     def get_arxiv_abstracts(self):
         abstracts = []
         urls = self.get_arxiv_urls()[:10]
-        loop = asyncio.get_event_loop()
-        content = loop.run_until_complete(fetch_all(urls, format="text"))
+        
+        content = [requests.get(url).text for url in urls]
         for i, response in enumerate(content):
             soup = BeautifulSoup(response, 'html.parser')
             abstract = soup.find('blockquote', {'class': 'abstract mathjax'}).text
@@ -297,7 +297,6 @@ class Scrape:
                 topic_to_text[topic].append(abstract)
             else:
                 topic_to_text[topic] = [abstract]
-        print(topic_to_text)
         return topic_to_text
 
 

@@ -87,14 +87,12 @@ def match_content(user_to_topic_to_skill, content):
     return user_emails
 
 def run_arxiv():
-    id_to_email, user_to_topic_to_skill = retrieve_user_info()   
+    id_to_email, user_to_topic_to_skill = retrieve_user_info()  
     llm = LLMWrapper()
     scrape = Scrape(llm)
     arxiv_abstracts = scrape.get_arxiv_content()
     # print(arxiv_abstracts)
     user_emails = match_content(user_to_topic_to_skill, arxiv_abstracts)
-    print(user_emails)
-    
     user_emails = links_to_articles(user_emails, scrape_do= False)
     
     make_and_send_emails(user_emails, id_to_email, search_type="arxiv")
@@ -139,7 +137,7 @@ def links_to_articles(user_emails, scrape_do = True):
     for link, text in zip(links, articles):
         if "None" in text and len(text) < 10: continue
         for user_id, title, r_link, other_links in links_to_user[link]:
-            title_str = title if scrape_do else title[7:]
+            title_str = title if scrape_do else title[6:]
             if user_id not in ret:
                 ret[user_id] = [(text, title_str, r_link, other_links)]
             else: ret[user_id].append((text, title_str, r_link, other_links))  
@@ -210,17 +208,24 @@ def save_art_to_db(emails):
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
     for user_id, emails in user_emails.items():
+        print(emails)
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
-        
-        em = [{'content': email[0][:100] + "...",
-                'title': email[1], 'url': email[2],
-                'others': random.sample([{'title': art[0], 'url': art[1]} 
-                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
-                                         for email in emails]
-        save_art_to_db(em)
-        for e in em:
-            e['url'] = "http://localhost/article?id=" + str(e['id'])
+        if search_type == 'news':
+            em = [{'content': email[0][:300] + "...",
+                    'title': email[1], 'url': email[2],
+                    'others': random.sample([{'title': art[0], 'url': art[1]} 
+                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
+                                            for email in emails]
+        else:
+            em = [{'content': email[0][:300] + "...",
+                    'title': email[1], 'url': email[2],
+                    'others': random.sample([{'title': art['title'], 'url': art['link']} 
+                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
+                                            for email in emails]
+        ids = save_art_to_db(em)
+        for idx, e in enumerate(em):
+            e['url'] = "http://localhost/article?id=" + str(ids[idx])
         contents = get_jinja_contents(em)        
         send_email(email_address, f'{type_str}', contents)  
 
@@ -233,8 +238,8 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
 
 
 def main():
-   
-    #run_arxiv()
+    
+    run_arxiv()
     run_news()
 
 if __name__ == "__main__":

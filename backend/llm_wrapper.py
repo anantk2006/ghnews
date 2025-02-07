@@ -9,7 +9,7 @@ class LLMWrapper:
             client = self.client
         else:
             client = self.critic_client
-        messages = [{"role": "system", "content": "You are a helpful assistant. Be concise in your answers and do not give intros or conclusions. Just answer the questions in the specified format"},] + messages
+        messages = [{"role": "system", "content": "You are a helpful assistant. Be concise in your answers and do not give intros or conclusions. Just answer the questions in the specified format. Do not use markdown formatting."},] + messages
         completion = client.chat.completions.create(
             model=model,
             messages=messages

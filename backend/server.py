@@ -244,7 +244,8 @@ def get_article(request: Request):
 def run_daily():
     main()
 
-schedule.every().day.at("00:00").do(run_daily)
+# schedule.every().day.at("00:00").do(run_daily)
+schedule.every(1).minutes.do(run_daily)
 
 
 def run_scheduler():
