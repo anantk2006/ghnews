@@ -57,15 +57,14 @@ cursor.execute('''DROP TABLE IF EXISTS articles''')
 cursor.execute('''CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY,
     article TEXT,
-    title TEXT,
+    title TEXT
     rlink1 TEXT,
     rlink2 TEXT,
     rlink3 TEXT,
     rtitle1 TEXT,
     rtitle2 TEXT,
-    rtitle3 TEXT,
+    rtitle3 TEXT
 )
-
 ''')
 
 conn.commit()

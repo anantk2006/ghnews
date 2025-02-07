@@ -220,7 +220,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                                          for email in emails]
         save_art_to_db(em)
         for e in em:
-            e['url'] = "http://localhost/article/" + str(e['id'])
+            e['url'] = "http://localhost/article?id=" + str(e['id'])
         contents = get_jinja_contents(em)        
         send_email(email_address, f'{type_str}', contents)  
 

@@ -217,6 +217,30 @@ def create_payment_intent(request: Request):
     save_session_to_db(session_id)
     return session.client_secret
 
+@app.get('/api/article')
+def get_article(request: Request):
+    article_id = request.query_params.get('id')
+    if not article_id:
+        return {"error": "Article ID is required"}
+
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3 FROM articles WHERE id=?", (article_id,))
+    article = cursor.fetchone()
+    conn.close()
+
+    if not article:
+        return {"error": "Article not found"}
+
+    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3 = article
+    related_tuple = [[t, l] for t, l in [[rtitle1, rlink1], [rtitle2, rlink2], [rtitle3, rlink3]] if t is not None]
+
+    return {
+        "title": title,
+        "content": content,
+        "related_links": related_tuple
+    }
+
 def run_daily():
     main()
 

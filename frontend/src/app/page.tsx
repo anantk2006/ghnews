@@ -6,13 +6,17 @@ import Pricing from "./sections/pricing";
 import { useState } from "react";
 import CheckoutForm from "./components/checkoutform";
 
-export default function Home() {
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const openModal = () => {
-        console.log("Opening modal");
-        setIsModalOpen(true);
-    }
+export const useModal = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+  
+    const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+  
+    return { isModalOpen, openModal, closeModal };
+  };
+
+export default function Home() {
+    const { isModalOpen, openModal, closeModal } = useModal();
   return (
     <div>
       <Navbar openModal={openModal} />
@@ -23,3 +27,6 @@ export default function Home() {
 
   );
 }
+
+
+
