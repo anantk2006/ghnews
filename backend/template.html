@@ -8,11 +8,13 @@
             padding-top: 0.7rem;
             padding-bottom: 0.7rem;
             font-family: 'Inter', sans-serif;
-            background-color: white
+            background-color: white;
+            font-size: 1.5rem;
         }
         .subpart{
             font-family: 'Inter', sans-serif;
             text-align: center;
+            width: 100%;
         }
         body{
             background-color: lightgray;
@@ -45,18 +47,17 @@
         .text {
             padding: 1.5rem;
         }
-        .related {
-            padding: 1rem;
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            grid-gap: 10px;
-            border: 1px solid black;
+        .box{
+            margin: 1rem;
+
         }
         @media (min-width: 768px) {
-            .related {
-                grid-template-columns: repeat(3, 1fr);
-                grid-template-rows: repeat(2, auto);
+            .related-link {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
             }
+
         }
         .related-link {
             background-color: #a855f7;
@@ -90,11 +91,14 @@
             
             <div class="related">
                 <p>Related Articles:</p>
+                <div class="box">
             {% for other in email.others %}
                 <a class="related-link" href="{{ other.url }}">
                     <p>{{ other.title }}</p>
-                </a><br>
+                </a>
+            
             {% endfor %}
+        </div>
             </div>
             <hr>
         {% endfor %}
