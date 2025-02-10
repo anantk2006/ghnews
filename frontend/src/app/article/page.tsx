@@ -1,7 +1,7 @@
 "use client"; // Required for using hooks in the App Router
 
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../sections/footer";
 import { ArrowRightIcon } from "lucide-react";
@@ -10,12 +10,33 @@ import { InteractiveGridPattern } from "../components/magic-background-grid";
 import { motion } from "framer-motion";
 import { GridPattern } from "../components/magic-static-grid";
 import { useModal } from "../page";
+
 export default function PaidPage() {
     const searchParams = useSearchParams();
     const article_id = searchParams.get("id"); // Access the `id` query parameter
     const { isModalOpen, openModal, closeModal } = useModal();
-    const article = fetch(`http://localhost:8000/api/article?id=${article_id}`);
-    console.log(article);
+    const [article, setArticle] = useState(null);
+
+    useEffect(() => {
+        const fetchArticle = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/article?id=${article_id}`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                });
+                const data = await response.json();
+                setArticle(data);
+                console.log(data);
+            } catch (error) {
+                console.error("Error fetching article:", error);
+            }
+        };
+
+        fetchArticle();
+    }, [article_id]); // Dependency array ensures this runs only once when article_id changes
+
     return (
         <div className="px-44 w-full relative">
             <Navbar openModal={openModal} />
@@ -30,7 +51,6 @@ export default function PaidPage() {
                     transition={{ duration: 0.5, delay: 0.5 }}
                     className="group bg-white border-black/10 text-base text-black transition-all ease-in hover:cursor-pointer mb-4"
                 >
-                
                 </motion.div>
             </div>
             <Footer />
