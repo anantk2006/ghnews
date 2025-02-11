@@ -26,9 +26,8 @@ class LLMWrapper:
             {'role': 'system', 'content': 'Write a simple, few bullet point critique of the article. Ensure that the critique is constructive and helpful. Do not include any fluff or unnecessary information. Be concise and to the point. Ensure it is clear enough for a software engineer to understand.'}, 
               ]
         critique = self.complete('gpt-4o-mini', nm)
-        nm = messages + [nm[0]] + [{'role': 'user', 'content': critique}] + [{'role': 'system', 'content': 'Incorporate the feedback that is valuable and relevant into the article. Ensure that the article is improved and that the feedback is integrated in a way that makes sense. Make sure the article sounds insightful and professional, like a news reporter wrote it. Keep the response fairly brief'}]
+        nm = messages + [nm[0]] + [{'role': 'user', 'content': critique}] + [{'role': 'system', 'content': 'Incorporate the feedback that is valuable and relevant into the article. Ensure that the article is improved and that the feedback is integrated in a way that makes sense. Make sure the article sounds insightful and professional, like a news reporter wrote it. Use good formatting, and break up text to make it more readable.'}]
         fin = self.complete('deepseek-chat', nm)
-        # print(str(fin)[:1000])
         return fin
 
 

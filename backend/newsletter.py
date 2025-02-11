@@ -207,9 +207,12 @@ def save_art_to_db(emails):
 
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
+    now = datetime.datetime.now()
+    formatted_date = now.strftime("%B %d, %Y %I:%M%p")
     for user_id, emails in user_emails.items():
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
+        
         if search_type == 'news':
             em = [{'content': email[0] + "...",
                     'title': email[1], 'url': email[2],
