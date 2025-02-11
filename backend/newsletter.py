@@ -193,10 +193,11 @@ def save_art_to_db(emails):
         rlink2 = others[1]['url'] if len(others) > 1 else None
         rtitle3 = others[2]['title'] if len(others) > 2 else None
         rlink3 = others[2]['url'] if len(others) > 2 else None
+        
         cursor.execute('''
-        INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3)
+        INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3))
+        ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date']))
         cursor.execute('SELECT last_insert_rowid()')
         user_id = cursor.fetchone()[0]
         ids.append(user_id)
@@ -216,12 +217,14 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         if search_type == 'news':
             em = [{'content': email[0] + "...",
                     'title': email[1], 'url': email[2],
+                    'date': formatted_date,
                     'others': random.sample([{'title': art[0], 'url': art[1]} 
                                             for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
                                             for email in emails]
         else:
             em = [{'content': email[0] + "...",
                     'title': email[1], 'url': email[2],
+                    'date': formatted_date,
                     'others': random.sample([{'title': art['title'], 'url': art['link']} 
                                             for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
                                             for email in emails]

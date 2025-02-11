@@ -4,13 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../sections/footer";
-import { ArrowRightIcon } from "lucide-react";
-import { AnimatedShinyText } from "../components/magic-shiny-text";
-import { InteractiveGridPattern } from "../components/magic-background-grid";
 import { motion } from "framer-motion";
-import { GridPattern } from "../components/magic-static-grid";
 import { useModal } from "../page";
-import { div } from "framer-motion/client";
 
 interface RelatedLink {
     [0]: string; // Title of the related article
@@ -21,6 +16,7 @@ interface Article {
     title: string;
     content: string;
     related_links: RelatedLink[];
+    date: string;
 }
 
 export default function PaidPage() {
@@ -55,8 +51,10 @@ export default function PaidPage() {
             <div className="flex-grow w-7/12 m-auto relative mb-10">
                 <div className="flex flex-col items-center mt-10 gap-2 z-[99]">
                     <span className="text-4xl font-oddlini bg-clip-text text-purple-500">
-                        {article ? article.title : "Loading..."}
+                        {article ? article.title : ""}
+                        
                     </span>
+                    <span className="text-lg text-gray-500">{article ? article.date : ""}</span>
                     <hr className="border-t-1 border-black w-full my-4" />
                     <p className="text-lg leading-relaxed mt-6 mb-6">
                         {article ? (

@@ -232,13 +232,14 @@ def get_article(request: Request):
     if not article:
         return {"error": "Article not found"}
 
-    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3 = article
+    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date = article
     related_tuple = [[t, l] for t, l in [[rtitle1, rlink1], [rtitle2, rlink2], [rtitle3, rlink3]] if t is not None]
 
     return {
         "title": title,
         "content": content,
-        "related_links": related_tuple
+        "related_links": related_tuple,
+        "pub_date": pub_date
     }
 
 def run_daily():
