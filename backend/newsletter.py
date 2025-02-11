@@ -211,20 +211,23 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
         if search_type == 'news':
-            em = [{'content': email[0][:300] + "...",
+            em = [{'content': email[0] + "...",
                     'title': email[1], 'url': email[2],
                     'others': random.sample([{'title': art[0], 'url': art[1]} 
                                             for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
                                             for email in emails]
         else:
-            em = [{'content': email[0][:300] + "...",
+            em = [{'content': email[0] + "...",
                     'title': email[1], 'url': email[2],
                     'others': random.sample([{'title': art['title'], 'url': art['link']} 
                                             for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
                                             for email in emails]
+        
         ids = save_art_to_db(em)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
+        for email in em:
+            email['content'] = email['content'].replace("\n", "<br>")[:300] + "..."
         contents = get_jinja_contents(em)        
         send_email(email_address, f'{type_str}', contents)  
 
@@ -242,4 +245,16 @@ def main():
     run_news()
 
 if __name__ == "__main__":
-    main()
+    # Dummy data for testing
+    dummy_user_emails = {
+        1: [
+            ("This is a dummy article content for user 1", "Dummy Article 1", "http://example.com/1", [("Related Article 1", "http://example.com/r1"), ("Related Article 2", "http://example.com/r2")]),
+            ("This is another dummy article content for user 1", "Dummy Article 2", "http://example.com/2", [("Related Article 3", "http://example.com/r3"), ("Related Article 4", "http://example.com/r4")])
+        ]
+    }
+
+    dummy_id_to_email = {
+        1: "anantk2006@gmail.com"
+    }
+
+    make_and_send_emails(dummy_user_emails, dummy_id_to_email, search_type="news")

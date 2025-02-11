@@ -6,6 +6,7 @@ import Navbar from "../components/navbar";
 import Footer from "../sections/footer";
 import { GridPattern } from "../components/magic-static-grid";
 import "./loader.css";
+import { div } from "framer-motion/client";
 
 export default function ConnectPage() {
   const searchParams = useSearchParams();
@@ -33,7 +34,10 @@ export default function ConnectPage() {
       <Navbar openModal={nullMethod} />
       <div className="flex flex-col items-center justify-center h-screen gap-2 z-[99]">
     {!isResponseReceived ? (
-        <div className="loader"></div>
+        <div>
+            <div className="loader"></div>
+            <p className="text-2xl font-oddlini text-transparent bg-clip-text">This may take some time.</p>
+        </div>
     ) : (
         <p className="text-2xl font-oddlini text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500">
             You have connected your GitHub account!

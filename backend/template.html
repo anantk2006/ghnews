@@ -11,12 +11,12 @@
             background-color: white;
             font-size: 1.5rem;
         }
-        .subpart{
+        .subpart {
             font-family: 'Inter', sans-serif;
             text-align: center;
             width: 100%;
         }
-        body{
+        body {
             background-color: lightgray;
         }
         @media (max-width: 768px) {
@@ -33,10 +33,11 @@
             margin: auto;
             background-color: white;
         }
-        .heading{
+        .heading {
             background-color: #a855f7;
             color: white;
             display: flex;
+            align-items: center; /* Center the logo and text vertically */
         }
         h3 {
             text-align: center;
@@ -47,39 +48,52 @@
         .text {
             padding: 1.5rem;
         }
-        .box{
+        .box {
             margin: 1rem;
-
         }
-        @media (min-width: 768px) {
-            .related-link {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-around;
-            }
-
+        .related {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem; /* Adds space between related links */
+            justify-content: space-between; /* Distributes space evenly */
+            padding: 1rem 0; /* Adds padding above and below the related links */
         }
         .related-link {
-            background-color: #a855f7;
-            border: 1px solid black;
-            
             text-align: center;
             padding: 1rem;
+            flex: 1 1 calc(33.33% - 1rem); /* Makes each link take up 33.33% of the container width minus the gap */
+            box-sizing: border-box; /* Ensures padding and border are included in the width */
+            min-width: 200px; /* Ensures links don't get too small on smaller screens */
+            margin: auto;
         }
         a p {
-            color: white;
+            text-decoration: none;
+            margin: 0; /* Removes default margin for better spacing */
+            color: black;
+        }
+        a {
+            color: black;
             text-decoration: none;
         }
-
-        
+        a:hover {
+            text-decoration: underline;
+        }
+        h4{
+            padding: 1rem;
+            text-align: center;
+            color: black;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="heading"><img src="cid:embedded_image" alt="Virsitile Logo" width="100px" height="100px">
-        <div class="subpart"><h1>Daily Virsitile Report</h1><p>{{ date }}</p>
-        </div></div>
-        
+        <div class="heading">
+            <img src="cid:embedded_image" alt="Virsitile Logo" width="100px" height="100px">
+            <div class="subpart">
+                <h1>Daily Virsitile Report</h1>
+                <p>{{ date }}</p>
+            </div>
+        </div>
         <hr>
         {% for email in emails %}
             <div class="email-item">
@@ -88,17 +102,13 @@
                 </a>
                 <p>{{ email.content }}</p>
             </div>
-            
+            <h4>Related Articles:</h4>
             <div class="related">
-                <p>Related Articles:</p>
-                <div class="box">
-            {% for other in email.others %}
-                <a class="related-link" href="{{ other.url }}">
-                    <p>{{ other.title }}</p>
-                </a>
-            
-            {% endfor %}
-        </div>
+                {% for other in email.others %}
+                    <a class="related-link" href="{{ other.url }}">
+                        <p>{{ other.title }}</p>
+                    </a>
+                {% endfor %}
             </div>
             <hr>
         {% endfor %}

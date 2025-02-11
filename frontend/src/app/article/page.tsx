@@ -10,12 +10,24 @@ import { InteractiveGridPattern } from "../components/magic-background-grid";
 import { motion } from "framer-motion";
 import { GridPattern } from "../components/magic-static-grid";
 import { useModal } from "../page";
+import { div } from "framer-motion/client";
+
+interface RelatedLink {
+    [0]: string; // Title of the related article
+    [1]: string; // URL of the related article
+}
+
+interface Article {
+    title: string;
+    content: string;
+    related_links: RelatedLink[];
+}
 
 export default function PaidPage() {
     const searchParams = useSearchParams();
     const article_id = searchParams.get("id"); // Access the `id` query parameter
     const { isModalOpen, openModal, closeModal } = useModal();
-    const [article, setArticle] = useState(null);
+    const [article, setArticle] = useState<Article | null>(null);
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -38,13 +50,46 @@ export default function PaidPage() {
     }, [article_id]); // Dependency array ensures this runs only once when article_id changes
 
     return (
-        <div className="px-44 w-full relative">
+        <div>
             <Navbar openModal={openModal} />
-            <div className="flex flex-col items-center justify-center h-screen gap-2 z-[99]">
-                <AnimatedShinyText className="flex flex-row font-hanken items-center justify-center px-4 py-1 transition ease-in-out mb-1 bg-white">
-                    <span className="text-3xl">Test</span>
-                    <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-                </AnimatedShinyText>
+        <div className="w-7/12 m-auto relative mb-10">
+            
+            <div className="flex flex-col items-center mt-10 h-screen gap-2 z-[99]">
+                
+                    <span className="text-4xl font-oddlini bg-clip-text text-purple-500">{
+                    article ? article.title : "Loading..."
+                    }</span>
+                    
+                    
+                
+                <hr className="border-t-1 border-black w-full my-4" />
+                    <p className="text-lg leading-relaxed mt-6 mb-6">
+                        {article ? (
+                            <span>
+                                <span className="text-6xl font-bold float-left mr-2">{article.content.charAt(0)}</span>
+                                {article.content.slice(1)}
+                            </span>
+                        ) : (
+                            "Loading..."
+                        )}
+                    </p>
+                    <hr className="border-t-1 border-black w-full my-4" />
+                <div className="flex flex-row w-full">
+                    {article && typeof article === 'object' && 'related_links' in article && article.related_links.length > 0 && (
+                        <div className="mt-8 w-full">
+                            <h2 className="text-2xl font-bold mb-4 font-oddlini">Related Articles</h2>
+                            <div className="flex flex-row flex-wrap w-full">
+                                {article.related_links.map((related: RelatedLink, index: number) => (
+                                    <span key={index} className="text-black ml-4 mr-4 flex-1">
+                                        <a href={related[1]} className="text-black hover:underline block text-center">
+                                            {related[0]}
+                                        </a>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -53,15 +98,10 @@ export default function PaidPage() {
                 >
                 </motion.div>
             </div>
-            <Footer />
-            <div className="pointer-events-none absolute inset-0 w-screen h-screen flex items-center justify-center">
-                <GridPattern
-                    className="opacity-30 w-screen [mask-image:radial-gradient(ellipse_at_center,_black_0%,_black_25%,_rgba(0,0,0,0.5)_40%,_transparent_75%)]"
-                    width={40}
-                    height={40}
-                    squares={[[48, 32]]}
-                />
-            </div>
+            
+            
+        </div>
+        <Footer />
         </div>
     );
 }
