@@ -50,19 +50,14 @@ export default function PaidPage() {
     }, [article_id]); // Dependency array ensures this runs only once when article_id changes
 
     return (
-        <div>
+        <div className="min-h-screen flex flex-col">
             <Navbar openModal={openModal} />
-        <div className="w-7/12 m-auto relative mb-10">
-            
-            <div className="flex flex-col items-center mt-10 h-screen gap-2 z-[99]">
-                
-                    <span className="text-4xl font-oddlini bg-clip-text text-purple-500">{
-                    article ? article.title : "Loading..."
-                    }</span>
-                    
-                    
-                
-                <hr className="border-t-1 border-black w-full my-4" />
+            <div className="flex-grow w-7/12 m-auto relative mb-10">
+                <div className="flex flex-col items-center mt-10 gap-2 z-[99]">
+                    <span className="text-4xl font-oddlini bg-clip-text text-purple-500">
+                        {article ? article.title : "Loading..."}
+                    </span>
+                    <hr className="border-t-1 border-black w-full my-4" />
                     <p className="text-lg leading-relaxed mt-6 mb-6">
                         {article ? (
                             <span>
@@ -74,34 +69,32 @@ export default function PaidPage() {
                         )}
                     </p>
                     <hr className="border-t-1 border-black w-full my-4" />
-                <div className="flex flex-row w-full">
-                    {article && typeof article === 'object' && 'related_links' in article && article.related_links.length > 0 && (
-                        <div className="mt-8 w-full">
-                            <h2 className="text-2xl font-bold mb-4 font-oddlini">Related Articles</h2>
-                            <div className="flex flex-row flex-wrap w-full">
-                                {article.related_links.map((related: RelatedLink, index: number) => (
-                                    <span key={index} className="text-black ml-4 mr-4 flex-1">
-                                        <a href={related[1]} className="text-black hover:underline block text-center">
-                                            {related[0]}
-                                        </a>
-                                    </span>
-                                ))}
+                    <div className="flex flex-row w-full">
+                        {article && typeof article === 'object' && 'related_links' in article && article.related_links.length > 0 && (
+                            <div className="mt-8 w-full">
+                                <h2 className="text-2xl font-bold mb-4 font-oddlini">Related Articles</h2>
+                                <div className="flex flex-row flex-wrap w-full">
+                                    {article.related_links.map((related: RelatedLink, index: number) => (
+                                        <span key={index} className="text-black ml-4 mr-4 flex-1">
+                                            <a href={related[1]} className="text-black hover:underline block text-center">
+                                                {related[0]}
+                                            </a>
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                        className="group bg-white border-black/10 text-base text-black transition-all ease-in hover:cursor-pointer mb-4"
+                    >
+                    </motion.div>
                 </div>
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="group bg-white border-black/10 text-base text-black transition-all ease-in hover:cursor-pointer mb-4"
-                >
-                </motion.div>
             </div>
-            
-            
-        </div>
-        <Footer />
+            <Footer />
         </div>
     );
 }

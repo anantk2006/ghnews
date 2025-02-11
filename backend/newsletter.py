@@ -245,16 +245,16 @@ def main():
     run_news()
 
 if __name__ == "__main__":
-    # Dummy data for testing
-    dummy_user_emails = {
-        1: [
-            ("This is a dummy article content for user 1", "Dummy Article 1", "http://example.com/1", [("Related Article 1", "http://example.com/r1"), ("Related Article 2", "http://example.com/r2")]),
-            ("This is another dummy article content for user 1", "Dummy Article 2", "http://example.com/2", [("Related Article 3", "http://example.com/r3"), ("Related Article 4", "http://example.com/r4")])
-        ]
-    }
+    # dummy_user_emails = {
+    #     1: [
+    #         ("This is a dummy article content for user 1", "Dummy Article 1", "http://example.com/1", [("Related Article 1", "http://example.com/r1"), ("Related Article 2", "http://example.com/r2")]),
+    #         ("This is another dummy article content for user 1", "Dummy Article 2", "http://example.com/2", [("Related Article 3", "http://example.com/r3"), ("Related Article 4", "http://example.com/r4")])
+    #     ]
+    # }
 
-    dummy_id_to_email = {
-        1: "anantk2006@gmail.com"
-    }
+    # dummy_id_to_email = {
+    #     1: "anantk2006@gmail.com"
+    # }
 
-    make_and_send_emails(dummy_user_emails, dummy_id_to_email, search_type="news")
+    # make_and_send_emails(dummy_user_emails, dummy_id_to_email, search_type="news")
+    main()

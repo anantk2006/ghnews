@@ -17,10 +17,9 @@ class LLMWrapper:
         return completion.choices[0].message.content
     
     def critic_complete(self, messages):
-        unfiltered = self.complete('gpt-4o-mini', messages)
+        unfiltered = self.complete('deepseek-chat', messages)
         if "None" in unfiltered and len(unfiltered) < 10:
             return unfiltered
-        return unfiltered
         # print(str(unfiltered)[:1000])
         nm = messages + [
             {'role': 'assistant', 'content': unfiltered},
@@ -76,7 +75,7 @@ class LLMWrapper:
         articles = []
         print("Generating articles")
         for text in mds:
-            messages = [{"role": "user", "content": f"Generate a concise news article (2 paragraphs) about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If the article is outdated (i.e. old news from 2022-23), an error message (e.g. Service Unavailable), or a general review (e.g. top __ trends of 2024), write back \"None\" and nothing else"},]
+            messages = [{"role": "user", "content": f"Generate a concise news article (3-4 paragraphs) about the text. Here it is: {text} \n\n Make sure the article is informative and includes all the important points. Be very detailed and go into technical depth. Write it as a news summary designed for a software engineer. The article should be in markdown format. Write it formally--without bullet point lists or subheadings. Emphasize impact of the development. If the article is outdated (i.e. old news from 2022-23), an error message (e.g. Service Unavailable), or a general review (e.g. top __ trends of 2024), write back \"None\" and nothing else"},]
             article = self.critic_complete(messages)
             articles.append(article)          
         return articles
@@ -85,7 +84,7 @@ class LLMWrapper:
         articles = []
         print("Generating articles")
         for text in mds:
-            messages = [{"role": "user", "content": f"Generate a concise and brief (1-2 paragraphs) article about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into some amount of technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
+            messages = [{"role": "user", "content": f"Generate a concise and brief (3-4 paragraphs) article about the abstract. Here it is: {text} \n\n Make sure the summary is informative and includes all the important points. Go into some amount of technical depth. Write about a) the current state of the field, b) how the article changes it in approach, c) how this will impact the world going forward. Write it as an article with no bullet points or subheadings."},]
 
             article = self.critic_complete(messages)
             articles.append(article)
