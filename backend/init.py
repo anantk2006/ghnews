@@ -55,7 +55,7 @@ CREATE TABLE sessions (
 
 cursor.execute('''DROP TABLE IF EXISTS articles''')
 cursor.execute('''CREATE TABLE articles (
-    article_id SERIAL PRIMARY KEY,
+    article_id INTEGER PRIMARY KEY AUTOINCREMENT,
     article TEXT,
     title TEXT,
     rlink1 TEXT,

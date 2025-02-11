@@ -83,7 +83,7 @@ def match_content(user_to_topic_to_skill, content):
                         if i<=top_k_topics-2: top_k[i+1] = top_k[i]
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
-        user_emails[user_id] = random.sample([content[topic] for topic, _ in top_k], 5)
+        user_emails[user_id] = random.sample([content[topic][:2] for topic, _ in top_k], 5)
     return user_emails
 
 def run_arxiv():
@@ -208,7 +208,6 @@ def save_art_to_db(emails):
 def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
     type_str = 'Curated News For You' if search_type == 'news' else 'Recent Paper Abstracts For You'
     for user_id, emails in user_emails.items():
-        print(emails)
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
         if search_type == 'news':
