@@ -4,7 +4,6 @@ import Footer from "./sections/footer";
 import Hero from "./sections/hero";
 import Pricing from "./sections/pricing";
 import { useState } from "react";
-import CheckoutForm from "./components/checkoutform";
 
 export const useModal = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);

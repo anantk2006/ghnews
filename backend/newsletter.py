@@ -138,6 +138,8 @@ def links_to_articles(user_emails, scrape_do = True):
         if "None" in text and len(text) < 10: continue
         for user_id, title, r_link, other_links in links_to_user[link]:
             title_str = title if scrape_do else title[6:]
+            if not scrape_do:
+                other_links = [(g[0][6:], g[1]) for g in other_links]
             if user_id not in ret:
                 ret[user_id] = [(text, title_str, r_link, other_links)]
             else: ret[user_id].append((text, title_str, r_link, other_links))  
