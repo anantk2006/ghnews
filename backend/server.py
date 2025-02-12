@@ -225,7 +225,7 @@ def get_article(request: Request):
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT title, article, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3 FROM articles WHERE article_id=?", (article_id,))
+    cursor.execute("SELECT title, article, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date FROM articles WHERE article_id=?", (article_id,))
     article = cursor.fetchone()
     conn.close()
 

@@ -196,7 +196,7 @@ def save_art_to_db(emails):
         
         cursor.execute('''
         INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date']))
         cursor.execute('SELECT last_insert_rowid()')
         user_id = cursor.fetchone()[0]
