@@ -18,7 +18,7 @@ export default function Home() {
     const { isModalOpen, openModal, closeModal } = useModal();
   return (
     <div>
-      <Navbar openModal={openModal} />
+      <Navbar openModal={openModal} home={true} />
       <Hero isModalOpen={isModalOpen} closeModal={closeModal} openModal={openModal} />
       <Pricing openModal={openModal} />
       <Footer />

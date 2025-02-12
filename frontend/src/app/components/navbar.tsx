@@ -10,7 +10,7 @@ export default function Navbar({
     home = false,
   }: Readonly<{ openModal: () => void; home?: boolean }>) {
   const goToSignup = () => {
-    window.location.href = "/signup";
+    window.location.href = "/";
   };
   return (
     <motion.div
