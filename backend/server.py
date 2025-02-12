@@ -225,21 +225,22 @@ def get_article(request: Request):
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT title, article, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date FROM articles WHERE article_id=?", (article_id,))
+    cursor.execute("SELECT title, article, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic FROM articles WHERE article_id=?", (article_id,))
     article = cursor.fetchone()
     conn.close()
 
     if not article:
         return {"error": "Article not found"}
 
-    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date = article
+    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic = article
     related_tuple = [[t, l] for t, l in [[rtitle1, rlink1], [rtitle2, rlink2], [rtitle3, rlink3]] if t is not None]
 
     return {
         "title": title,
         "content": content,
         "related_links": related_tuple,
-        "pub_date": pub_date
+        "pub_date": pub_date,
+        'topic': topic
     }
 
 def run_daily():

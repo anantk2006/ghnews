@@ -123,7 +123,7 @@ def links_to_articles(user_emails, scrape_do = True):
 
                 r_link = link if scrape_do else link_holder[2]
 
-                other_links = email if scrape_do else link_holder[3:]
+                other_links = email if scrape_do else link_holder[3:-1]
                 topic = link_holder[-1]
                 if link not in links_to_user:
                     links_to_user[link] = [(user_id, link_holder[0], r_link, other_links, topic)]
@@ -139,8 +139,9 @@ def links_to_articles(user_emails, scrape_do = True):
         if "None" in text and len(text) < 10: continue
         for user_id, title, r_link, other_links, topic in links_to_user[link]:
             title_str = title if scrape_do else title[6:]
+        
             if not scrape_do:
-                other_links = [(g[0][6:], g[1]) for g in other_links]
+                other_links = [(g['title'][6:], g['link']) for g in other_links]
             if user_id not in ret:
                 ret[user_id] = [(text, title_str, r_link, other_links, topic)]
             else: ret[user_id].append((text, title_str, r_link, other_links, topic))  
@@ -217,22 +218,14 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         # if len(emails) < 2: continue
         email_address = id_to_email[user_id]
         
-        if search_type == 'news':
-            em = [{'content': email[0].replace("\n", "<br>") + "...",
-                    'title': email[1], 'url': email[2],
-                    'date': formatted_date,
-                    'others': random.sample([{'title': art[0], 'url': art[1]} 
-                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
-                    'topic': email[4]} 
-                                            for email in emails]
-        else:
-            em = [{'content': email[0].replace("\n", "<br>") + "...",
-                    'title': email[1], 'url': email[2],
-                    'date': formatted_date,
-                    'others': random.sample([{'title': art['title'], 'url': art['link']} 
-                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
-                    'topic': email[4]} 
-                                            for email in emails]
+        
+        em = [{'content': email[0].replace("\n", "<br>") + "...",
+                'title': email[1], 'url': email[2],
+                'date': formatted_date,
+                'others': random.sample([{'title': art[0], 'url': art[1]} 
+                                        for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
+                'topic': email[4]} 
+                                        for email in emails]
         
         ids = save_art_to_db(em)
         for idx, e in enumerate(em):
@@ -253,7 +246,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
 def main():
     
     run_arxiv()
-    run_news()
+    # run_news()
 
 if __name__ == "__main__":
     # dummy_user_emails = {

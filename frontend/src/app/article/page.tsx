@@ -20,6 +20,7 @@ interface Article {
     content: string;
     related_links: RelatedLink[];
     pub_date: string;
+    topic: string;
 }
 
 export default function ArticlePage() {
@@ -80,6 +81,13 @@ export default function ArticlePage() {
                         
                     </span>
                     <span className="text-lg text-gray-500">{article ? article.pub_date : ""}</span>
+                    {article ? (
+                        <div className="rounded-full border border-purple-600/10 bg-purple-50/50 w-max px-4 py-1 text-left mt-2">
+                        <p className="text-xs font-medium text-purple-600 font-hanken">
+                          {article.topic}
+                        </p>
+                      </div>
+                    ) : ""}
                     <hr className="border-t-1 border-black w-full my-4" />
                     
                         {article ? article.content
