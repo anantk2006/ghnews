@@ -215,14 +215,14 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         email_address = id_to_email[user_id]
         
         if search_type == 'news':
-            em = [{'content': email[0] + "...",
+            em = [{'content': email[0].replace("\n", "<br>") + "...",
                     'title': email[1], 'url': email[2],
                     'date': formatted_date,
                     'others': random.sample([{'title': art[0], 'url': art[1]} 
                                             for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
                                             for email in emails]
         else:
-            em = [{'content': email[0] + "...",
+            em = [{'content': email[0].replace("\n", "<br>") + "...",
                     'title': email[1], 'url': email[2],
                     'date': formatted_date,
                     'others': random.sample([{'title': art['title'], 'url': art['link']} 
@@ -233,7 +233,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
         for email in em:
-            email['content'] = email['content'].replace("\n", "<br>")[:300] + "..."
+            email['content'] = email['content'][:300] + "..."
         contents = get_jinja_contents(em)        
         send_email(email_address, f'{type_str}', contents)  
 

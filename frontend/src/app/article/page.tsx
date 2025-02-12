@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { useModal } from "../page";
 import CheckoutForm from "../components/checkoutform";
 import "../sections/modal.css";
+import { div } from "framer-motion/client";
 
 interface RelatedLink {
     [0]: string; // Title of the related article
@@ -21,11 +22,12 @@ interface Article {
     pub_date: string;
 }
 
-export default function PaidPage() {
+export default function ArticlePage() {
     const searchParams = useSearchParams();
     const article_id = searchParams.get("id"); // Access the `id` query parameter
     const { isModalOpen, openModal, closeModal } = useModal();
     const [article, setArticle] = useState<Article | null>(null);
+    
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -36,8 +38,15 @@ export default function PaidPage() {
                         "Access-Control-Allow-Origin": "*",
                     },
                 });
-                const data = await response.json();
+                const data = await response.json();                  
                 setArticle(data);
+                data.content = data.content.split('<br>').map((line: string, index: number) => (
+                    <span key={index}>
+                        { index == 0 ? (<div className="text-lg"><span className="text-6xl font-bold float-left mr-2">{line.charAt(0)}</span>
+                        {line.slice(1)}</div> ) : (<span className="text-lg">{line}</span>)}
+                    </span>
+                  ));
+                  
                 console.log(data);
             } catch (error) {
                 console.error("Error fetching article:", error);
@@ -46,7 +55,8 @@ export default function PaidPage() {
 
         fetchArticle();
     }, [article_id]); // Dependency array ensures this runs only once when article_id changes
-
+    
+      
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar openModal={openModal} />
@@ -71,16 +81,13 @@ export default function PaidPage() {
                     </span>
                     <span className="text-lg text-gray-500">{article ? article.pub_date : ""}</span>
                     <hr className="border-t-1 border-black w-full my-4" />
-                    <p className="text-lg leading-relaxed mt-6 mb-6">
-                        {article ? (
-                            <span>
-                                <span className="text-6xl font-bold float-left mr-2">{article.content.charAt(0)}</span>
-                                {article.content.slice(1)}
-                            </span>
-                        ) : (
+                    
+                        {article ? article.content
+                            
+                         : (
                             "Loading..."
                         )}
-                    </p>
+                    
                     <hr className="border-t-1 border-black w-full my-4" />
                     <div className="flex flex-row w-full">
                         {article && typeof article === 'object' && 'related_links' in article && article.related_links.length > 0 && (
