@@ -64,7 +64,8 @@ cursor.execute('''CREATE TABLE articles (
     rtitle1 TEXT,
     rtitle2 TEXT,
     rtitle3 TEXT,
-    pub_date TEXT
+    pub_date TEXT, 
+    topic TEXT
 )
 ''')
 

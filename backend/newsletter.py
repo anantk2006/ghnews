@@ -83,7 +83,7 @@ def match_content(user_to_topic_to_skill, content):
                         if i<=top_k_topics-2: top_k[i+1] = top_k[i]
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
-        user_emails[user_id] = random.sample([content[topic][:2] for topic, _ in top_k], 5)
+        user_emails[user_id] = random.sample([[c + [topic] for c in content[topic][:2]] for topic, _ in top_k], 5)
     return user_emails
 
 def run_arxiv():
@@ -124,9 +124,10 @@ def links_to_articles(user_emails, scrape_do = True):
                 r_link = link if scrape_do else link_holder[2]
 
                 other_links = email if scrape_do else link_holder[3:]
+                topic = link_holder[-1]
                 if link not in links_to_user:
-                    links_to_user[link] = [(user_id, link_holder[0], r_link, other_links)]
-                else: links_to_user[link].append((user_id, link_holder[0], r_link, other_links))
+                    links_to_user[link] = [(user_id, link_holder[0], r_link, other_links, topic)]
+                else: links_to_user[link].append((user_id, link_holder[0], r_link, other_links, topic))
     links = list(links_to_user.keys()) 
     if scrape_do: 
         var = scrape.markdown_helper(links, "news")
@@ -136,13 +137,13 @@ def links_to_articles(user_emails, scrape_do = True):
     ret = {}
     for link, text in zip(links, articles):
         if "None" in text and len(text) < 10: continue
-        for user_id, title, r_link, other_links in links_to_user[link]:
+        for user_id, title, r_link, other_links, topic in links_to_user[link]:
             title_str = title if scrape_do else title[6:]
             if not scrape_do:
                 other_links = [(g[0][6:], g[1]) for g in other_links]
             if user_id not in ret:
-                ret[user_id] = [(text, title_str, r_link, other_links)]
-            else: ret[user_id].append((text, title_str, r_link, other_links))  
+                ret[user_id] = [(text, title_str, r_link, other_links, topic)]
+            else: ret[user_id].append((text, title_str, r_link, other_links, topic))  
       
     return ret
 
@@ -155,7 +156,7 @@ def links_to_articles(user_emails, scrape_do = True):
 def run_news():
     
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
-    topics = random.sample(scrape.embed.news_topics, 5)
+    topics = random.sample(scrape.embed.news_topics, 5) # TODO: change from 5 to 30 in prod
     topic_to_links = bing_news.search(topics)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
     user_emails = links_to_articles(user_emails)
@@ -197,9 +198,9 @@ def save_art_to_db(emails):
         rlink3 = others[2]['url'] if len(others) > 2 else None
         
         cursor.execute('''
-        INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date']))
+        INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date'], email['topic']))
         cursor.execute('SELECT last_insert_rowid()')
         user_id = cursor.fetchone()[0]
         ids.append(user_id)
@@ -221,14 +222,16 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                     'title': email[1], 'url': email[2],
                     'date': formatted_date,
                     'others': random.sample([{'title': art[0], 'url': art[1]} 
-                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
+                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
+                    'topic': email[4]} 
                                             for email in emails]
         else:
             em = [{'content': email[0].replace("\n", "<br>") + "...",
                     'title': email[1], 'url': email[2],
                     'date': formatted_date,
                     'others': random.sample([{'title': art['title'], 'url': art['link']} 
-                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3]))} 
+                                            for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
+                    'topic': email[4]} 
                                             for email in emails]
         
         ids = save_art_to_db(em)

@@ -36,7 +36,7 @@ export default function ConnectPage() {
     {!isResponseReceived ? (
         <div>
             <div className="loader"></div>
-            <p className="text-2xl font-oddlini text-transparent bg-clip-text text-black">This may take some time.</p>
+            <p className="text-2xl font-oddlini mt-10 bg-clip-text text-black">This may take some time.</p>
         </div>
     ) : (
         <p className="text-2xl font-oddlini text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500">

@@ -199,7 +199,7 @@ class ArxivSearch:
 
     def get_arxiv_abstracts(self):
         abstracts = []
-        urls = self.get_arxiv_urls()[:10]
+        urls = self.get_arxiv_urls()[:10] # TODO: Change to 300
         
         content = [requests.get(url).text for url in urls]
         for i, response in enumerate(content):
