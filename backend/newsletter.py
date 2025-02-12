@@ -251,8 +251,8 @@ def main():
 if __name__ == "__main__":
     # dummy_user_emails = {
     #     1: [
-    #         ("This is a dummy article content for user 1", "Dummy Article 1", "http://example.com/1", [("Related Article 1", "http://example.com/r1"), ("Related Article 2", "http://example.com/r2")]),
-    #         ("This is another dummy article content for user 1", "Dummy Article 2", "http://example.com/2", [("Related Article 3", "http://example.com/r3"), ("Related Article 4", "http://example.com/r4")])
+    #         ("This is a dummy article content for user 1", "Dummy Article 1", "http://example.com/1", [("Related Article 1", "http://example.com/r1"), ("Related Article 2", "http://example.com/r2")], "topic 1"),
+    #         ("This is another dummy article content for user 1", "Dummy Article 2", "http://example.com/2", [("Relatefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd Article 3 ", "http://example.com/r3"), ("Related Articlfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe 4", "http://example.com/r4"), ("Related ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffArticle 5", "gfdegher")], "topic 2")
     #     ]
     # }
 

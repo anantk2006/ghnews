@@ -27,6 +27,9 @@
             .container {
                 width: 85%;
             }
+            .related {
+                grid-template-columns: 1fr;
+            }
         }
         @media (min-width: 768px) {
             .container {
@@ -41,7 +44,7 @@
             background-color: #a855f7;
             color: white;
             display: flex;
-            align-items: center; /* Center the logo and text vertically */
+            align-items: center;
         }
         h3 {
             text-align: center;
@@ -55,25 +58,31 @@
         .box {
             margin: 0.7rem;
         }
+        /* Updated related section to use grid instead of flex */
         .related {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem; /* Adds space between related links */
-            justify-content: space-between; /* Distributes space evenly */
-            padding: 0.2rem 0; /* Adds padding above and below the related links */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
         }
         .related-link {
             text-align: center;
-            padding: 0.4rem;
-            flex: 1 1 calc(33.33% - 1rem); /* Makes each link take up 33.33% of the container width minus the gap */
-            box-sizing: border-box; /* Ensures padding and border are included in the width */
-            min-width: 200px; /* Ensures links don't get too small on smaller screens */
-            margin: auto;
-        }
-        a p {
+            padding: 0.8rem 1rem;
+            background-color: #a855f7;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease;
+
+            display: block;
             text-decoration: none;
-            margin: 0; /* Removes default margin for better spacing */
-            color: black;
+        }
+        .related-link:hover {
+            background-color: #a855f7;
+        }
+        .related-link p {
+            color: white;
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.4;
         }
         a {
             color: black;
@@ -82,9 +91,27 @@
         a:hover {
             text-decoration: underline;
         }
-        h4{
+        h4.topic-tag {
+            display: inline-block;
+            background-color: #f3e8ff;
+            color: #a855f7;
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            border: 1px solid #e9d5ff;
+        }
+        h4 {
             text-align: center;
             color: black;
+        }
+        .email-item {
+            padding: 0 1rem;
+        }
+        h4.related-heading {
+            margin: 2rem 0 1rem;
+            font-size: 1.2rem;
+            color: #1e1b4b;
         }
     </style>
 </head>
@@ -103,10 +130,10 @@
                 <a href="{{ email.url }}">
                     <h3>{{ email.title }}</h3>
                 </a>
-                <h4>{{ email.topic }}</h4>
+                <h4 class="topic-tag">{{ email.topic }}</h4>
                 <p>{{ email.content }}</p>
             </div>
-            <h4>Related Articles:</h4>
+            <h4 class="related-heading">Related Articles:</h4>
             <div class="related">
                 {% for other in email.others %}
                     <a class="related-link" href="{{ other.url }}">
