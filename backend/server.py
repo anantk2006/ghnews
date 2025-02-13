@@ -14,6 +14,7 @@ from llm_wrapper import LLMWrapper
 from newsletter import main
 import schedule
 import threading, time
+import random
 
 
 app = FastAPI()
@@ -243,6 +244,21 @@ def get_article(request: Request):
         'topic': topic
     }
 
+@app.get('/api/recents')
+def get_recent_articles():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT article_id, title, pub_date, topic FROM articles ORDER BY article_id DESC LIMIT 100")
+    articles = cursor.fetchall()
+    conn.close()
+
+    articles = random.sample(articles, 10)
+    articles = [{"url": f"http://localhost/article?id={id}", 
+                 "articleName": title, 
+                 "datePublished": pub_date, 
+                 "tag": topic} for id, title, pub_date, topic in articles]
+
+    return articles
 def run_daily():
     main()
 

@@ -31,8 +31,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
             className="mt-6 text-lg leading-8 text-gray-600 font-hanken"
           >
             Choose an <span className="font-medium">affordable plan</span>{" "}
-            that's packed with the best features for engaging your audience,
-            creating customer loyalty, and driving sales.
+            for completely personalized emails for your tech interests, from quantum cryptography to edge AI. 
           </motion.p>
         </div>
 
@@ -60,7 +59,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
               Basic
             </h3>
             <p className="mt-2 text-base text-gray-500 font-hanken">
-              A basic plan for startups and individual users
+              A basic plan for limited usage and personalization
             </p>
             <p className="mt-6 font-oddlini">
               <span className="text-4xl font-bold tracking-tight text-gray-900">
@@ -118,7 +117,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                5 projects limit
+                Clear AI writing
               </li>
             </ul>
           </motion.div>
@@ -162,7 +161,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                Advanced AI insights
+                Thorough and dynamic analysis
               </li>
               <li className="flex items-center gap-2">
                 <svg
@@ -190,7 +189,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                Unlimited projects
+                Multi-agent collaboration
               </li>
             </ul>
           </motion.div>
