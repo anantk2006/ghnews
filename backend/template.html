@@ -9,8 +9,8 @@
             font-size: 2rem;
         }
         div a h3 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
+            padding-top: 0.3rem; /* Reduced padding */
+            padding-bottom: 0.3rem; /* Reduced padding */
             font-family: 'Inter', sans-serif;
             background-color: white;
             font-size: 1.5rem;
@@ -30,10 +30,16 @@
             .related {
                 grid-template-columns: 1fr;
             }
+            .logo-container {
+                display: none; /* Hide image on smaller screens */
+            }
         }
         @media (min-width: 768px) {
             .container {
                 width: 70%;
+            }
+            .logo-container {
+                display: block; /* Show image on larger screens */
             }
         }
         .container {
@@ -50,7 +56,7 @@
             text-align: center;
             text-decoration: none;
             color: black;
-            padding: 1.7rem;
+            padding: 1rem; /* Reduced padding */
         }
         .text {
             padding: 0.8rem;
@@ -58,22 +64,24 @@
         .box {
             margin: 0.7rem;
         }
-        /* Updated related section to use grid instead of flex */
+        /* Fixed related section to maintain side-by-side layout */
         .related {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            padding: 1rem;
+            display: flex;
+            padding-left: 1rem;
+            padding-top: 0.5rem; /* Reduced padding */
+            padding-bottom: 0.5rem; /* Reduced padding */
+            width: calc(100% - 2rem);
+            margin: 0 auto;
         }
         .related-link {
             text-align: center;
-            padding: 0.8rem 1rem;
+            padding: 0.5rem 0.8rem; /* Reduced padding */
             background-color: #a855f7;
             border-radius: 0.5rem;
             transition: background-color 0.3s ease;
-
             display: block;
             text-decoration: none;
+            margin-right: 1rem;
         }
         .related-link:hover {
             background-color: #a855f7;
@@ -109,7 +117,7 @@
             padding: 0 1rem;
         }
         h4.related-heading {
-            margin: 2rem 0 1rem;
+            margin: 1rem 0 0.5rem; /* Reduced margin */
             font-size: 1.2rem;
             color: #1e1b4b;
         }
@@ -118,7 +126,9 @@
 <body>
     <div class="container">
         <div class="heading">
-            <img src="cid:embedded_image" alt="Virsitile Logo" width="100px" height="100px">
+            <div class="logo-container">
+                <img src="cid:embedded_image" alt="Virsitile Logo" width="100px" height="100px">
+            </div>
             <div class="subpart">
                 <h1>Daily Virsitile Report</h1>
                 <p>{{ date }}</p>

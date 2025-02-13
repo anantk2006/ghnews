@@ -222,7 +222,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         em = [{'content': email[0].replace("\n", "<br>") + "...",
                 'title': email[1], 'url': email[2],
                 'date': formatted_date,
-                'others': random.sample([{'title': art[0], 'url': art[1]} 
+                'others': random.sample([{'title': art[0][:70] + "...", 'url': art[1]} 
                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
                 'topic': email[4]} 
                                         for email in emails]
