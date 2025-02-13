@@ -35,18 +35,18 @@ export default function Headlines() {
     return <div>Loading...</div>; // Add a loading state
   }
   console.log(articles);
-  var x = 0;
+  var art_k = 0;
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold text-center mb-8">Latest Headlines</h1>
       <div className="space-y-8">
         {Object.entries(articles).map(([topic, articles]) => (
-          <section key={topic}>
+          <section key={++art_k}>
             <h2 className="text-2xl font-semibold capitalize mb-4">{topic}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {articles.map((article) => (
                 <a
-                  key={++x}
+                  key={++art_k}
                   href={article.url}
                   target="_blank"
                   rel="noopener noreferrer"
