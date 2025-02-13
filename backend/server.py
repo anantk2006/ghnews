@@ -244,6 +244,26 @@ def get_article(request: Request):
         'topic': topic
     }
 
+@app.get('/api/headlines')
+def get_articles_by_topic():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT article_id, title, pub_date, topic FROM articles ORDER BY article_id DESC LIMIT 150")
+    articles = cursor.fetchall()
+    conn.close()
+    articles = [{"url": f"http://localhost/article?id={id}", 
+                 "articleName": title, 
+                 "datePublished": pub_date, 
+                 "tag": topic} for id, title, pub_date, topic in articles]
+    topic_to_articles = {}
+    for article in articles:
+        if article['tag'] not in topic_to_articles:
+            topic_to_articles[article['tag']] = []
+
+        topic_to_articles[article['tag']].append(article)
+
+    return topic_to_articles
+
 @app.get('/api/recents')
 def get_recent_articles():
     conn = sqlite3.connect('database.db')

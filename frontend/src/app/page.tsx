@@ -5,6 +5,7 @@ import Hero from "./sections/hero";
 import { NewsMarquee } from "./sections/news-marquee";
 import Pricing from "./sections/pricing";
 import { useState } from "react";
+import Headlines from "./sections/headlines";
 
 export const useModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +28,9 @@ export default function Home() {
       />
       <NewsMarquee />
       <Pricing openModal={openModal} />
+        <Headlines />
       <Footer />
     </div>
   );
 }
+
