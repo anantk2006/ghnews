@@ -11,6 +11,8 @@ import random
 from scrape import GoogleNews, BingSearch
 from jinja2 import Environment, FileSystemLoader
 
+import time
+
 top_k_topics = 5
 llm = LLMWrapper()
 scrape = Scrape(llm)
@@ -83,7 +85,11 @@ def match_content(user_to_topic_to_skill, content):
                         if i<=top_k_topics-2: top_k[i+1] = top_k[i]
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
-        user_emails[user_id] = random.sample([[c + [topic] for c in content[topic][:2]] for topic, _ in top_k], 5)
+        user_emails[user_id] = random.sample([[([c] if isinstance(c, tuple) else c)
+                                                + [topic] 
+                                                for c in content[topic][:2]] 
+                                                for topic, _ in top_k], 5)
+        
     return user_emails
 
 def run_arxiv():
@@ -226,7 +232,9 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
                 'topic': email[4]} 
                                         for email in emails]
-        
+        print(em)
+        time.sleep(1)
+        exit()
         ids = save_art_to_db(em)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
@@ -245,8 +253,8 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
 
 def main():
     
-    run_arxiv()
-    # run_news()
+    # run_arxiv()
+    run_news()
 
 if __name__ == "__main__":
     # dummy_user_emails = {

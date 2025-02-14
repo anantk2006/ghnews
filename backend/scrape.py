@@ -77,8 +77,14 @@ class BingSearch:
             raise ex
         links = []
         dates = [False if 'datePublished' not in r else r['datePublished'] for r in response['value']]
+        images = [r['image']['thumbnail']['contentUrl'] 
+                  if 'image' in r 
+                  and 'thumbnail' in r['image'] 
+                  and 'contentUrl' in r['image']['thumbnail'] else None 
+                  for r in response['value']
+                  ]
         for i in range(len(response['value'])):
-            links.append((response['value'][i]['name'], response['value'][i]['url']))
+            links.append((response['value'][i]['name'], (response['value'][i]['url'], images[i])))       
         return links, dates
 
     def filter_quality(self, links, dates, news=False):
