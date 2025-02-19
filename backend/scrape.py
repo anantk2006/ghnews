@@ -260,7 +260,7 @@ class Scrape:
     def markdown_helper(self, links, search_type):
         ret = []
         for link in links:
-            text = requests.get("https://r.jina.ai/" + link).text
+            text = requests.get("https://r.jina.ai/" + link[0]).text
             if "Slow down, turbo".lower() in text.lower():
                 ret.append('None')
                 time.sleep(60)

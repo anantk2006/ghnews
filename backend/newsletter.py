@@ -85,11 +85,13 @@ def match_content(user_to_topic_to_skill, content):
                         if i<=top_k_topics-2: top_k[i+1] = top_k[i]
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
-        user_emails[user_id] = random.sample([[([c] if isinstance(c, tuple) else c)
-                                                + [topic] 
-                                                for c in content[topic][:2]] 
-                                                for topic, _ in top_k], 5)
         
+        for topic_t, _ in top_k:
+            for c in content[topic_t][:2]:
+                print(c, topic_t, _)
+                print("\n\n\n")
+        user_emails[user_id] = random.sample([[c + [topic_t] for c in content[topic_t][:2]] for topic_t, _ in top_k], 5)
+    exit() 
     return user_emails
 
 def run_arxiv():
@@ -165,7 +167,10 @@ def run_news():
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
     topics = random.sample(scrape.embed.news_topics, 5) # TODO: change from 5 to 30 in prod
     topic_to_links = bing_news.search(topics)
+    print(topic_to_links)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
+    print(user_emails)
+    exit()
     user_emails = links_to_articles(user_emails)
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
@@ -232,9 +237,6 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
                 'topic': email[4]} 
                                         for email in emails]
-        print(em)
-        time.sleep(1)
-        exit()
         ids = save_art_to_db(em)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
