@@ -17,7 +17,7 @@ class LLMWrapper:
         return completion.choices[0].message.content
     
     def critic_complete(self, messages):
-        unfiltered = self.complete('deepseek-chat', messages)
+        unfiltered = self.complete('gpt-4o-mini', messages)
         if "None" in unfiltered and len(unfiltered) < 10:
             return unfiltered
         # print(str(unfiltered)[:1000])
@@ -27,7 +27,7 @@ class LLMWrapper:
               ]
         critique = self.complete('gpt-4o-mini', nm)
         nm = messages + [nm[0]] + [{'role': 'user', 'content': critique}] + [{'role': 'system', 'content': 'Incorporate the feedback that is valuable and relevant into the article. Ensure that the article is improved and that the feedback is integrated in a way that makes sense. Make sure the article sounds insightful and professional, like a news reporter wrote it. Use good formatting, and break up text to make it more readable.'}]
-        fin = self.complete('deepseek-chat', nm)
+        fin = self.complete('gpt-4o-mini', nm)
         return fin
 
 

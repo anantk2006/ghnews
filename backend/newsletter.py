@@ -86,12 +86,11 @@ def match_content(user_to_topic_to_skill, content):
                         i -= 1
                     top_k[i+1] = (topic, user_to_topic_to_skill[user_id][topic])
         
-        for topic_t, _ in top_k:
-            for c in content[topic_t][:2]:
-                print(c, topic_t, _)
-                print("\n\n\n")
+        # for topic_t, _ in top_k:
+        #     for c in content[topic_t][:2]:
+        #         print(c, topic_t, _)
+        #         print("\n\n\n")
         user_emails[user_id] = random.sample([[c + [topic_t] for c in content[topic_t][:2]] for topic_t, _ in top_k], 5)
-    exit() 
     return user_emails
 
 def run_arxiv():
@@ -126,12 +125,10 @@ def links_to_articles(user_emails, scrape_do = True):
     for user_id, emails in user_emails.items():
         for email in emails:
             for link_holder in email:
-                if scrape_do: link = link_holder[1]
-                else: link = link_holder[1]
-
+                title = link_holder[0]
+                link = link_holder[2][0] if scrape_do else link_holder[1]
                 r_link = link if scrape_do else link_holder[2]
-
-                other_links = email if scrape_do else link_holder[3:-1]
+                other_links = link_holder[3:-1]
                 topic = link_holder[-1]
                 if link not in links_to_user:
                     links_to_user[link] = [(user_id, link_holder[0], r_link, other_links, topic)]
@@ -150,6 +147,9 @@ def links_to_articles(user_emails, scrape_do = True):
         
             if not scrape_do:
                 other_links = [(g['title'][6:], g['link']) for g in other_links]
+            else: 
+                other_links = other_links[0]
+                other_links = [(g['title'], g['link']) for g in other_links]
             if user_id not in ret:
                 ret[user_id] = [(text, title_str, r_link, other_links, topic)]
             else: ret[user_id].append((text, title_str, r_link, other_links, topic))  
@@ -167,11 +167,10 @@ def run_news():
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
     topics = random.sample(scrape.embed.news_topics, 5) # TODO: change from 5 to 30 in prod
     topic_to_links = bing_news.search(topics)
-    print(topic_to_links)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
-    print(user_emails)
-    exit()
+    
     user_emails = links_to_articles(user_emails)
+    print(user_emails)
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
 def run_search(scrape, llm, search_type):
@@ -237,6 +236,8 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
                 'topic': email[4]} 
                                         for email in emails]
+        print(em)
+        exit()
         ids = save_art_to_db(em)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])

@@ -116,7 +116,14 @@ class BingSearch:
         topic_to_links = {}
         for topic in topics:
             links = self.find_relevant_links_news(topic)
-            topic_to_links[topic] = links
+            fin = []
+            for i, link in enumerate(links):
+                fin.append([link[0], None, link[1], links[:i] + links[i+1:]])
+            for f in fin:
+                g = [{"title": link[0], "link": link[1]} for link in f[-1]]
+                f[-1] = g
+                
+            topic_to_links[topic] = fin
         return topic_to_links
 
 class GoogleSearch:
@@ -260,7 +267,7 @@ class Scrape:
     def markdown_helper(self, links, search_type):
         ret = []
         for link in links:
-            text = requests.get("https://r.jina.ai/" + link[0]).text
+            text = requests.get("https://r.jina.ai/" + link).text
             if "Slow down, turbo".lower() in text.lower():
                 ret.append('None')
                 time.sleep(60)
