@@ -243,7 +243,6 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         ids = save_art_to_db(em, search_type)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
-            print(emails[idx])
             e['img'] = emails[idx][2][1]
         for email in em:
             email['content'] = email['content'][:300] + "..."
