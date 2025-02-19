@@ -37,11 +37,6 @@ def send_email(email_address, subject, text):
     
     # Record the MIME types of both parts - text/plain and text/html
     # Attach parts into message container
-    with open("logo.png", "rb") as img_file:
-        img = MIMEImage(img_file.read())
-        img.add_header("Content-ID", "<embedded_image>")
-        msg.attach(img)
-    
     # Send the message via local SMTP server
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login("virsitilenews@gmail.com", "buei lsjm bpxf xjag")
@@ -127,7 +122,7 @@ def links_to_articles(user_emails, scrape_do = True):
             for link_holder in email:
                 title = link_holder[0]
                 link = link_holder[2][0] if scrape_do else link_holder[1]
-                r_link = link if scrape_do else link_holder[2]
+                r_link = (link, link_holder[2][1]) if scrape_do else link_holder[2]
                 other_links = link_holder[3:-1]
                 topic = link_holder[-1]
                 if link not in links_to_user:
@@ -170,7 +165,6 @@ def run_news():
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
     
     user_emails = links_to_articles(user_emails)
-    print(user_emails)
     make_and_send_emails(user_emails, id_to_email, search_type="news")
     
 def run_search(scrape, llm, search_type):
@@ -249,6 +243,8 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         ids = save_art_to_db(em, search_type)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
+            print(emails[idx])
+            e['img'] = emails[idx][2][1]
         for email in em:
             email['content'] = email['content'][:300] + "..."
         contents = get_jinja_contents(em)        

@@ -9,7 +9,7 @@ class ArcticEmbed:
     def __init__(self):
 
         # Init info
-        self.checkpoint = "codesage/codesage-small-v2"
+        self.checkpoint = "codesage-small-v2"
         # Initialize topics and topic classifications
         self.topics, self.types = self.get_topics_from_file()
         self.paper_topics = [topic for topic, type in zip(self.topics, self.types) if "papers" in type]

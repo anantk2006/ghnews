@@ -121,14 +121,15 @@
             font-size: 1.2rem;
             color: #1e1b4b;
         }
+        .email-head {
+            display: flex;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="heading">
-            <div class="logo-container">
-                <img src="cid:embedded_image" alt="Virsitile Logo" width="100px" height="100px">
-            </div>
+            
             <div class="subpart">
                 <h1>Daily Virsitile Report</h1>
                 <p>{{ date }}</p>
@@ -137,11 +138,16 @@
         <hr>
         {% for email in emails %}
             <div class="email-item">
+                <div class="email-head">
                 <a href="{{ email.url }}">
                     <h3>{{ email.title }}</h3>
+                   
                 </a>
+                <img src="{{ email.img }}" alt="" width="200px" height="auto">
+            </div>
                 <h4 class="topic-tag">{{ email.topic }}</h4>
                 <p>{{ email.content }}</p>
+
             </div>
             <h4 class="related-heading">Related Articles:</h4>
             <div class="related">
