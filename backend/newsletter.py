@@ -195,7 +195,7 @@ def run_search(scrape, llm, search_type):
 def get_jinja_contents(emails):
     return template.render(emails = emails, date = datetime.datetime.now().strftime("%m/%d/%Y"))
 
-def save_art_to_db(emails):
+def save_art_to_db(emails, search_type):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     ids = []
@@ -207,11 +207,20 @@ def save_art_to_db(emails):
         rlink2 = others[1]['url'] if len(others) > 1 else None
         rtitle3 = others[2]['title'] if len(others) > 2 else None
         rlink3 = others[2]['url'] if len(others) > 2 else None
+        if search_type == "news":
+            rlink1, rimage1 = tuple(rlink1) if rlink1 else (None, None)
+            rlink2, rimage2 = tuple(rlink2) if rlink2 else (None, None)
+            rlink3, rimage3 = tuple(rlink3) if rlink3 else (None, None)
+            cursor.execute('''
+            INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rimage1, rimage2, rimage3, rtitle1, rtitle2, rtitle3, pub_date, topic)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rimage1, rimage2, rimage3, rtitle1, rtitle2, rtitle3, email['date'], email['topic']))
         
-        cursor.execute('''
-        INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date'], email['topic']))
+        else:
+            cursor.execute('''
+            INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date'], email['topic']))
         cursor.execute('SELECT last_insert_rowid()')
         user_id = cursor.fetchone()[0]
         ids.append(user_id)
@@ -236,9 +245,8 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
                 'topic': email[4]} 
                                         for email in emails]
-        print(em)
-        exit()
-        ids = save_art_to_db(em)
+
+        ids = save_art_to_db(em, search_type)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
         for email in em:
