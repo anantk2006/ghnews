@@ -201,14 +201,13 @@ def save_art_to_db(emails, search_type):
         rlink2 = others[1]['url'] if len(others) > 1 else None
         rtitle3 = others[2]['title'] if len(others) > 2 else None
         rlink3 = others[2]['url'] if len(others) > 2 else None
-        if search_type == "news":
-            rlink1, rimage1 = tuple(rlink1) if rlink1 else (None, None)
-            rlink2, rimage2 = tuple(rlink2) if rlink2 else (None, None)
-            rlink3, rimage3 = tuple(rlink3) if rlink3 else (None, None)
+        print(email)
+        if search_type == "news" and email['img'] is not None:
+            img = email['img']
             cursor.execute('''
-            INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rimage1, rimage2, rimage3, rtitle1, rtitle2, rtitle3, pub_date, topic)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rimage1, rimage2, rimage3, rtitle1, rtitle2, rtitle3, email['date'], email['topic']))
+            INSERT INTO articles (article, title, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic, image)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (email['content'], email['title'], rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, email['date'], email['topic'], img))
         
         else:
             cursor.execute('''
@@ -233,17 +232,19 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
         
         
         em = [{'content': email[0].replace("\n", "<br>") + "...",
-                'title': email[1], 'url': email[2],
+                'title': email[1], 'url': email[2] 
+                if search_type != "news" else email[2][1],
                 'date': formatted_date,
-                'others': random.sample([{'title': art[0][:70] + "...", 'url': art[1]} 
+                'others': random.sample([{'title': art[0][:70] + "...", 'url': art[1] 
+                                          if search_type != "news" else art[1][0]} 
                                         for art in email[3]], 3 if len(email[3]) >=3 else len(email[3])),
                 'topic': email[4]} 
                                         for email in emails]
-
+        for idx, e in enumerate(em):
+            e['img'] = emails[idx][2][1]
         ids = save_art_to_db(em, search_type)
         for idx, e in enumerate(em):
             e['url'] = "http://localhost/article?id=" + str(ids[idx])
-            e['img'] = emails[idx][2][1]
         for email in em:
             email['content'] = email['content'][:300] + "..."
         contents = get_jinja_contents(em)        

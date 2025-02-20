@@ -159,7 +159,7 @@ def check_session_id(session_id):
     else:
         conn.close()
         return False
-    
+        
 
 @app.post("/api/register")
 async def register(request: Request):
@@ -226,14 +226,14 @@ def get_article(request: Request):
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT title, article, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic FROM articles WHERE article_id=?", (article_id,))
+    cursor.execute("SELECT title, article, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic, image FROM articles WHERE article_id=?", (article_id,))
     article = cursor.fetchone()
     conn.close()
 
     if not article:
         return {"error": "Article not found"}
 
-    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic = article
+    title, content, rlink1, rlink2, rlink3, rtitle1, rtitle2, rtitle3, pub_date, topic, image = article
     related_tuple = [[t, l] for t, l in [[rtitle1, rlink1], [rtitle2, rlink2], [rtitle3, rlink3]] if t is not None]
 
     return {
@@ -241,7 +241,8 @@ def get_article(request: Request):
         "content": content,
         "related_links": related_tuple,
         "pub_date": pub_date,
-        'topic': topic
+        'topic': topic,
+        'image': image
     }
 
 @app.get('/api/headlines')

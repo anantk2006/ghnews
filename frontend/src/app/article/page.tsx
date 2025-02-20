@@ -21,6 +21,7 @@ interface Article {
     related_links: RelatedLink[];
     pub_date: string;
     topic: string;
+    image?: string;
 }
 
 export default function ArticlePage() {
@@ -77,7 +78,8 @@ export default function ArticlePage() {
             <div className="flex-grow w-7/12 m-auto relative mb-10">
                 <div className="flex flex-col items-center mt-10 gap-2 z-[99]">
                     <span className="text-4xl font-oddlini bg-clip-text text-purple-500">
-                        {article ? article.title : ""}
+                        {article ? article.title 
+                         : ""}
                         
                     </span>
                     <span className="text-lg text-gray-500">{article ? article.pub_date : ""}</span>
@@ -88,6 +90,7 @@ export default function ArticlePage() {
                         </p>
                       </div>
                     ) : ""}
+                    {article ? <img src={article.image} alt="" width="100%" height="auto" className="mt-4" />: ""}
                     <hr className="border-t-1 border-black w-full my-4" />
                     
                         {article ? article.content
