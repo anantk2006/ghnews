@@ -273,7 +273,7 @@ def get_recent_articles():
     articles = cursor.fetchall()
     conn.close()
 
-    articles = random.sample(articles, 10)
+    articles = random.sample(articles, 10 if len(articles) > 10 else len(articles))
     articles = [{"url": f"http://localhost/article?id={id}", 
                  "articleName": title, 
                  "datePublished": pub_date, 

@@ -90,7 +90,7 @@ export default function ArticlePage() {
                         </p>
                       </div>
                     ) : ""}
-                    {article ? <img src={article.image} alt="" width="100%" height="auto" className="mt-4" />: ""}
+                    {article ? <img src={article.image} alt="" width="20%" height="auto" className="mt-4" />: ""}
                     <hr className="border-t-1 border-black w-full my-4" />
                     
                         {article ? article.content
