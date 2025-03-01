@@ -28,7 +28,7 @@ export default function Home() {
       />
       <NewsMarquee />
       <Pricing openModal={openModal} />
-        <Headlines />
+
       <Footer />
     </div>
   );
