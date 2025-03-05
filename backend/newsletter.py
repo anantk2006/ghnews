@@ -8,7 +8,7 @@ from email.mime.image import MIMEImage
 from email.message import EmailMessage
 import datetime
 import random
-from scrape import GoogleNews, BingSearch
+from scrape import BingSearch
 from jinja2 import Environment, FileSystemLoader
 
 import time
@@ -16,7 +16,6 @@ import time
 top_k_topics = 5
 llm = LLMWrapper()
 scrape = Scrape(llm)
-google_news = GoogleNews(llm)
 bing_news = BingSearch(llm)
 
 template_loader = FileSystemLoader(searchpath="./")  # Path to your templates folder
@@ -201,7 +200,7 @@ def save_art_to_db(emails, search_type):
         rlink2 = others[1]['url'] if len(others) > 1 else None
         rtitle3 = others[2]['title'] if len(others) > 2 else None
         rlink3 = others[2]['url'] if len(others) > 2 else None
-        print(email)
+       
         if search_type == "news" and email['img'] is not None:
             img = email['img']
             cursor.execute('''
@@ -260,7 +259,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
 
 def main():
     
-    # run_arxiv()
+    run_arxiv()
     run_news()
 
 if __name__ == "__main__":

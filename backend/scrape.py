@@ -1,10 +1,8 @@
  
 from bs4 import BeautifulSoup
 import requests
-import asyncio
-import aiohttp
 import sqlite3 
-from gnews import GNews
+
 
 from llm_wrapper import LLMWrapper
 
@@ -20,38 +18,8 @@ import time
 """
 Helpers for async fetching of web content
 """
-async def fetch_text(session, url):
-    
-    async with session.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"}) as response:
-        return await response.text()
-    
-async def fetch_json(session, url):
-    async with session.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"}) as response:
-        return await response.json()
 
-async def fetch_all(urls, format = "json"):
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url in urls:
-            if format == "json":
-                tasks.append(fetch_json(session, url))
-            elif format == "text":
-                tasks.append(fetch_text(session, url))
-            else:
-                raise ValueError("Format must be 'json' or 'text'")
-        return await asyncio.gather(*tasks)
 
-class GoogleNews:
-    def __init__(self, llm):
-        self.llm = llm
-        self.gnews = GNews()
-        self.gnews.period = "7d"
-    def search(self, topics):
-        topic_to_links = {}
-        for topic in topics:
-            links = [(g['title'], g['url']) for g in self.gnews.get_news(topic)][:5]
-            topic_to_links[topic] = [link for link in links if self.llm.classify_importance_news(link[0])]
-        return topic_to_links
 
 class BingSearch:
     def __init__(self, llm):
@@ -126,70 +94,7 @@ class BingSearch:
             topic_to_links[topic] = fin
         return topic_to_links
 
-class GoogleSearch:
-    def __init__(self, llm):
-        week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-        week_ago_day = week_ago.day
-        week_ago_month = week_ago.month
-        week_ago_year = week_ago.year
-        two_months_ago = datetime.datetime.now() - datetime.timedelta(days=60)
-        two_months_ago_day = two_months_ago.day
-        two_months_ago_month = two_months_ago.month
-        two_months_ago_year = two_months_ago.year
 
-        self.endpoint = f"https://www.google.com/search?rlz=1C1ONGR_enUS977US977&q=after:{two_months_ago_year}-{two_months_ago_month}-{two_months_ago_month}+"
-        self.news_endpoint = f"https://www.google.com/search?sca_esv=a5656b49a3739dcb&rlz=1C1ONGR_enUS977US977&sxsrf=ADLYWILKxjgubkuPUCIn18j-c9kzJ2CpDQ:1736549267956&tbm=nws&source=lnms&q=after:{week_ago_year}-{week_ago_month}-{week_ago_day}+"
-        self.llm = llm
-
-    def search(self, searches, search_type = "web"):
-        # batch requests to google search for all queries
-        def get_links_rate_limit(batched_links):
-            content = []
-            for batch in batched_links:
-
-                content.extend(asyncio.get_event_loop().run_until_complete(fetch_all(batch, format="text")))
-                time.sleep(1)
-            return content
-        query_to_links = {}
-        ext = "+news" if search_type == "news" else "+tutorial"
-        queries = ["+".join(query.split(" ")) + ext for query in searches]
-        links = [(self.endpoint if search_type == "web" else self.news_endpoint) + query for query in queries]
-        batched_links = [links[i: i + 1] for i in range(0, len(links), 1)]
-        content = get_links_rate_limit(batched_links)
-        # Analyze one by one and map to query
-        for query, html in zip(searches, content):
-            soup = BeautifulSoup(html, 'html.parser')
-            to_scrape = soup.find_all('a')
-            domains = set()            
-            ret = []
-            for link in to_scrape:
-                href = link.get('href')
-                if "google" not in href and "https://" in href:
-                    bound = href.index("//") + 2
-                    up = href[bound:].index("/")
-                    domain = href[bound:bound + up]
-                    # google gives many different links for a single thing
-                    if domain not in domains:
-                        domains.add(domain)
-                        ret.append((link.text, href[7:href.index("&sa=")]))
-            query_to_links[query] = ret            
-        return query_to_links        
-
-    def filter_quality(self, links, search_type = "web"):
-        relevant_info = []
-        classifier = self.llm.classify_importance_news if search_type == "news" else self.llm.classify_importance_web
-        for i in range(len(links)):            
-            if classifier(links[i][0]):
-                relevant_info.append(links[i])
-        return relevant_info
-    
-    def find_relevant_links(self, topics, search_type = "web"):
-        # Get news from google search
-        response_web = self.search(topics, search_type=search_type)
-        # Only use the good ones
-        for query in response_web:
-            response_web[query] = self.filter_quality(response_web[query], search_type=search_type)    
-        return response_web
     
 class ArxivSearch:
     def __init__(self, llm):
@@ -226,7 +131,7 @@ class ArxivSearch:
 class Scrape:
     def __init__(self, llm):
         self.llm = llm
-        self.ggl = GoogleSearch(llm)
+       
         self.arxiv = ArxivSearch(llm)
         self.embed = ArcticEmbed()
         self.last_scraped_news = datetime.datetime.now()
@@ -313,11 +218,7 @@ class Scrape:
         return topic_to_text
 
 
-if __name__ == "__main__":
-    embed = ArcticEmbed()
-    llm = LLMWrapper()
-    ggl = GoogleNews(llm)
-    print(ggl.search(embed.news_topics))
+
 
 
     

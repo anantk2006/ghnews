@@ -46,12 +46,7 @@ export default function Hero({
                 </div>
               </div>
             )}
-            <AnimatedShinyText className="inline-flex font-hanken items-center justify-center px-4 py-1 transition ease-in-out">
-              <span onClick={openModal}>
-                ✨ Sign up now for a free 14 day trial
-              </span>
-              <ArrowRightIcon className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-            </AnimatedShinyText>
+            
           </motion.div>
 
           <motion.h1
@@ -95,15 +90,7 @@ export default function Hero({
       </div>
 
       {/* Arc background */}
-      <div className="absolute inset-0 w-screen h-screen flex items-center justify-center">
-        <InteractiveGridPattern
-          className="opacity-30 w-screen [mask-image:radial-gradient(ellipse_at_center,_black_0%,_black_25%,_rgba(0,0,0,0.5)_40%,_transparent_75%)]"
-          width={40}
-          height={40}
-          squares={[48, 32]}
-          squaresClassName="hover:fill-purple-500"
-        />
-      </div>
+      
     </div>
   );
 }

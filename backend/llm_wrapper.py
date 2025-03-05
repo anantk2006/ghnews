@@ -1,5 +1,5 @@
 from openai import OpenAI
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 class LLMWrapper:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
