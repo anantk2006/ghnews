@@ -34,7 +34,7 @@ export default function ArticlePage() {
     useEffect(() => {
         const fetchArticle = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/article?id=${article_id}`, {
+                const response = await fetch(`https://api.virsitile.dev/.56/api/article?id=${article_id}`, {
                     headers: {
                         "Content-Type": "application/json",
                         "Access-Control-Allow-Origin": "*",

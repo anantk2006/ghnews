@@ -104,11 +104,13 @@ class ArxivSearch:
 
     def get_arxiv_ids(self):
         response = requests.get(self.ARXIV_BASE_URL)
+        
         soup = BeautifulSoup(response.text, 'html.parser')
         papers = soup.find_all('a', {'title': 'Download PDF'})
         ids = []
         for paper in papers[:300]:
             ids.append(paper['href'].split('/')[-1])
+        
         return ids
     
     def get_arxiv_urls(self):
@@ -117,7 +119,7 @@ class ArxivSearch:
 
     def get_arxiv_abstracts(self):
         abstracts = []
-        urls = self.get_arxiv_urls()[:10] # TODO: Change to 300
+        urls = self.get_arxiv_urls()[:300] # TODO: Change to 300
         
         content = [requests.get(url).text for url in urls]
         for i, response in enumerate(content):
@@ -191,6 +193,7 @@ class Scrape:
     def get_arxiv_content(self):
         # Extract and format abstracts
         abstracts = self.arxiv.get_arxiv_abstracts()
+    
         titles = [a[0] for a in abstracts]
         batched_titles = [titles[i:i + 250] for i in range(0, len(titles), 250)]
         all_embeddings = []

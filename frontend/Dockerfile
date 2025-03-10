@@ -17,6 +17,11 @@ COPY . .
 
 # Expose the port the app runs on
 EXPOSE 3000
+# Build the application for production
+RUN npm run build
 
+# Set environment variables to disable debugging and error messages
+ENV NODE_ENV=production
+ENV DEBUG=off
 # Command to run the application
 CMD ["npm", "run", "dev"]

@@ -17,7 +17,7 @@ export default function Headlines() {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/headlines", {
+        const res = await fetch("https://api.virsitile.dev/api/headlines", {
           method: "GET",
           headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
         });

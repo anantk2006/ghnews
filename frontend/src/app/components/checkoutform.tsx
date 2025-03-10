@@ -15,7 +15,7 @@ const CheckoutForm: React.FC = () => {
     console.log("CheckoutForm");
   const fetchClientSecret = useCallback(async (): Promise<string> => {
     try {
-      const response = await fetch("http://localhost:8000/api/pay", {
+      const response = await fetch("https://api.virsitile.dev/api/pay", {
         method: "POST",
       });
 

@@ -13,7 +13,7 @@ export default function ConnectPage() {
   const session_id = searchParams.get("state"); // Access the `session_id` query parameter
   const code = searchParams.get("code"); // Access the `code` query parameter
   const nullMethod = () => null;
-  const response = fetch("http://localhost:8000/api/register", {
+  const response = fetch("https://api.virsitile.dev/api/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

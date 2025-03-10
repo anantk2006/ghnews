@@ -212,7 +212,7 @@ def create_payment_intent(request: Request):
         mode="subscription",
         line_items=[{"price": 'price_1QbcQPRpVERX1hynqpNtMWed', "quantity": 1}],
         ui_mode="embedded",
-        return_url="http://localhost/paid?session_id={CHECKOUT_SESSION_ID}",
+        return_url=f"https://virsitile.dev/paid?session_id={CHECKOUT_SESSION_ID}",
     )
     session_id = session.id
     save_session_to_db(session_id)
@@ -252,7 +252,7 @@ def get_articles_by_topic():
     cursor.execute("SELECT article_id, title, pub_date, topic FROM articles ORDER BY article_id DESC LIMIT 150")
     articles = cursor.fetchall()
     conn.close()
-    articles = [{"url": f"http://localhost/article?id={id}", 
+    articles = [{"url": f"https://virsitile.dev/article?id={id}", 
                  "articleName": title, 
                  "datePublished": pub_date, 
                  "tag": topic} for id, title, pub_date, topic in articles]
@@ -274,23 +274,20 @@ def get_recent_articles():
     conn.close()
 
     articles = random.sample(articles, 10 if len(articles) > 10 else len(articles))
-    articles = [{"url": f"http://localhost/article?id={id}", 
+    articles = [{"url": f"https://virsitile.dev/article?id={id}", 
                  "articleName": title, 
                  "datePublished": pub_date, 
                  "tag": topic} for id, title, pub_date, topic in articles]
 
     return articles
-def run_daily():
-    main()
+@app.get('/admin/run')
+def run_daily(request: Request):
+    id_f = request.query_params.get('id')
+    print(id_f)
+    if id_f != "bigmananant":
+        return {"error": "Invalid ID"}
+    else:
+        main()
+        return {"message": "Success"}
 
-# schedule.every().day.at("00:00").do(run_daily)
-schedule.every(1).day.do(run_daily)
-
-
-def run_scheduler():
-    while True:
-        schedule.run_pending()
-        time.sleep(10)
-
-scheduler_thread = threading.Thread(target=run_scheduler)
-scheduler_thread.start()
+#schedule.every(1).minut3.at("00:00").do(run_daily)

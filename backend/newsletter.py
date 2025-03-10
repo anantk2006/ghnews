@@ -159,7 +159,7 @@ def links_to_articles(user_emails, scrape_do = True):
 def run_news():
     
     id_to_email, user_to_topic_to_skill = retrieve_user_info()
-    topics = random.sample(scrape.embed.news_topics, 5) # TODO: change from 5 to 30 in prod
+    topics = random.sample(scrape.embed.news_topics, 30) # TODO: change from 5 to 30 in prod
     topic_to_links = bing_news.search(topics)
     user_emails = match_content(user_to_topic_to_skill, topic_to_links)
     
@@ -243,7 +243,7 @@ def make_and_send_emails(user_emails, id_to_email, search_type = "news"):
             e['img'] = emails[idx][2][1]
         ids = save_art_to_db(em, search_type)
         for idx, e in enumerate(em):
-            e['url'] = "http://localhost/article?id=" + str(ids[idx])
+            e['url'] = "https://virsitile.dev/article?id=" + str(ids[idx])
         for email in em:
             email['content'] = email['content'][:300] + "..."
         contents = get_jinja_contents(em)        

@@ -51,7 +51,7 @@ export function NewsMarquee() {
   const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/recents",
+    fetch("https://api.virsitile.dev/api/recents",
         { method: "GET", headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", } }
     )
       .then((response) => response.json())
