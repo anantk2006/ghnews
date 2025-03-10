@@ -59,7 +59,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
               Basic
             </h3>
             <p className="mt-2 text-base text-gray-500 font-hanken">
-              A basic plan for limited usage and personalization
+              A plan for those who want to get started.
             </p>
             <p className="mt-6 font-oddlini">
               <span className="text-4xl font-bold tracking-tight text-gray-900">
@@ -103,7 +103,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                Basic support
+                Advanced priority support
               </li>
               <li className="flex items-center gap-2">
                 <svg
@@ -131,11 +131,11 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
               Premium
             </h3>
             <p className="mt-2 text-base text-gray-500 font-hanken">
-              A premium plan for growing businesses
+              A plan for technically broad users
             </p>
             <p className="mt-6 font-oddlini">
               <span className="text-4xl font-bold tracking-tight text-gray-900">
-                $1.99
+                $0.99
               </span>
               <span className="text-sm font-semibold text-gray-500">
                 {" "}
@@ -175,7 +175,7 @@ export default function Pricing({ openModal }: { openModal: () => void }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                Priority support
+                Lower personalization
               </li>
               <li className="flex items-center gap-2">
                 <svg
